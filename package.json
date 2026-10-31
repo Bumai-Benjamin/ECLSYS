@@ -1,15 +1,18 @@
 {
-  "name": "pet-shop",
+  "name": "namvoting",
   "version": "1.0.0",
-  "description": "",
-  "main": "truffle.js",
+  "description": "NamVoting: blockchain e-voting prototype (Truffle, Ganache, Express, MySQL)",
+  "main": "bs-config.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "dev": "lite-server",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "tsc && concurrently \"tsc -w\" \"lite-server -c bs-config.js\" "
+    "dev": "lite-server -c bs-config.js",
+    "start": "lite-server -c bs-config.js",
+    "migrate": "truffle migrate --reset",
+    "test": "npm run test:contracts",
+    "test:contracts": "truffle test",
+    "db:migrate": "node scripts/db-migrate.js"
   },
   "author": "",
   "license": "ISC",
