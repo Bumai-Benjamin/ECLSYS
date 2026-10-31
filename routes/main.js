@@ -21,7 +21,9 @@ var getAge = require('get-age');
 var nodemailer = require('nodemailer');
 var rand=Math.floor((Math.random() * 10000) + 54);
 var transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: process.env.SMTP_HOST,
+    port: Number(process.env.SMTP_PORT),
+    secure: Number(process.env.SMTP_PORT) === 465,
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS
@@ -52,7 +54,7 @@ router.post('/registerdata',function(req,res){
           if (age>=18)
           {
             var mailOptions = {
-                from: process.env.SMTP_USER,
+                from: process.env.MAIL_FROM,
                 to: email,
                 subject : "ECL - Please confirm your Email account",
                 text : "Hello, Your otp is "+rand+". Please enter this otp to verify your email address."
