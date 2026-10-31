@@ -14,7 +14,8 @@
     "test:contracts": "truffle test",
     "test:api": "mocha",
     "db:migrate": "node scripts/db-migrate.js",
-    "db:reset-test": "node scripts/db-reset-test.js"
+    "db:reset-test": "node scripts/db-reset-test.js",
+    "seed:admin": "node scripts/seed-admin.js"
   },
   "author": "",
   "license": "ISC",

@@ -47,4 +47,29 @@ function newVoter(overrides) {
   }, overrides);
 }
 
-module.exports = { query: query, agent: agent, csrfFrom: csrfFrom, submitForm: submitForm, newVoter: newVoter };
+// Inserts an account straight into the DB (no email/OTP) and returns it.
+async function createUser(overrides) {
+  var u = newVoter(overrides);
+  var md5 = require('md5');
+  var res = await query(
+    'INSERT INTO registration (id_number, first_name, last_name, email_address, gender, Dob, password, confirm_password, Is_registered, account_address, role) ' +
+    'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    [u.id_number, u.first_name, u.last_name, u.email_address, u.gender, u.Dob,
+      md5(u.password), md5(u.password), 'No', '', u.role || 'voter']
+  );
+  u.reg_id = res.insertId;
+  return u;
+}
+
+async function login(a, user) {
+  return submitForm(a, '/login', '/login', { email_address: user.email_address, password: user.password });
+}
+
+async function adminLogin(a, user) {
+  return submitForm(a, '/adlogin', '/adlogin', { email_address: user.email_address, password: user.password });
+}
+
+module.exports = {
+  query: query, agent: agent, csrfFrom: csrfFrom, submitForm: submitForm, newVoter: newVoter,
+  createUser: createUser, login: login, adminLogin: adminLogin
+};

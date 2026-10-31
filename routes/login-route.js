@@ -19,6 +19,7 @@ router.post('/login', function(req, res){
         if(data.length>0){
             req.session.loggedinUser= true;
             req.session.emailAddress= emailAddress;
+            req.session.role= data[0].role;
             res.redirect('/userInfo');
             // res.redirect('/blockchain');
         }else{
