@@ -1,11 +1,6 @@
 var express = require('express');
 var router = express.Router();
 var db=require('../database');
-var app = express();
-app.use(express.urlencoded());
-app.set('view engine', 'ejs');
-app.use(express.static('public'))
-app.use('/css',express.static(__dirname + 'public/css'))
 
 // to display registration form 
 router.get('/register', function(req, res, next) {

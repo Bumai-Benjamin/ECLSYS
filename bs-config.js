@@ -31,7 +31,6 @@ app.use(session({
     cookie: { maxAge: 60000*300 }
 }))
 
-var FirstPage = require('./routes/first_page');
 var registrationRouter = require('./routes/registration-route');
 var loginRouter = require('./routes/login-route');
 var dashboardRouter = require('./routes/dashboard-route');
@@ -45,7 +44,6 @@ app.use('/', loginRouter);
 app.use('/', dashboardRouter);
 app.use('/', logoutRouter);
 app.use('/',RegisterRouter);
-// app.use('/',FirstPage);
 app.use('/',AdminLogin);
 app.use('/',Tableview);
 // web-portion --------------------------------->
