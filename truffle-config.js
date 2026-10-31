@@ -41,10 +41,36 @@
  * https://trufflesuite.com/docs/truffle/getting-started/using-the-truffle-dashboard/
  */
 
-// require('dotenv').config();
-// const { MNEMONIC, PROJECT_ID } = process.env;
+require('dotenv').config();
+const http = require('http');
 
-// const HDWalletProvider = require('@truffle/hdwallet-provider');
+const GANACHE_RPC = process.env.GANACHE_RPC || 'http://127.0.0.1:7545';
+
+// Ganache UI closes idle keep-alive sockets after ~5 s. `truffle test` spends
+// longer than that compiling, then reuses the dead socket and fails with
+// "CONNECTION ERROR: Couldn't connect to node". This provider opens a fresh
+// connection for every JSON-RPC call (agent: false), so there is nothing stale
+// to reuse.
+function freshConnectionProvider(url) {
+  const send = (payload, callback) => {
+    const body = JSON.stringify(payload);
+    const req = http.request(url, {
+      method: 'POST',
+      agent: false,
+      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) }
+    }, res => {
+      let data = '';
+      res.setEncoding('utf8');
+      res.on('data', chunk => { data += chunk; });
+      res.on('end', () => {
+        try { callback(null, JSON.parse(data)); } catch (err) { callback(err); }
+      });
+    });
+    req.on('error', err => callback(err));
+    req.end(body);
+  };
+  return { host: url, send, sendAsync: send };
+}
 
 module.exports = {
   /**
@@ -65,8 +91,7 @@ module.exports = {
     // options below to some value.
     //
     development: {
-      host: "127.0.0.1",     // Localhost (default: none)
-      port: 7545,            // Standard Ethereum port (default: none)
+      provider: () => freshConnectionProvider(GANACHE_RPC),  // Ganache UI, see above
       network_id: "*",       // Any network (default: none)
      },
     //
