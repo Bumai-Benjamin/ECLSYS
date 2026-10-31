@@ -10,14 +10,19 @@
     "dev": "lite-server -c bs-config.js",
     "start": "lite-server -c bs-config.js",
     "migrate": "truffle migrate --reset",
-    "test": "npm run test:contracts",
+    "test": "npm run test:api && npm run test:contracts",
     "test:contracts": "truffle test",
-    "db:migrate": "node scripts/db-migrate.js"
+    "test:api": "mocha",
+    "db:migrate": "node scripts/db-migrate.js",
+    "db:reset-test": "node scripts/db-reset-test.js"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "lite-server": "^2.6.0"
+    "chai": "^4.5.0",
+    "lite-server": "^2.6.0",
+    "mocha": "^10.8.2",
+    "supertest": "^7.3.1"
   },
   "dependencies": {
     "body-parser": "^1.19.0",

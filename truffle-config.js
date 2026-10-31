@@ -124,6 +124,9 @@ module.exports = {
   },
 
   // Set default mocha options here, use special reporters, etc.
+  // Contract tests only; test/api is mocha + supertest (npm run test:api).
+  test_directory: require('path').join(__dirname, 'test', 'contracts'),
+
   mocha: {
     // timeout: 100000
   },
