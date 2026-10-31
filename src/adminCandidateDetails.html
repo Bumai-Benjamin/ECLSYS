@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+
+    <title>ECL - Namibia</title>
+
+    <!-- Fonts and Icons -->
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700|Material+Icons" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
+
+    <!-- Material Dashboard CSS -->
+    <link href="./assets/css/material-dashboard.css?v=2.1.2" rel="stylesheet" />
+  </head>
+
+  <body>
+    <div class="wrapper">
+      <div class="sidebar" data-color="green" data-background-color="white" data-image="./assets/img/sidebar-1.jpg">
+        <div class="sidebar-wrapper">
+          <ul class="nav" style="margin-top: 50px;">
+            <li class="nav-item active">
+              <a class="nav-link" href="#">
+                <i class="material-icons">info</i>
+                <p>Candidate Details</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/addCandidate">
+                <i class="material-icons">person_add</i>
+                <p>Add Candidate</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/table_view">
+                <i class="material-icons">how_to_reg</i>
+                <p>Register</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">
+                <i class="material-icons">published_with_changes</i>
+                <p>Change Phase</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/logout">
+                <i class="material-icons">logout</i>
+                <p>LogOut</p>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="main-panel">
+
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-transparent navbar-absolute fixed-top ">
+          <div class="container-fluid">
+            <div class="navbar-wrapper">
+              <a class="navbar-brand" href="javascript:;"></a>
+            </div>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="navbar-toggler-icon icon-bar"></span>
+              <span class="navbar-toggler-icon icon-bar"></span>
+              <span class="navbar-toggler-icon icon-bar"></span>
+            </button>
+          </div>
+        </nav>
+        <!-- End Navbar -->
+
+        <div class="content">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-12">
+                <div class="card">
+                  <div class="card-header card-header-success">
+                    <h4 class="card-title">Candidate Details</h4>
+                  </div>
+                  <div class="card-body">
+                    <table class="table">
+                      <thead>
+                        <th scope="col">#</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Age</th>
+                        <th scope="col">Party</th>
+                        <th scope="col">Qualification</th>
+                        <th scope="col">Votes</th>
+                      </thead>
+
+                      <tbody id="contestantsResultsAdmin">
+                      </tbody>
+
+                    </table>
+
+                    <hr>
+                    <p id="accountAddress" class="text-center"></p>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div> <!-- main-panel -->
+    </div> <!-- wrapper -->
+
+    <!-- JS Files -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="js/web3.min.js"></script>
+    <script src="js/truffle-contract.js"></script>
+    <script src="js/app.js"></script>
+
+    <script src="./assets/js/core/popper.min.js"></script>
+    <script src="./assets/js/core/bootstrap-material-design.min.js"></script>
+    <script src="./assets/js/plugins/perfect-scrollbar.jquery.min.js"></script>
+    <script src="./assets/js/plugins/moment.min.js"></script>
+    <script src="./assets/js/plugins/jquery.validate.min.js"></script>
+    <script src="./assets/js/plugins/bootstrap-tagsinput.js"></script>
+    <script src="./assets/js/plugins/jasny-bootstrap.min.js"></script>
+    <script src="./assets/js/plugins/jquery-jvectormap.js"></script>
+    <script src="./assets/js/plugins/nouislider.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/2.4.1/core.js"></script>
+    <script src="./assets/js/plugins/arrive.min.js"></script>
+    <script src="./assets/js/plugins/bootstrap-notify.js"></script>
+
+    <script src="assets/js/material-dashboard.js?v=2.1.2"></script>
+
+    <!-- IMPORTANT: this file defines 'md' -->
+    <script src="assets/demo/demo.js"></script>
+
+    <script>
+  $(document).ready(function() {
+    
+    // Initialize Material Dashboard JS
+    if (typeof md !== "undefined" && typeof md.initDashboardPageCharts === "function") {
+      try {
+        md.initDashboardPageCharts();
+      } catch (error) {
+        console.warn("Dashboard charts failed to load:", error);
+      }
+    }
+
+    // Initialize Perfect Scrollbar if available
+    if ($('.sidebar .sidebar-wrapper').length) {
+      try {
+        $('.sidebar .sidebar-wrapper, .main-panel').perfectScrollbar();
+      } catch (err) {
+        console.warn("Perfect Scrollbar not loaded or failed.", err);
+      }
+    }
+
+    console.log("Dashboard scripts loaded successfully.");
+  });
+</script>
+
+
+  </body>
+</html>
