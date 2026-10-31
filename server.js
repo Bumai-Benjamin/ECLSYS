@@ -2,8 +2,8 @@
 // mount it directly with supertest.
 var path = require('path');
 var express = require('express');
-var session = require('express-session');
 var bodyParser = require('body-parser');
+var sessions = require('./lib/session');
 var auth = require('./middleware/auth');
 
 var registrationRouter = require('./routes/registration-route');
@@ -28,12 +28,7 @@ function createApp() {
   app.set('views', path.join(__dirname, 'src', 'views'));
   app.set('view engine', 'ejs');
 
-  app.use(session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: true,
-    cookie: { maxAge: 60000 * 300 }
-  }));
+  app.use(sessions.middleware());
 
   // SEC-2: guard the raw .html files and hide templates before any static
   // server (this one or lite-server's) can serve them.
