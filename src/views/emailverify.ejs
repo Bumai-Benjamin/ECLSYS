@@ -21,7 +21,7 @@
 <body class="">
     <div class="d-flex justify-content-center align-items-center container">
         <div class="card py-5 px-3">
-            <h5 class="m-0">We have sent a verification code on your email</h5><span class="mobile-text">Please enter the code here<b class="text-danger"></b></span>
+            <h5 class="m-0">We have sent a verification code on your email</h5><span class="mobile-text">Please enter the code here<b class="text-danger"> <%=(typeof alertMsg!='undefined')? alertMsg:''%></b></span>
             <div class="d-flex flex-row mt-5">
                 <form method="post" action="/otpverify">
                     <input type="text" name="otp" >

@@ -73,7 +73,41 @@ async function adminLogin(a, user) {
   return submitForm(a, '/adlogin', '/adlogin', { email_address: user.email_address, password: user.password });
 }
 
+// A valid-looking wallet address, unique per call.
+function newWallet() {
+  counter += 1;
+  return '0x' + (Date.now().toString(16) + String(counter)).padStart(40, 'a').slice(-40);
+}
+
+// The newest OTP mailed to `email` (lib/mailer memory outbox).
+function lastOtp(email) {
+  var outbox = require('../../lib/mailer').outbox;
+  for (var i = outbox.length - 1; i >= 0; i--) {
+    if (outbox[i].to === email) {
+      var m = /\b(\d{6})\b/.exec(outbox[i].text);
+      return m && m[1];
+    }
+  }
+  return undefined;
+}
+
+// Logged-in voter who has asked for a registration OTP. Returns { a, user, wallet, res }.
+async function startRegistration(userOverrides) {
+  var user = await createUser(userOverrides);
+  var a = agent();
+  await login(a, user);
+  var wallet = newWallet();
+  var res = await submitForm(a, '/form', '/registerdata', { id_number: user.id_number, account_address: wallet });
+  return { a: a, user: user, wallet: wallet, res: res };
+}
+
+// POST a code to /otpverify, using the CSRF token from the code-entry page.
+function submitOtp(reg, otp) {
+  return reg.a.post('/otpverify').type('form').send({ otp: otp, _csrf: csrfFrom(reg.res.text) });
+}
+
 module.exports = {
   query: query, agent: agent, csrfFrom: csrfFrom, submitForm: submitForm, newVoter: newVoter,
-  createUser: createUser, login: login, adminLogin: adminLogin
+  createUser: createUser, login: login, adminLogin: adminLogin,
+  newWallet: newWallet, lastOtp: lastOtp, startRegistration: startRegistration, submitOtp: submitOtp
 };
