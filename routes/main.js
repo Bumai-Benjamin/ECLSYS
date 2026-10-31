@@ -4,14 +4,13 @@ var router = express.Router();
 // const express=require('express');
 // const app=express()
 var conn=require('../database');
+var auth=require('../middleware/auth');
+
+// SEC-2: voter registration is only for logged-in users
+router.use(['/form', '/registerdata', '/otpverify'], auth.requireLogin);
 
 router.get('/form', function(req, res, next) {
-  // res.render('voter-registration.ejs');
-  if(req.session.loggedinUser){
-    res.render('voter-registration.ejs')
-  }else{
-    res.redirect('/login');
-  }
+  res.render('voter-registration.ejs')
 });
 
 

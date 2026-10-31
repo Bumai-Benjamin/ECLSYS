@@ -4,6 +4,7 @@ var path = require('path');
 var express = require('express');
 var session = require('express-session');
 var bodyParser = require('body-parser');
+var auth = require('./middleware/auth');
 
 var registrationRouter = require('./routes/registration-route');
 var loginRouter = require('./routes/login-route');
@@ -27,14 +28,17 @@ function createApp() {
   app.set('views', path.join(__dirname, 'src', 'views'));
   app.set('view engine', 'ejs');
 
-  app.use(express.static(path.join(__dirname, 'src')));
-
   app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
     cookie: { maxAge: 60000 * 300 }
   }));
+
+  // SEC-2: guard the raw .html files and hide templates before any static
+  // server (this one or lite-server's) can serve them.
+  app.use(auth.protectStatic);
+  app.use(express.static(path.join(__dirname, 'src')));
 
   app.use('/', registrationRouter);
   app.use('/', loginRouter);
@@ -44,13 +48,13 @@ function createApp() {
   app.use('/', AdminLogin);
   app.use('/', Tableview);
 
-  app.get('/vote_area', page('vote_area.html'));
-  app.get('/candidateDetails', page('adminCandidateDetails.html'));
-  app.get('/userInfo', page('userInfo.html'));
+  app.get('/vote_area', auth.requireLogin, page('vote_area.html'));
+  app.get('/candidateDetails', auth.requireAdmin, page('adminCandidateDetails.html'));
+  app.get('/userInfo', auth.requireLogin, page('userInfo.html'));
   app.get('/result', page('result.html'));
-  app.get('/addCandidate', page('adminAddCandidate.html'));
-  app.get('/changePhase', page('adminChangePhase.html'));
-  app.get('/voting', page('voting.html'));
+  app.get('/addCandidate', auth.requireAdmin, page('adminAddCandidate.html'));
+  app.get('/changePhase', auth.requireAdmin, page('adminChangePhase.html'));
+  app.get('/voting', auth.requireLogin, page('voting.html'));
 
   app.get('/hello', function (req, res) {
     res.send('hello');
