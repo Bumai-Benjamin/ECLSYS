@@ -48,14 +48,18 @@ function newVoter(overrides) {
 }
 
 // Inserts an account straight into the DB (no email/OTP) and returns it.
+// { legacyMd5: true } stores the old v1.0.1 unsalted MD5 hash instead of bcrypt.
 async function createUser(overrides) {
+  overrides = overrides || {};
   var u = newVoter(overrides);
-  var md5 = require('md5');
+  var hash = overrides.legacyMd5
+    ? require('md5')(u.password)
+    : await require('../../lib/users').hashPassword(u.password);
   var res = await query(
-    'INSERT INTO registration (id_number, first_name, last_name, email_address, gender, Dob, password, confirm_password, Is_registered, account_address, role) ' +
-    'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    'INSERT INTO registration (id_number, first_name, last_name, email_address, gender, Dob, password, Is_registered, account_address, role) ' +
+    'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
     [u.id_number, u.first_name, u.last_name, u.email_address, u.gender, u.Dob,
-      md5(u.password), md5(u.password), 'No', '', u.role || 'voter']
+      hash, 'No', '', u.role || 'voter']
   );
   u.reg_id = res.insertId;
   return u;
