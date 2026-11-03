@@ -110,7 +110,7 @@
     </div> <!-- wrapper -->
 
     <!-- JS Files -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="assets/js/core/jquery.min.js"></script>
     <script src="js/web3.min.js"></script>
     <script src="js/truffle-contract.js"></script>
     <script src="js/templates.js"></script>
@@ -126,7 +126,6 @@
     <script src="./assets/js/plugins/jquery-jvectormap.js"></script>
     <script src="./assets/js/plugins/nouislider.min.js"></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/2.4.1/core.js"></script>
     <script src="./assets/js/plugins/arrive.min.js"></script>
     <script src="./assets/js/plugins/bootstrap-notify.js"></script>
 
@@ -135,30 +134,7 @@
     <!-- IMPORTANT: this file defines 'md' -->
     <script src="assets/demo/demo.js"></script>
 
-    <script>
-  $(document).ready(function() {
-    
-    // Initialize Material Dashboard JS
-    if (typeof md !== "undefined" && typeof md.initDashboardPageCharts === "function") {
-      try {
-        md.initDashboardPageCharts();
-      } catch (error) {
-        console.warn("Dashboard charts failed to load:", error);
-      }
-    }
-
-    // Initialize Perfect Scrollbar if available
-    if ($('.sidebar .sidebar-wrapper').length) {
-      try {
-        $('.sidebar .sidebar-wrapper, .main-panel').perfectScrollbar();
-      } catch (err) {
-        console.warn("Perfect Scrollbar not loaded or failed.", err);
-      }
-    }
-
-    console.log("Dashboard scripts loaded successfully.");
-  });
-</script>
+    <script src="js/pages/candidate-details.js"></script>
 
 
   </body>

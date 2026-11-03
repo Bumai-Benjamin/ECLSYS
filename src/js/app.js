@@ -258,7 +258,8 @@ $(document).on('submit', 'form[data-action]', function (event) {
 });
 
 $(function () {
-  $(window).load(function () {
+  // .on('load'): jQuery 3 removed .load(fn) (SEC-11 uses the local jQuery 3)
+  $(window).on('load', function () {
     App.init();
   });
 });

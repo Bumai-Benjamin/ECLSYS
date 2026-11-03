@@ -3,6 +3,7 @@
 var path = require('path');
 var express = require('express');
 var bodyParser = require('body-parser');
+var helmet = require('helmet');
 var sessions = require('./lib/session');
 var auth = require('./middleware/auth');
 var errors = require('./middleware/errors');
@@ -17,6 +18,25 @@ var RegisterRouter = require('./routes/main');
 var AdminLogin = require('./routes/admin_login');
 var Tableview = require('./routes/table_view');
 
+// SEC-11: scripts only from this site. Stylesheets and fonts may come from the
+// CDNs the pages already use; MetaMask's fallback provider talks to Ganache.
+// No upgrade-insecure-requests: the app and Ganache run over plain HTTP.
+var CSP = {
+  useDefaults: false,
+  directives: {
+    defaultSrc: ["'self'"],
+    scriptSrc: ["'self'"],
+    styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://maxcdn.bootstrapcdn.com', 'https://use.fontawesome.com'],
+    fontSrc: ["'self'", 'https://fonts.gstatic.com', 'https://maxcdn.bootstrapcdn.com', 'https://use.fontawesome.com'],
+    imgSrc: ["'self'", 'data:'],
+    connectSrc: ["'self'", 'http://127.0.0.1:7545', 'http://localhost:7545'],
+    objectSrc: ["'none'"],
+    frameAncestors: ["'none'"],
+    baseUri: ["'self'"],
+    formAction: ["'self'"]
+  }
+};
+
 function page(file) {
   return function (req, res) {
     res.sendFile(path.join(__dirname, 'src', file));
@@ -27,6 +47,7 @@ function page(file) {
 function createApp(options) {
   options = options || {};
   var app = express();
+  app.use(helmet({ contentSecurityPolicy: CSP }));
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
 
