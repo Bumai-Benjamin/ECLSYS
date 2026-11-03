@@ -72,6 +72,21 @@ describe('SEC-9 CSRF protection', function () {
     expect(res.status).to.equal(302);
   });
 
+  it('login still works after session regeneration', async function () {
+    var reg = await h.startRegistration();
+    expect(reg.res.status).to.not.equal(403);
+    expect(reg.res.text).to.contain('action="/otpverify"');
+  });
+
+  it('a token from before login is not valid after it (new session, new token)', async function () {
+    var u = await h.createUser();
+    var a = h.agent();
+    var before = h.csrfFrom((await a.get('/login')).text);
+    await a.post('/login').type('form').send({ _csrf: before, email_address: u.email_address, password: u.password });
+    var res = await a.post('/registerdata').type('form').send({ _csrf: before, id_number: u.id_number, account_address: h.newWallet() });
+    expect(res.status).to.equal(403);
+  });
+
   it("doesn't create a session for a page without a form", async function () {
     var res = await h.agent().get('/result');
     expect(res.headers['set-cookie'] || []).to.have.length(0);
