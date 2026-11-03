@@ -61,7 +61,7 @@ function createApp() {
   });
 
   // SEC-7: must be registered last
-  app.use(errors.errorHandler);
+  app.use(errors.handler);
 
   return app;
 }
