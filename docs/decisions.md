@@ -2,6 +2,42 @@
 
 Decisions that change or settle something in `REQUIREMENTS.md`. Newest first.
 
+## D-003: A fresh CSRF token at login, not the pre-login one (2026-11-03)
+
+**Affects:** SEC-9, SEC-5; plan Task 3 ("`lib/session.startSession` must carry
+the token over into the regenerated session").
+
+**Context.** At login the session is regenerated (SEC-5), which also discards
+its CSRF token. The plan asked for the pre-login token to be copied into the new
+session so that forms opened before login keep working.
+
+**Decision.** Don't carry the token over. The new, logged-in session gets its own
+token the first time a form is rendered.
+
+**Why.** A CSRF token protects only while an attacker can't know it. A token
+issued before login belongs to an anonymous session, which is easier for an
+attacker to observe or plant:
+
+- *Shared or public computer:* an attacker opens the login page and walks away.
+  The browser now holds a session whose token the attacker has seen. If that
+  token survived the next person's login, the attacker would hold a valid token
+  for that person's logged-in session.
+- *Session fixation:* an attacker who can place a session cookie in the victim's
+  browser knows that session's token. Regenerating the session at login defeats
+  this; carrying the token over would partly undo it.
+
+With a known token, an attacker could make the victim's browser submit forged
+forms after login, for example a `/registerdata` request that attaches the
+attacker's wallet to the victim's identity. Session cookies are already
+`httpOnly` and `sameSite=strict`, so the risk is low, but a fresh token costs
+nothing and ties the token to the authenticated session, as OWASP recommends.
+
+**Consequences.**
+- A form tab opened before login shows "This form has expired" once after
+  login; reloading the page fixes it.
+- Tested in `test/api/sec09-csrf.test.js`: forms work after login, and a token
+  from before login is refused afterwards.
+
 ## D-002: ganache-cli as a dev dependency, for contract coverage only (2026-11-03)
 
 **Affects:** SC-8 (at least 95% line coverage with `solidity-coverage`); plan Task 7.
