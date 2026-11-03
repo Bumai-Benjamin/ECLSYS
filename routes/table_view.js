@@ -8,15 +8,9 @@ var auth=require('../middleware/auth');
 router.get('/table_view', auth.requireAdmin, function(req, res, next) {
     var sql='SELECT * FROM registered_users';
     db.query(sql, (err, data, fields) =>{
-    if (err) 
-    {
-        console.log(err)
-        throw err;
-    }   
-    
-    
-    //console.log(typeof(myarray))
-    // console.log(data)
+    // SEC-7: hand errors to the central handler; throwing here crashed the server
+    if (err) return next(err);
+
     res.render('adminVoterReg', { title: 'Registered Users List', userData: data});
 
   });

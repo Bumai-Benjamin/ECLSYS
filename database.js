@@ -9,7 +9,12 @@ var conn = mysql.createPool({
   database: process.env.DB_NAME
 });
 conn.getConnection(function(err, connection) {
-  if (err) throw err;
+  if (err) {
+    // SEC-7: a clear message instead of an uncaught exception from a callback
+    console.error('Cannot connect to MySQL database "' + process.env.DB_NAME + '" as "' + process.env.DB_USER +
+      '": ' + err.code + '. Is MySQL running in XAMPP, and are the DB_* settings in .env right?');
+    process.exit(1);
+  }
   console.log('Database is connected successfully !');
   connection.release();
 });

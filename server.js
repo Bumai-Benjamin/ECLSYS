@@ -5,6 +5,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var sessions = require('./lib/session');
 var auth = require('./middleware/auth');
+var errors = require('./middleware/errors');
 
 var registrationRouter = require('./routes/registration-route');
 var loginRouter = require('./routes/login-route');
@@ -54,6 +55,9 @@ function createApp() {
   app.get('/hello', function (req, res) {
     res.send('hello');
   });
+
+  // SEC-7: must be registered last
+  app.use(errors.errorHandler);
 
   return app;
 }
