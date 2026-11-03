@@ -67,7 +67,7 @@ App = {
       if (err === null) {
         App.account = account;
         console.log(App.account);
-        $("#accountAddress").html("Your account: " + account);
+        $("#accountAddress").text("Your account: " + account);
       }
     });
 
@@ -93,42 +93,12 @@ App = {
         console.log('Count: ' + i)
         console.log('Contestants Count: ' + contestantsCount)
         contestInstance.contestants(i).then(function (contestant) {
-          var id = contestant[0];
-          var name = contestant[1];
-          var voteCount = contestant[2];
-          var fetchedParty = contestant[3];
-          var fetchedAge = contestant[4];
-          var fetchedQualification = contestant[5]
-          
-
-         var contestantTemplate = "<div class='card' style='width: 15rem; margin: 1rem;'><img class='card-img-top'src='../img/Sample_User_Icon.png' alt=''><div class='card-body text-center'><h4 class='card-title'>"
-            + name + "</h4>" +
-            "<button type='button' class='btn btn-info' data-toggle='modal' data-target='#modal" + id + "'>Click Here to Vote</button>"
-            + "<div class='modal fade' id='modal" + id + "' tabindex='-1' role='dialog' aria-labelledby='exampleModalCenterTitle' aria-hidden='true'>"
-            + "<div class='modal-dialog modal-dialog-centered' role='document'>"
-            + "<div class='modal-content'>"
-            + "<div class='modal-header'>"
-            + "<h5 class='modal-title' id='exampleModalLongTitle'> <b>" + name + "</b></h5>"
-            + "<button type='button' class='close' data-dismiss='modal' aria-label='Close'><span aria-hidden='true'>&times;</span></button>"
-            + "</div>"
-            + "<div class='modal-body'> <b> Party : " + fetchedParty + "<br>Age : " + fetchedAge + "<br>Qualification : " + fetchedQualification + "<br></b></div>"
-            + "<div class='modal-footer'>"
-            + "<button class='btn btn-info' onClick='App.castVote(" + id.toString() + ")'>VOTE</button>"
-            + "<button type='button' class='btn btn-info' data-dismiss='modal'>Close</button></div>"
-            + "</div></div></div>"
-            + "</div></div>";
-          contestantsResults.append(contestantTemplate);
-
-          var contestantOption = "<option style='padding: auto;' value='" + id + "'>" + name +"</option>";
-          contestantSelect.append(contestantOption);
-
-          console.log(name)
-          console.log('Count 2: ',i)
-
-          var contestantTemplateAdmin = "<tr><th>" + id + "</th><td>" + name +"</td><td>" + fetchedAge + "</td><td>" + fetchedParty + "</td><td>" + fetchedQualification + "</td><td>" + voteCount + "</td></tr>";
-          contestantsResultsAdmin.append(contestantTemplateAdmin); 
-
-        });  
+          // SEC-8: these strings come from the contract; Templates escapes them
+          var c = App.toCandidate(contestant);
+          contestantsResults.append(Templates.candidateCard(c));
+          contestantSelect.append(Templates.candidateOption(c));
+          contestantsResultsAdmin.append(Templates.candidateRow(c, { withVotes: true }));
+        });
       }
       loader.hide();
       content.show();
@@ -158,10 +128,8 @@ App = {
       currentPhase.empty();
       var currentPhaseAdmin = $("#currentPhaseAdmin");//for admin
       currentPhaseAdmin.empty();
-      var phaseTemplate = "<h1>" + fetchedState + "</h1>";
-      var phaseTemplateAdmin = "<h3> Current Phase : " + fetchedStateAdmin + "</h3>";
-      currentPhase.append(phaseTemplate);
-      currentPhaseAdmin.append(phaseTemplateAdmin);
+      currentPhase.append($("<h1>").text(fetchedState));
+      currentPhaseAdmin.append($("<h3>").text(" Current Phase : " + fetchedStateAdmin));
     }).catch(function (err) {
       console.error(err);
     })
@@ -176,15 +144,7 @@ App = {
         contestInstance.contestantsCount().then(function (contestantsCount) {
           for (var i = 1; i <= contestantsCount; i++) {
             contestInstance.contestants(i).then(function (contestant) {
-              var id = contestant[0];
-              var name = contestant[1];
-              var voteCount = contestant[2];
-              var fetchedParty = contestant[3];
-              var fetchedAge = contestant[4];
-              var fetchedQualification = contestant[5];
-
-              var resultTemplate = "<tr><th>" + id + "</th><td>" + name + "</td><td>" + fetchedAge + "</td><td>" + fetchedParty + "</td><td>" + fetchedQualification + "</td><td>" + voteCount + "</td></tr>";
-              result.append(resultTemplate);
+              result.append(Templates.candidateRow(App.toCandidate(contestant), { withVotes: true }));
             });
           }
         })
@@ -199,6 +159,18 @@ App = {
 
 
 
+
+  // contestants(i) returns a tuple: id, name, voteCount, party, age, qualification
+  toCandidate: function (contestant) {
+    return {
+      id: contestant[0].toString(),
+      name: contestant[1],
+      voteCount: contestant[2].toString(),
+      party: contestant[3],
+      age: contestant[4].toString(),
+      qualification: contestant[5]
+    };
+  },
 
   // ------------- voting code -------------
   castVote: function (id) {
@@ -269,6 +241,12 @@ App = {
 
 };
 
+
+// VOTE buttons in candidate cards (Templates.candidateCard) carry
+// data-candidate-id instead of an inline onclick.
+$(document).on('click', '.js-vote', function () {
+  App.castVote(String($(this).data('candidate-id')));
+});
 
 $(function () {
   $(window).load(function () {
