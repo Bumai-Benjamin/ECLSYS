@@ -7,6 +7,7 @@ var sessions = require('./lib/session');
 var auth = require('./middleware/auth');
 var errors = require('./middleware/errors');
 var csrf = require('./middleware/csrf');
+var limits = require('./middleware/limits');
 
 var registrationRouter = require('./routes/registration-route');
 var loginRouter = require('./routes/login-route');
@@ -22,7 +23,9 @@ function page(file) {
   };
 }
 
-function createApp() {
+// options.rateLimitMax: per-IP POST limit per minute (SEC-10; tests set it)
+function createApp(options) {
+  options = options || {};
   var app = express();
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
@@ -39,6 +42,9 @@ function createApp() {
 
   // SEC-9: token for forms, checked on every POST
   app.use(csrf.csrf);
+
+  // SEC-10: new in-memory counters for every app (D-001)
+  limits.apply(app, limits.create({ max: options.rateLimitMax }));
 
   app.use('/', registrationRouter);
   app.use('/', loginRouter);
