@@ -13,6 +13,7 @@
 	<%=(typeof alertMsg!='undefined')? alertMsg:''%>
 
 	<form  method="post" action="/adlogin">
+		<input type="hidden" name="_csrf" value="<%= csrfToken() %>" />
 		<input type="text" placeholder="Email or Username" name="email_address" required/>
 		<i class="far fa-envelope"></i>
 		<input id="pswrd" type="password" placeholder="Password" name="password" required/>

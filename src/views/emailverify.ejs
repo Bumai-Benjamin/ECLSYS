@@ -24,6 +24,7 @@
             <h5 class="m-0">We have sent a verification code on your email</h5><span class="mobile-text">Please enter the code here<b class="text-danger"> <%=(typeof alertMsg!='undefined')? alertMsg:''%></b></span>
             <div class="d-flex flex-row mt-5">
                 <form method="post" action="/otpverify">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken() %>" />
                     <input type="text" name="otp" >
                     <input type="submit" value="Check Code">
                 </form>

@@ -6,6 +6,7 @@ var bodyParser = require('body-parser');
 var sessions = require('./lib/session');
 var auth = require('./middleware/auth');
 var errors = require('./middleware/errors');
+var csrf = require('./middleware/csrf');
 
 var registrationRouter = require('./routes/registration-route');
 var loginRouter = require('./routes/login-route');
@@ -35,6 +36,9 @@ function createApp() {
   // server (this one or lite-server's) can serve them.
   app.use(auth.protectStatic);
   app.use(express.static(path.join(__dirname, 'src')));
+
+  // SEC-9: token for forms, checked on every POST
+  app.use(csrf.csrf);
 
   app.use('/', registrationRouter);
   app.use('/', loginRouter);

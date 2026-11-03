@@ -75,7 +75,10 @@ describe('SEC-2 route guards', function () {
     });
 
     it('cannot POST voter registration data', async function () {
-      var res = await h.agent().post('/registerdata').type('form').send({ id_number: '1', account_address: '0x0' });
+      // with a valid CSRF token (SEC-9), so this tests the login guard itself
+      var a = h.agent();
+      var page = await a.get('/login');
+      var res = await a.post('/registerdata').type('form').send({ id_number: '1', account_address: '0x0', _csrf: h.csrfFrom(page.text) });
       expect(res.status).to.equal(302);
       expect(res.headers.location).to.equal('/login');
     });

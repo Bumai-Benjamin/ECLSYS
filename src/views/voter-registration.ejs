@@ -94,6 +94,7 @@
                     <div class="card-body">
                       <!-- form  -->
                       <form action='/registerdata' method="post">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken() %>" />
                         <!-- 2 column grid layout with text inputs for the first and last names -->
                         <div class="row">
                           <div class="col">
