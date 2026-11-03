@@ -24,14 +24,14 @@
           <br/>
         </div>
       </div>
-  <form onsubmit="App.registerVoter(); return false;">
+  <form data-action="registerVoter">
       <div class="form-group">
         <label>Voter Account</label>
         <input type="text" class="form-control" id="accadd" placeholder="Address">
       </div>
       <button type="submit" class="btn btn-primary">Register</button>
   </form>
-      <form onsubmit="App.addCandidate(); return false;">
+      <form data-action="addCandidate">
       <div class="form-group">
         <label for="exampleInputEmail1">Name</label>
         <input type="text" class="form-control" id="name" placeholder="Name">
@@ -39,7 +39,9 @@
       <button type="submit" class="btn btn-primary">Add</button>
 </form>
 <hr>
-<button type="submit" onclick="App.changeState()" class="btn btn-primary">Change phase</button>
+<form data-action="changeState">
+  <button type="submit" class="btn btn-primary">Change phase</button>
+</form>
 
       <div id="loader" class="row">
         <!-- PETS LOAD HERE -->
@@ -60,7 +62,7 @@
           <p id="accountAddress" class="text-center"></p>
         </table>
 
-        <form onsubmit="App.castVote(); return false;">
+        <form data-action="castVote">
           <div class="form-group">
             <label for="contestantSelect">Select Contestant</label>
             <select class="select-control" id="contestantSelect"></select>

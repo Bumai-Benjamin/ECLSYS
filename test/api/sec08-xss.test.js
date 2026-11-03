@@ -15,6 +15,13 @@ var EVIL = {
   voteCount: '<i>5</i>'
 };
 
+// Every page and view under src/.
+function pages() {
+  var root = path.join(__dirname, '..', '..', 'src');
+  return fs.readdirSync(root).filter(function (f) { return /\.html$/.test(f); }).map(function (f) { return path.join(root, f); })
+    .concat(fs.readdirSync(path.join(root, 'views')).map(function (f) { return path.join(root, 'views', f); }));
+}
+
 // The real tags in a snippet. Escaped text can't contain '<', so attack
 // strings only show up here if escaping failed.
 function tags(html) {
@@ -62,11 +69,25 @@ describe('SEC-8 XSS-safe templates', function () {
     expect(src).to.not.match(/\.html\(\s*["'][^"']*["']\s*\+/);
   });
 
+  it('no inline event handlers in pages', function () {
+    pages().forEach(function (f) {
+      expect(fs.readFileSync(f, 'utf8'), path.basename(f)).to.not.match(/\son(submit|click)\s*=/i);
+    });
+  });
+
+  it('EJS views use escaped output for data', function () {
+    pages().filter(function (f) { return /\.ejs$/.test(f); }).forEach(function (f) {
+      expect(fs.readFileSync(f, 'utf8'), path.basename(f)).to.not.contain('<%-');
+    });
+  });
+
+  it('app.js binds forms through data-action', function () {
+    var src = fs.readFileSync(path.join(__dirname, '..', '..', 'src', 'js', 'app.js'), 'utf8');
+    expect(src).to.contain("'submit', 'form[data-action]'");
+  });
+
   it('every page that loads app.js loads templates.js before it', function () {
-    var root = path.join(__dirname, '..', '..', 'src');
-    var files = fs.readdirSync(root).filter(function (f) { return /\.html$/.test(f); }).map(function (f) { return path.join(root, f); })
-      .concat(fs.readdirSync(path.join(root, 'views')).map(function (f) { return path.join(root, 'views', f); }));
-    files.forEach(function (f) {
+    pages().forEach(function (f) {
       var src = fs.readFileSync(f, 'utf8').replace(/<!--[\s\S]*?-->/g, '');
       var app = src.search(/<script[^>]+src="js\/app\.js"/);
       if (app === -1) return;

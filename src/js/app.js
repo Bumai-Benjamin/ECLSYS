@@ -175,7 +175,8 @@ App = {
   // ------------- voting code -------------
   castVote: function (id) {
 
-    var contestantId = id;
+    // from a VOTE button, or the ballot form's select
+    var contestantId = id || $('#contestantSelect').val();
     App.contracts.Contest.deployed().then(function (instance) {
       return instance.vote(contestantId, { from: App.account });
     }).then(function (result) {
@@ -246,6 +247,14 @@ App = {
 // data-candidate-id instead of an inline onclick.
 $(document).on('click', '.js-vote', function () {
   App.castVote(String($(this).data('candidate-id')));
+});
+
+// SEC-8: forms name their action in data-action instead of an inline onsubmit.
+var FORM_ACTIONS = { addCandidate: true, castVote: true, registerVoter: true, changeState: true };
+$(document).on('submit', 'form[data-action]', function (event) {
+  event.preventDefault();
+  var action = $(this).data('action');
+  if (FORM_ACTIONS[action]) App[action]();
 });
 
 $(function () {
