@@ -18,11 +18,11 @@ async function captureErrors(fn) {
 
 // Temporarily rename a table so queries against it fail.
 async function withTableMissing(table, fn) {
-  await h.query('RENAME TABLE ?? TO ??', [table, table + '_hidden']);
+  await h.adminQuery('RENAME TABLE ?? TO ??', [table, table + '_hidden']);
   try {
     return await fn();
   } finally {
-    await h.query('RENAME TABLE ?? TO ??', [table + '_hidden', table]);
+    await h.adminQuery('RENAME TABLE ?? TO ??', [table + '_hidden', table]);
   }
 }
 

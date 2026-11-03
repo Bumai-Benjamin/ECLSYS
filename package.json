@@ -15,6 +15,7 @@
     "test:api": "mocha",
     "db:migrate": "node scripts/db-migrate.js",
     "db:reset-test": "node scripts/db-reset-test.js",
+    "db:create-user": "node scripts/create-db-user.js",
     "seed:admin": "node scripts/seed-admin.js"
   },
   "author": "",

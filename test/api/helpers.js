@@ -11,6 +11,19 @@ function query(sql, params) {
   });
 }
 
+// Schema changes in tests (e.g. renaming a table to simulate a DB failure)
+// need the admin account: the SEC-12 app user has no ALTER/DROP rights.
+function adminQuery(sql, params) {
+  var mysql = require('mysql');
+  var conn = mysql.createConnection(require('../../lib/migrate').adminConnectionConfig(process.env.DB_NAME));
+  return new Promise(function (resolve, reject) {
+    conn.query(sql, params, function (err, rows) {
+      conn.end();
+      if (err) reject(err); else resolve(rows);
+    });
+  });
+}
+
 // A supertest agent keeps cookies, so it behaves like one browser.
 function agent(options) {
   return request.agent(server.createApp(options));
@@ -107,7 +120,7 @@ function submitOtp(reg, otp) {
 }
 
 module.exports = {
-  query: query, agent: agent, csrfFrom: csrfFrom, submitForm: submitForm, newVoter: newVoter,
+  query: query, adminQuery: adminQuery, agent: agent, csrfFrom: csrfFrom, submitForm: submitForm, newVoter: newVoter,
   createUser: createUser, login: login, adminLogin: adminLogin,
   newWallet: newWallet, lastOtp: lastOtp, startRegistration: startRegistration, submitOtp: submitOtp
 };

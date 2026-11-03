@@ -3,6 +3,7 @@ var express = require('express');
 var router = express.Router();
 var users = require('../lib/users');
 var sessions = require('../lib/session');
+var audit = require('../lib/audit');
 /* GET users listing. */
 router.get('/adlogin', function(req, res, next) {
   res.render('admin_login.ejs');
@@ -18,6 +19,7 @@ router.post('/adlogin', function(req, res, next){
         if(user){
             // SEC-5: new session id at login
             await sessions.startSession(req, { loggedinUser: true, emailAddress: emailAddress, role: user.role });
+            await audit.record(user.reg_id, 'admin_login');
             res.redirect('/addCandidate');
         }else{
             res.render('admin_login.ejs',{alertMsg:"Your Email Address or password is wrong"});

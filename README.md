@@ -58,7 +58,18 @@ Then edit `.env`:
 - `SMTP_*` and `MAIL_FROM`: the account that sends OTP emails. For Gmail, turn on
   2-step verification and create an **app password**; never use the real account
   password.
-- `DB_*`: leave the defaults for a stock XAMPP install.
+- `DB_ADMIN_USER` / `DB_ADMIN_PASS`: an account that can create users and change
+  the schema. On a stock XAMPP install that is `root` with an empty password.
+- `DB_USER` / `DB_PASS`: the app's own MySQL user, `namvoting_app`, with a long
+  random password you choose. Then create it:
+
+```powershell
+npm run db:create-user
+```
+
+The app user may only SELECT, INSERT and UPDATE in `blockchainvoting`, and
+DELETE from `sessions` (SEC-12). Migrations and the test database use the admin
+account. Run `db:create-user` again after changing `DB_PASS`.
 
 `.env` is ignored by git. Never commit it.
 
@@ -112,6 +123,7 @@ email OTP), `/userInfo`, `/voting`, `/result`; admin: `/adlogin`,
 ## Tests
 
 ```powershell
+npm run test:api         # mocha + supertest; needs MySQL, not Ganache
 npm run test:contracts   # truffle test against Ganache on 7545
 ```
 
@@ -126,6 +138,8 @@ workspace each time. It doesn't change `build/contracts`.
 | `npm run migrate` | `truffle migrate --reset` to Ganache |
 | `npm run test:contracts` | Contract tests |
 | `npm run db:migrate` | Apply `db/migrations/*.sql` in order |
+| `npm run db:create-user` | Create or update the least-privilege app user from `.env` |
+| `npm run test:api` | API tests against `blockchainvoting_test` (rebuilt each run) |
 
 ## Troubleshooting
 
