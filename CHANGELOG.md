@@ -3,6 +3,34 @@
 Requirement IDs refer to [REQUIREMENTS.md](REQUIREMENTS.md). Decisions are in
 [docs/decisions.md](docs/decisions.md).
 
+## Phase 1: Security fixes (2026-11-03)
+
+Done: **SEC-1 to SEC-12**, with API tests for each (`npm run test:api`, 157
+tests). SEC-13 is not applicable (no Redis, D-001).
+
+- **SEC-1** `role` column; `/adlogin` admits only `role='admin'`; `npm run seed:admin`.
+- **SEC-2** `requireLogin` / `requireAdmin` guards on the voter and admin pages
+  and on the raw `.html` files.
+- **SEC-3** bcrypt (cost 12); MD5 hashes upgraded at login; `confirm_password` dropped.
+- **SEC-4** Per-request OTP: HMAC with `OTP_PEPPER`, 5-minute expiry, 5 attempts,
+  single use; pending registration kept in the session (fixes D4, D7).
+- **SEC-5** Sessions in MySQL; `httpOnly`, `sameSite=strict`, 30-minute idle
+  timeout; new session at login, destroyed at logout.
+- **SEC-6** Unique email and ID number; `Is_registered` and duplicate checks
+  fixed; server-side validation.
+- **SEC-7** Central error handler with a friendly page; secrets redacted from
+  logs; if the OTP email can't be sent the voter is told and the code is retired.
+- **SEC-8** Contract data escaped in the frontend; no inline event handlers
+  (forms use `data-action`).
+- **SEC-9** CSRF tokens on every POST form. The token is renewed with the session
+  at login.
+- **SEC-10** 5 POSTs per minute per IP on each form route; account lockout after
+  10 failed logins in 15 minutes. Counters are in memory (D-001).
+- **SEC-11** helmet and a CSP with `script-src 'self'`; jQuery served locally
+  (3.2.1); remote and inline scripts removed.
+- **SEC-12** `namvoting_app` MySQL user with SELECT/INSERT/UPDATE (and DELETE on
+  `sessions`) through `npm run db:create-user`; `audit_log` table; admin logins audited.
+
 ## Phase 0: Housekeeping (2026-10-31)
 
 Done: **HK-1, HK-2, HK-3, HK-4, HK-5, HK-6** (HK-6 closed as not applicable, see D-001).
