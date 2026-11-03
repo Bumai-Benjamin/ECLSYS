@@ -1,56 +1,75 @@
+// Page logic for every page that talks to the NamVoting contract through
+// MetaMask. Needs jQuery, web3.min.js, truffle-contract.js, templates.js and
+// errors.js loaded first.
 
-var phaseEnum; // for changing phases of voting
+var GANACHE_CHAIN_ID = '0x539'; // 1337
 
 App = {
-  //web3Provider: null,
-  provider: null,
   contracts: {},
-  account: 0x0,
-  
+  account: null,
+
   init: async function () {
-    // Load pets.
-    console.log('---------------------------------------------');
-    console.log('App Initialized...');
     return await App.initWeb3();
   },
 
   initWeb3: async function () {
-    if(window.ethereum) {
-      console.log('MetaMask Installed...');
-      App.web3provider = window.ethereum;
-      window.web3 = new Web3(window.ethereum);
-      window.ethereum.enable();
-      
-      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-      web3.eth.defaultAccount = ethereum._state.accounts[0];
-      //setAccounts(accounts);
-        //account = accounts[0];
-        console.log(accounts);
-        //console.log(account);
-  } else {
-      // Specify default instance if no web3 instance provided
-      App.web3Provider = new Web3.providers.HttpProvider('http://localhost:7545');
-      window.web3 = new Web3(window.ethereum);
-  }
+    if (!window.ethereum) {
+      App.showMessage('MetaMask is not installed. Install it from metamask.io to use this page.');
+      return;
+    }
+    App.provider = window.ethereum;
+    window.web3 = new Web3(window.ethereum);
+
+    // A different account or network means different permissions: start over.
+    window.ethereum.on('accountsChanged', function () { window.location.reload(); });
+    window.ethereum.on('chainChanged', function () { window.location.reload(); });
+
+    try {
+      var accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      App.account = accounts[0];
+      var chainId = await window.ethereum.request({ method: 'eth_chainId' });
+      if (chainId !== GANACHE_CHAIN_ID) {
+        App.showMessage('Please switch MetaMask to the Ganache network (chain ID 1337).');
+        return;
+      }
+    } catch (err) {
+      return App.showError(err);
+    }
 
     return App.initContract();
   },
 
   initContract: function () {
-    console.log('TEST initContract!');
-    $.getJSON("NamVoting.json", function (contest) {
-      App.contracts.Contest = TruffleContract(contest);
-
-      App.contracts.Contest.setProvider(App.web3provider);
-      App.contracts.Contest.deployed().then(function(instance) {
-        console.log('DeElect Contract Address: ', instance.address);
+    $.getJSON('NamVoting.json', function (artifact) {
+      App.contracts.Contest = TruffleContract(artifact);
+      App.contracts.Contest.setProvider(App.provider);
+      App.contracts.Contest.deployed().then(function () {
         App.render();
-        //App.listenForEvents();*
+      }).catch(function () {
+        App.showMessage('The blockchain is not available. Ask an administrator to run npm run migrate.');
+      });
+    }).fail(function () {
+      App.showMessage('The blockchain is not available. Ask an administrator to run npm run migrate.');
     });
+  },
 
+  // ------------- messages -------------
+  // kind 'ok' shows a success message; anything else is a problem
+  showMessage: function (text, kind) {
+    $('#chainError').text(text)
+      .toggleClass('alert-success', kind === 'ok')
+      .toggleClass('alert-danger', kind !== 'ok')
+      .show();
+  },
 
-      //return App.render();
-    });
+  // action: the App function that failed, so WrongPhase can say "Voting is closed."
+  showError: function (err, action) {
+    console.error(err);
+    App.showMessage(ChainErrors.message(err, action));
+  },
+
+  clearMessage: function () {
+    $('#chainError').text('').hide();
   },
 
   render: function () {
@@ -62,23 +81,13 @@ App = {
     content.hide();
     $("#after").hide();
 
-
-    window.web3.eth.getCoinbase(function (err, account) {
-      if (err === null) {
-        App.account = account;
-        console.log(App.account);
-        $("#accountAddress").text("Your account: " + account);
-      }
-    });
-
-
+    $("#accountAddress").text("Your account: " + App.account);
 
     // ------------- fetching candidates to front end from blockchain code-------------
     App.contracts.Contest.deployed().then(function (instance) {
       contestInstance = instance;
       return contestInstance.contestantsCount();
     }).then(function (contestantsCount) {
-      
 
       var contestantsResults = $("#test");
       contestantsResults.empty();
@@ -87,11 +96,8 @@ App = {
 
       var contestantSelect = $("#contestantSelect");
       contestantSelect.empty();
-      
 
       for (let i = 1; i <= contestantsCount; i++) {
-        console.log('Count: ' + i)
-        console.log('Contestants Count: ' + contestantsCount)
         contestInstance.contestants(i).then(function (contestant) {
           // SEC-8: these strings come from the contract; Templates escapes them
           var c = App.toCandidate(contestant);
@@ -102,8 +108,8 @@ App = {
       }
       loader.hide();
       content.show();
-    }).catch(function (error) {
-      console.warn(error);
+    }).catch(function (err) {
+      App.showError(err);
     });
 
     // ------------- fetching current phase code -------------
@@ -112,7 +118,6 @@ App = {
     }).then(function (state) {
       var fetchedState;
       var fetchedStateAdmin;
-      phaseEnum = state.toString();
       if (state == 0) {
         fetchedState = "Registration phase is on , go register yourself to vote !!";
         fetchedStateAdmin = "Registration";
@@ -131,10 +136,11 @@ App = {
       currentPhase.append($("<h1>").text(fetchedState));
       currentPhaseAdmin.append($("<h3>").text(" Current Phase : " + fetchedStateAdmin));
     }).catch(function (err) {
-      console.error(err);
+      App.showError(err);
     })
 
     // ------------- showing result -------------
+    // Contract v2 reports vote counts only once the phase is "done" (SC-5).
     App.contracts.Contest.deployed().then(function (instance) {
       return instance.state();
     }).then(function (state) {
@@ -153,12 +159,9 @@ App = {
         $("#renderTable").hide();
       }
     }).catch(function (err) {
-      console.error(err);
+      App.showError(err);
     })
   },
-
-
-
 
   // contestants(i) returns a tuple: id, name, voteCount, party, age, qualification
   toCandidate: function (contestant) {
@@ -174,18 +177,16 @@ App = {
 
   // ------------- voting code -------------
   castVote: function (id) {
-
     // from a VOTE button, or the ballot form's select
     var contestantId = id || $('#contestantSelect').val();
+    App.clearMessage();
     App.contracts.Contest.deployed().then(function (instance) {
       return instance.vote(contestantId, { from: App.account });
-    }).then(function (result) {
-      // $("#test").hide();
-      // $("#after").show();
+    }).then(function () {
+      App.showMessage('Your vote was recorded.', 'ok');
     }).catch(function (err) {
-      console.error(err);
+      App.showError(err, 'castVote');
     })
-
   },
 
   // ------------- adding candidate code -------------
@@ -195,48 +196,51 @@ App = {
     var age = $('#age').val();
     var party = $('#party').val();
     var qualification = $('#qualification').val();
-
-    
+    App.clearMessage();
 
     App.contracts.Contest.deployed().then(function (instance) {
       return instance.addContestant(name, party, age, qualification, { from: App.account });
-    }).then(function (result) {
+    }).then(function () {
       $("#loader").show();
       $('#name').val('');
       $('#age').val('');
       $('#party').val('');
       $('#qualification').val('');
     }).catch(function (err) {
-      ///console.log(account);
-      console.error(err);
+      App.showError(err, 'addCandidate');
     })
   },
 
   // ------------- changing phase code -------------
-
+  // Reads the current phase from the chain and asks for the next one (the
+  // contract only allows one step forward).
   changeState: function () {
-    phaseEnum++;
-    // console.log(phaseEnum);
+    App.clearMessage();
     App.contracts.Contest.deployed().then(function (instance) {
-      return instance.changeState(phaseEnum, { from: App.account });
-    }).then(function (result) {
+      return instance.state().then(function (state) {
+        var next = Number(state) + 1;
+        return instance.changeState(next, { from: App.account });
+      });
+    }).then(function () {
       $("#content").hide();
       $("#loader").show();
+      App.render();
     }).catch(function (err) {
-      console.error(err);
+      App.showError(err, 'changeState');
     })
   },
 
   // ------------- registering voter code -------------
+  // Admin recovery tool; voters are normally registered by the server (INT-1).
   registerVoter: function () {
     var add = $('#accadd').val();
+    App.clearMessage();
     App.contracts.Contest.deployed().then(function (instance) {
-      return instance.voterRegisteration(add);
-    }).then(function (result) {
-      $("#content").hide();
-      $("#loader").show();
+      return instance.voterRegisteration(add, { from: App.account });
+    }).then(function () {
+      App.showMessage('The wallet is now registered to vote.', 'ok');
     }).catch(function (err) {
-      console.error(err);
+      App.showError(err, 'registerVoter');
     })
   }
 
