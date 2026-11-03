@@ -3,6 +3,30 @@
 Requirement IDs refer to [REQUIREMENTS.md](REQUIREMENTS.md). Decisions are in
 [docs/decisions.md](docs/decisions.md).
 
+## Phase 2: Contract v2 (2026-11-03)
+
+Done: **SC-1 to SC-8**, plus the frontend changes they need (D15, D16).
+26 contract tests (`npm run test:contracts`); 100% line coverage of
+`NamVoting.sol` (`npm run coverage`, D-002).
+
+- **SC-1** OpenZeppelin 5.0.2 `AccessControl` with `ADMIN_ROLE`, `REGISTRAR_ROLE`
+  and `RELAYER_ROLE`; the migration grants the registrar and relayer roles.
+- **SC-2** Same function names as v1; `changeState` moves one step forward only.
+- **SC-3** No storage links a voter to a choice (`Voter` has no `vote` field).
+- **SC-4** Events `ContestantAdded`, `VoterRegistered`, `PhaseChanged`,
+  `VoteCast(contestantId)` with no voter address.
+- **SC-5** Vote counts hidden from `contestants()` until the phase is done;
+  `results()` reverts before then.
+- **SC-6** Custom errors: `WrongPhase`, `NotRegistered`, `AlreadyVoted`,
+  `InvalidContestant`, `InvalidPhaseChange`, `AlreadyRegistered`.
+- **SC-7** `voterRegisterationBatch(address[])`.
+- **SC-8** Tests for every function, role, phase change and revert.
+- **Frontend** `app.js` uses `eth_requestAccounts`, checks for chain ID 1337, sends
+  every transaction from the connected account, reads the phase from the chain,
+  and shows readable messages for reverts and cancelled MetaMask requests.
+- Solidity 0.8.24 with `evmVersion: "paris"` (Ganache UI 2.7.1 has no `PUSH0`).
+- SEC-9 decision recorded: a fresh CSRF token at login (D-003).
+
 ## Phase 1: Security fixes (2026-11-03)
 
 Done: **SEC-1 to SEC-12**, with API tests for each (`npm run test:api`, 157
