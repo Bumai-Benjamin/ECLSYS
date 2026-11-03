@@ -4,6 +4,7 @@ var conn=require('../database');
 var auth=require('../middleware/auth');
 var otp=require('../lib/otp');
 var mailer=require('../lib/mailer');
+var validate=require('../lib/validate');
 var getAge = require('get-age');
 
 var OTP_PURPOSE = 'register_vote';
@@ -49,8 +50,14 @@ function completeRegistration(pending) {
 }
 
 router.post('/registerdata', function(req, res, next){
-    var idNumber = String(req.body.id_number || '');
-    var accountAddress = String(req.body.account_address || '');
+    var idNumber = validate.text(req.body.id_number);
+    var accountAddress = validate.text(req.body.account_address);
+
+    // SEC-6: check the wallet address before anything is sent
+    var badWallet = validate.wallet(accountAddress);
+    if (badWallet) {
+      return res.render('voter-registration.ejs', { alertMsg: badWallet });
+    }
 
     // Only the logged-in user's own ID number; otherwise anyone could send
     // OTP emails to other people and try to attach a wallet to their ID.
@@ -60,12 +67,19 @@ router.post('/registerdata', function(req, res, next){
           return res.render('voter-registration.ejs', { alertMsg: 'That ID number does not match your account.' });
         }
         var user = results[0];
-        var is_registerd = user.is_registerd;
-        if (is_registerd == 'YES') {    //IF USER ALREADY REGISTERED
+        // D8: the column is Is_registered (it was read as is_registerd, which is always undefined)
+        if (String(user.Is_registered).toUpperCase() === 'YES') {    //IF USER ALREADY REGISTERED
           return res.render('voter-registration.ejs',{alertMsg:"You are already registered. You cannot register again"});
         }
         if (getAge(user.Dob) < 18) {
           return res.send('You cannot vote as your age is less than 18');
+        }
+        var walletUsed = await query(
+          'SELECT 1 FROM registration WHERE LOWER(account_address) = LOWER(?) AND reg_id <> ? ' +
+          'UNION SELECT 1 FROM registered_users WHERE LOWER(Account_address) = LOWER(?)',
+          [accountAddress, user.reg_id, accountAddress]);
+        if (walletUsed.length) {
+          return res.render('voter-registration.ejs', { alertMsg: 'That wallet address is already registered to another voter.' });
         }
 
         // SEC-4 / D7: the registration in progress belongs to this session only
