@@ -88,3 +88,38 @@ describe('SEC-5 sessions', function () {
     expect(res.status).to.equal(302);
   });
 });
+
+// The store's own cleanup timer let a dropped MySQL connection (ECONNRESET,
+// e.g. after the PC sleeps) escape as an unhandled rejection, which stopped
+// the server. lib/session runs the cleanup itself and catches the error.
+describe('SEC-5 expired-session cleanup', function () {
+  var sessions = require('../../lib/session');
+
+  it("turns off the store's own cleanup timer", function () {
+    expect(sessions.getStore().options.clearExpired).to.equal(false);
+  });
+
+  it('a failed cleanup is logged, not thrown', async function () {
+    var store = sessions.getStore();
+    var original = store.clearExpiredSessions;
+    var originalError = console.error;
+    var logged = [];
+    store.clearExpiredSessions = function () { return Promise.reject(Object.assign(new Error('read ECONNRESET'), { code: 'ECONNRESET' })); };
+    console.error = function (line) { logged.push(String(line)); };
+    try {
+      await sessions.clearExpired();
+    } finally {
+      store.clearExpiredSessions = original;
+      console.error = originalError;
+    }
+    expect(logged.join('\n')).to.contain('ECONNRESET');
+  });
+
+  it('a working cleanup deletes expired sessions', async function () {
+    var past = Math.floor(Date.now() / 1000) - 60;
+    await h.query('INSERT INTO sessions (session_id, expires, data) VALUES (?, ?, ?)', ['expired-test-' + Date.now(), past, '{}']);
+    await sessions.clearExpired();
+    var left = await h.query('SELECT COUNT(*) AS n FROM sessions WHERE expires < ?', [Math.floor(Date.now() / 1000)]);
+    expect(left[0].n).to.equal(0);
+  });
+});
