@@ -76,7 +76,7 @@ App = {
 
     var contestInstance;
     var loader = $("#loader");
-    var content = $("#content");
+    var content = $("#chain-content");
     loader.show();
     content.hide();
     $("#after").hide();
@@ -133,8 +133,9 @@ App = {
       currentPhase.empty();
       var currentPhaseAdmin = $("#currentPhaseAdmin");//for admin
       currentPhaseAdmin.empty();
-      currentPhase.append($("<h1>").text(fetchedState));
-      currentPhaseAdmin.append($("<h3>").text(" Current Phase : " + fetchedStateAdmin));
+      // one <h1> per page: the phase is a line of text, not a heading
+      currentPhase.append($("<p class='phase-line'>").text(fetchedState));
+      currentPhaseAdmin.text("Current phase: " + fetchedStateAdmin);
     }).catch(function (err) {
       App.showError(err);
     })
@@ -222,7 +223,7 @@ App = {
         return instance.changeState(next, { from: App.account });
       });
     }).then(function () {
-      $("#content").hide();
+      $("#chain-content").hide();
       $("#loader").show();
       App.render();
     }).catch(function (err) {

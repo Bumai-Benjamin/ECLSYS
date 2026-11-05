@@ -1,34 +1,28 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>ECL - Namibia</title>
-    <link rel="stylesheet" type="text/css" href="css/index.css">
-    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ECN E-Vote · Electoral Commission of Namibia</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&amp;display=swap">
+  <link href="/css/app.css" rel="stylesheet">
 </head>
-<body>
-    <header class="site-header clearfix">
-        <nav>
-            <div class="logo">
-                <h1>ECN - E-Vote</h1>
-
-            </div>
-            
-        </nav>
-        <section>
-            <div class="leftside">
-                <img src="img/home_page.png">
-            </div>
-            <div class="rightside">
-                <h1>Electoral Commission of Namibia - E Voting!</h1>
-                <p> LET YOUR VOICE BE HEARD! </p>
-                <a href="/register"><button>USER SIGN-UP/LOGIN</button></a>
-                <a href="/adlogin"><button>ADMIN-LOGIN</button></a>
-
-            </div>
-
-        </section>
-
-    </header>
+<body data-nav="public" data-page="home">
+  <a class="skip-link" href="#content">Skip to content</a>
+  <nav id="app-shell" aria-label="Main"></nav>
+  <script src="/js/shell.js"></script>
+  <main id="content" class="home" tabindex="-1">
+    <img src="img/home_page.png" alt="Electoral Commission of Namibia logo: a hand putting a ballot into a box in the colours of the Namibian flag">
+    <div class="home-copy">
+      <h1>Electoral Commission of Namibia e-voting</h1>
+      <p class="tagline">Let your voice be heard.</p>
+      <p>Create an account, register your MetaMask wallet, and vote when voting opens.</p>
+      <div class="actions">
+        <a class="btn btn-primary" href="/register">Register to vote</a>
+        <a class="btn btn-secondary-outline" href="/login">Sign in</a>
+      </div>
+      <p class="switch"><a href="/result">See results</a> · <a href="/audit">Check the count</a> · <a href="/adlogin">Election staff sign-in</a></p>
+    </div>
+  </main>
 </body>
-
 </html>

@@ -1,170 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    
-    <!-- The above 3 meta tags must come first in the head; any other head content must come after these tags -->
-    <title>ECL - Namibia</title>
-
-
-    <meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
-    <!--     Fonts and icons     -->
-    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700|Material+Icons" />
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
-    <!-- CSS Files -->
-    <link href="../assets/css/material-dashboard.css?v=2.1.2" rel="stylesheet" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How voting works · ECN E-Vote</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&amp;display=swap">
+  <link href="/assets/css/material-dashboard.css?v=2.1.2" rel="stylesheet">
+  <link href="/css/app.css" rel="stylesheet">
 </head>
+<body data-nav="voter" data-page="info">
+  <a class="skip-link" href="#content">Skip to content</a>
+  <nav id="app-shell" aria-label="Main"></nav>
+  <script src="/js/shell.js"></script>
+  <div class="page">
+    <main id="content" class="page-main" tabindex="-1">
+      <div id="chainError" class="alert alert-danger chain-error" role="alert"></div>
+      <header class="page-intro">
+        <h1>How voting works</h1>
+        <p>Voting happens in three phases. The Electoral Commission moves the election from one phase to the next.</p>
+      </header>
+      <ol id="steps" class="steps" aria-label="Your progress"></ol>
 
-<body>
-    <!-- additional -->
-    <div class="wrapper ">
-        <div class="sidebar" data-color="azure" data-background-color="white" data-image="./assets/img/sidebar-1.jpg">
-          <!--
-            Tip 1: You can change the color of the sidebar using: data-color="purple | azure | green | orange | danger"
-    
-            Tip 2: you can also add an image using data-image tag
-        -->
-            <div class="sidebar-wrapper">
-              <ul class="nav" style="margin-top: 50px;">
-                <li class="nav-item active">
-                  <a class="nav-link" href="#">
-                    <i class="material-icons">content_paste</i>
-                    <p>Information</p>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="/form">
-                    <i class="material-icons">check_box</i>
-                    <p>Voter Registeration</p>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="/dashboard">
-                    <i class="material-icons">how_to_vote</i>
-                    <p>Voting-Area</p>
-                  </a>
-                </li>
-                <li class="nav-item ">
-                  <a class="nav-link" href="/result">
-                    <i class="material-icons">assessment</i>
-                    <p>Result</p>
-                  </a>
-                </li>
-                <!-- <li class="nav-item">
-                  <a class="nav-link" href="/changePhase">
-                    <i class="material-icons">content_paste</i>
-                    <p>Change Phase</p>
-                  </a>
-                </li> -->
-                <li class="nav-item ">
-                  <a class="nav-link" href="/logout">
-                    <i class="material-icons">logout</i>
-                    <p>LogOut</p>
-                  </a>
-                </li>
-              </ul>
-            </div>
-        </div>
-        <div class="main-panel">
-          <!-- Navbar -->
-          <nav class="navbar navbar-expand-lg navbar-transparent navbar-absolute fixed-top ">
-            <div class="container-fluid">
-              <div class="navbar-wrapper">
-                <a class="navbar-brand" href="javascript:;"></a>
-              </div>
-              <button class="navbar-toggler" type="button" data-toggle="collapse" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="navbar-toggler-icon icon-bar"></span>
-                <span class="navbar-toggler-icon icon-bar"></span>
-                <span class="navbar-toggler-icon icon-bar"></span>
-              </button>
-            </div>
-          </nav>
-          <div class="content" style=" margin-top: 15px !important;">
-            <div class="container" style="width: 900px">
-              <div class="row">
-                <div class="col-md-12">
-                  <div class="card">
-                    <div class="card-header card-header-info">
-                      <h4 class="card-title">User Manual</h4>
-                    </div>
-                    <div class="card-body">
-                      <h4>Welcome </h4>
-                      <h5>These are few Guidelines for user : </h5>
-                      <h5>1. Voter  Registration</h5>
+      <section class="panel" aria-labelledby="before-title">
+        <h2 id="before-title">Before you start</h2>
+        <ul>
+          <li>You need to be <strong>18 or older</strong>.</li>
+          <li>You need your <strong>Namibian ID number</strong> (11 digits).</li>
+          <li>You need the <strong>MetaMask</strong> browser extension with a wallet. The wallet is what you vote with.</li>
+        </ul>
+      </section>
 
-<ul>
-    <li>For casting the vote user needs to first register himself. For this registration purpose , the user will be provided a voter registration form on this website.</li>
-    <li>The voter can only register in the registration phase. After the registration phase is over the user can not register and thus will not be able to vote.</li>
-    <li>For registration , the user will have to enter his Aadhar card number and the account address which the user will be using for  voting purpose.</li>
-    <li>At the first stage the user’s age will be checked. If the user is  18 or above  18 years of age then only he is eligible to vote.</li>
-    <li>The second stage is OTP verification. This stage is required to validate the voter itself. After entering the aadhar number and successful age verification.</li>
-    <li>After entering correct OTP user will get successfully registered.</li>
-</ul>
+      <section class="panel" aria-labelledby="phases-title">
+        <h2 id="phases-title">The three phases</h2>
+        <h3>1. Registration</h3>
+        <p>Register your wallet on the <a href="/form">Voter registration</a> page: enter your ID number, connect MetaMask, then type the code we email you. You can only register during this phase.</p>
+        <h3>2. Voting</h3>
+        <p>On the <a href="/voting">Voting</a> page, choose a candidate, check your choice, and confirm the transaction in MetaMask. You can vote once, and you can't change your vote afterwards. You get a receipt you can check on the public audit page.</p>
+        <h3>3. Results</h3>
+        <p>When voting closes, the totals appear on the <a href="/result">Results</a> page. Anyone can re-count the votes on the <a href="/audit">audit page</a>.</p>
+      </section>
 
-<h5>2.Voting Process</h5>
-<ul >
-<li>Overall , voting process is divided into three phases. All of which will be initialized and terminated by the admin. User have to participate in the process according to current phase. </li>
-</ul>
-<ol >
-<li><strong>Registration Phase</strong>:  During this phase the registration of the users (which are going to cast the vote) will be carried out. </li>
-<li><strong>Voting Phase</strong>: After initialization of voting phase from the admin, user can cast the vote in voting section.The casting of vote can be simply done by clicking on “VOTE” button, after which transaction will be initiated and after confirming transaction the vote will get successfully casted. After voting phase gets over user will not be able to cast vote.</li>
-<li><strong> Result Phase</strong>: This is the final stage of whole voting process during which the results of election will be displayed at “Result” section.</li>
-</ol>
-
-                      
-                    </div>
-                    
-                  </div>
-                </div>
-              </div>
-            </div>
-    
-          
-          <!-- End Navbar -->
-      </div>
-      </div>
-  
-      
-      
-      <!-- additional -->
-    
-        
-
-    
-   
-
-
-    <script src="assets/js/core/jquery.min.js"></script>
-<!-- <script src="js/web3.min.js"></script> -->
-<!-- <script src="js/truffle-contract.js"></script> -->
-<!-- <script src="js/app.js"></script> -->
-<script src="../assets/js/core/popper.min.js"></script>
-<script src="../assets/js/core/bootstrap-material-design.min.js"></script>
-<script src="../assets/js/plugins/perfect-scrollbar.jquery.min.js"></script>
-<!-- Plugin for the momentJs  -->
-<script src="../assets/js/plugins/moment.min.js"></script>
-<!-- Forms Validations Plugin -->
-<script src="../assets/js/plugins/jquery.validate.min.js"></script>
-<!--	Plugin for Tags, full documentation here: https://github.com/bootstrap-tagsinput/bootstrap-tagsinputs  -->
-<script src="../assets/js/plugins/bootstrap-tagsinput.js"></script>
-<!-- Plugin for Fileupload, full documentation here: http://www.jasny.net/bootstrap/javascript/#fileinput -->
-<script src="../assets/js/plugins/jasny-bootstrap.min.js"></script>
-<!-- Vector Map plugin, full documentation here: http://jvectormap.com/documentation/ -->
-<script src="../assets/js/plugins/jquery-jvectormap.js"></script>
-<!--  Plugin for the Sliders, full documentation here: http://refreshless.com/nouislider/ -->
-<script src="../assets/js/plugins/nouislider.min.js"></script>
-<!-- Library for adding dinamically elements -->
-<script src="../assets/js/plugins/arrive.min.js"></script>
-<!--  Notifications Plugin    -->
-<script src="../assets/js/plugins/bootstrap-notify.js"></script>
-<!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
-<script src="../assets/js/material-dashboard.js?v=2.1.2" type="text/javascript"></script>
-
-<script src="js/pages/dashboard-page.js"></script>
+      <section class="panel" aria-labelledby="privacy-title">
+        <h2 id="privacy-title">Your privacy</h2>
+        <p>Your vote is recorded on the blockchain. Your choice is not stored next to your name in our database.</p>
+        <p>In this version a vote is cast from your registered wallet, so someone who can see both the blockchain and the voter register could link the two. Anonymous voting is planned for a later version.</p>
+      </section>
+    </main>
+  </div>
+  <script src="assets/js/core/jquery.min.js"></script>
+  <script src="js/web3.min.js"></script>
+  <script src="js/truffle-contract.js"></script>
+  <script src="js/templates.js"></script>
+  <script src="js/errors.js"></script>
+  <script src="js/app.js"></script>
 </body>
-
 </html>

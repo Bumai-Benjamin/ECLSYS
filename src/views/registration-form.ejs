@@ -1,77 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" />
-    <link href="css/registration_from.css" rel="stylesheet" type="text/css">
-    <title>Sign in & Sign up Form</title>
-  </head>
-  <body>
-    <div class="container">
-      <div class="forms-container">
-        <div class="signin-signup">
-          <form method="post" action="register" >
-            <input type="hidden" name="_csrf" value="<%= csrfToken() %>" />
-            <h2 class="title">Sign up</h2>
-            <p> <%=(typeof alertMsg!='undefined')? alertMsg:''%></p>
-            <div class="input-field">
-              <i class="fas fa-user"></i>
-              <input type="text" placeholder="ID Number" name="id_number" required />
-            </div>
-            <div class="input-field">
-              <i class="fas fa-user"></i>
-              <input type="text" placeholder="First name" name="first_name" required />
-            </div>
-            <div class="input-field">
-              <i class="fas fa-user"></i>
-              <input type="text" placeholder="Last name" name="last_name" required />
-            </div>
-            <div class="input-field">
-              <i class="fas fa-user"></i>
-              <input type="text" placeholder="Gender" name="gender" required />
-            </div>
-            <div class="input-field">
-              <i class="fas fa-user"></i>
-              <input type="date" placeholder="Date of Birth" name="Dob" required />
-            </div>
-            <div class="input-field">
-              <i class="fas fa-envelope"></i>
-              <input type="email" placeholder="Email"  name="email_address" required />
-            </div>
-            <div class="input-field">
-              <i class="fas fa-lock"></i>
-              <input type="password" placeholder="Password" name="password"/>
-            </div>
-            <div class="input-field">
-              <i class="fas fa-lock"></i>
-              <input type="password" placeholder="ConfirmPassword" name="confirm_password"/>
-            </div>
-            <input type="submit" class="btn" value="Sign up" />
-           
-            
-          </form>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Create an account · ECN E-Vote</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&amp;display=swap">
+  <link href="/css/app.css" rel="stylesheet">
+</head>
+<body>
+  <main id="content" class="auth-page">
+    <div class="auth-card auth-wide">
+      <p class="brand-line">Electoral Commission of Namibia</p>
+      <h1>Create an account</h1>
+      <p class="muted">You need an account before you can register your wallet and vote.</p>
+      <% if (typeof alertMsg != 'undefined' && alertMsg) { %>
+        <div class="alert <%= /success/i.test(alertMsg) ? 'alert-success' : 'alert-danger' %>" role="alert"><%= alertMsg %></div>
+      <% } %>
+      <form method="post" action="/register">
+        <input type="hidden" name="_csrf" value="<%= csrfToken() %>">
+        <div class="field">
+          <label for="id_number">Namibian ID number</label>
+          <input type="text" id="id_number" name="id_number" inputmode="numeric" autocomplete="off" aria-describedby="id-number-hint" required>
+          <span class="hint" id="id-number-hint">11 digits, as on your Namibian ID</span>
         </div>
-      </div>
-
-      <div class="panels-container">
-        <div class="panel left-panel">
-          <div class="content">
-            <h3>One of us?</h3>
-            <p>
-              If you have already signed up , that's great !! 
-              Please LOGIN 
-            </p>
-            <a href="/login"><button class="btn transparent" id="sign-up-btn">
-              Login
-            </button>
-            </a>
+        <div class="field-row">
+          <div class="field">
+            <label for="first_name">First name</label>
+            <input type="text" id="first_name" name="first_name" autocomplete="given-name" required>
           </div>
-          <img src="img/home_page.png" class="image" alt="" />
+          <div class="field">
+            <label for="last_name">Last name</label>
+            <input type="text" id="last_name" name="last_name" autocomplete="family-name" required>
+          </div>
         </div>
-      </div>
-
+        <div class="field-row">
+          <div class="field">
+            <label for="gender">Gender</label>
+            <select id="gender" name="gender" required>
+              <option value="">Choose…</option>
+              <option value="Female">Female</option>
+              <option value="Male">Male</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="Dob">Date of birth</label>
+            <input type="date" id="Dob" name="Dob" autocomplete="bday" aria-describedby="dob-hint" required>
+            <span class="hint" id="dob-hint">You must be 18 or older to vote.</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="email_address">Email address</label>
+          <input type="email" id="email_address" name="email_address" autocomplete="email" aria-describedby="email-hint" required>
+          <span class="hint" id="email-hint">We send your registration code here.</span>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" autocomplete="new-password" minlength="8" aria-describedby="password-hint" required>
+            <span class="hint" id="password-hint">Use at least 8 characters.</span>
+          </div>
+          <div class="field">
+            <label for="confirm_password">Confirm password</label>
+            <input type="password" id="confirm_password" name="confirm_password" autocomplete="new-password" minlength="8" required>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Create account</button>
+      </form>
+      <p class="switch">Already have an account? <a href="/login">Sign in</a></p>
     </div>
-
-  </body>
+  </main>
+</body>
 </html>

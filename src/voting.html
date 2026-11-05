@@ -1,81 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ECL - Namibia</title>
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-
-  </head>
-  <body >
-<div id="chainError" class="alert alert-danger" role="alert" style="display:none; position:fixed; top:12px; left:50%; transform:translateX(-50%); z-index:2000; max-width:90%;"></div>
-    <div class="container" style="width: 700px">
-      <div class="row">
-        <div class="col-xs-12 col-sm-8 col-sm-push-2">
-          <h1 class="text-center">Best Actor Contest</h1>
-          <hr/>
-          <br/>
-        </div>
-      </div>
-  <form data-action="registerVoter">
-      <div class="form-group">
-        <label>Voter Account</label>
-        <input type="text" class="form-control" id="accadd" placeholder="Address">
-      </div>
-      <button type="submit" class="btn btn-primary">Register</button>
-  </form>
-      <form data-action="addCandidate">
-      <div class="form-group">
-        <label for="exampleInputEmail1">Name</label>
-        <input type="text" class="form-control" id="name" placeholder="Name">
-      </div>
-      <button type="submit" class="btn btn-primary">Add</button>
-</form>
-<hr>
-<form data-action="changeState">
-  <button type="submit" class="btn btn-primary">Change phase</button>
-</form>
-
-      <div id="loader" class="row">
-        <!-- PETS LOAD HERE -->
-        <p class="text-center">Loading.... </p>
-      </div>
-
-      <div id="content">
-        <table class="table">
-          <thead>
-            <th scope="col">#</th>
-            <th scope="col">Name</th>
-            <th scope="col">Votes</th>
-          </thead>
-          <tbody id="contestantsResults">
-
-          </tbody>
-          <hr/>
-          <p id="accountAddress" class="text-center"></p>
-        </table>
-
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vote · ECN E-Vote</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&amp;display=swap">
+  <link href="/assets/css/material-dashboard.css?v=2.1.2" rel="stylesheet">
+  <link href="/css/app.css" rel="stylesheet">
+</head>
+<body data-nav="voter" data-page="voting">
+  <a class="skip-link" href="#content">Skip to content</a>
+  <nav id="app-shell" aria-label="Main"></nav>
+  <script src="/js/shell.js"></script>
+  <div class="page">
+    <main id="content" class="page-main" tabindex="-1">
+      <div id="chainError" class="alert alert-danger chain-error" role="alert"></div>
+      <header class="page-intro">
+        <h1>Vote</h1>
+        <p>Choose one candidate. You can vote once, and you can't change your vote afterwards.</p>
+      </header>
+      <ol id="steps" class="steps" aria-label="Your progress"></ol>
+      <div id="currentPhase"></div>
+      <p id="loader" class="muted">Loading the candidates…</p>
+      <section id="chain-content" class="panel" aria-labelledby="ballot-title">
+        <h2 id="ballot-title">Ballot</h2>
         <form data-action="castVote">
-          <div class="form-group">
-            <label for="contestantSelect">Select Contestant</label>
-            <select class="select-control" id="contestantSelect"></select>
+          <div class="field">
+            <label for="contestantSelect">Candidate</label>
+            <select id="contestantSelect"></select>
           </div>
-          <button type="submit" class="btn btn-primary">Cast your vote</button>
+          <div class="actions">
+            <button type="submit" class="btn btn-primary">Cast your vote</button>
+          </div>
         </form>
-      </div>
- </div>
-
-
-
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="assets/js/core/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/web3.min.js"></script>
-    <script src="js/truffle-contract.js"></script>
-    <script src="js/templates.js"></script>
-    <script src="js/errors.js"></script>
-    <script src="js/app.js"></script>
-  </body>
+        <p id="accountAddress" class="muted"></p>
+      </section>
+    </main>
+  </div>
+  <script src="assets/js/core/jquery.min.js"></script>
+  <script src="js/web3.min.js"></script>
+  <script src="js/truffle-contract.js"></script>
+  <script src="js/templates.js"></script>
+  <script src="js/errors.js"></script>
+  <script src="js/app.js"></script>
+</body>
 </html>

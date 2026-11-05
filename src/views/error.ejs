@@ -1,22 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ECL - Namibia</title>
-  <link href="/assets/css/material-dashboard.css?v=2.1.2" rel="stylesheet" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Something went wrong · ECN E-Vote</title>
+  <link href="/assets/css/material-dashboard.css?v=2.1.2" rel="stylesheet">
+  <link href="/css/app.css" rel="stylesheet">
 </head>
-<body>
-  <div class="container" style="max-width: 640px; margin-top: 80px;">
-    <div class="card">
-      <div class="card-header card-header-danger">
-        <h4 class="card-title">Something went wrong</h4>
-      </div>
-      <div class="card-body">
+<body data-nav="public" data-page="error">
+  <a class="skip-link" href="#content">Skip to content</a>
+  <nav id="app-shell" aria-label="Main"></nav>
+  <script src="/js/shell.js"></script>
+  <div class="page">
+    <main id="content" class="page-main" tabindex="-1">
+      <section class="panel content-narrow">
+        <h1>Something went wrong</h1>
         <p><%= message %></p>
         <p><a href="/">Back to the start page</a></p>
-      </div>
-    </div>
+      </section>
+    </main>
   </div>
 </body>
 </html>

@@ -1,28 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<title>Login Form</title>
-	<link rel="stylesheet" href="css/adminstyle.css">
-	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Administrator sign-in · ECN E-Vote</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&amp;display=swap">
+  <link href="/css/app.css" rel="stylesheet">
 </head>
 <body>
-	<div class="center">
-	<div class="header">Login Form</div>	
-
-	<%=(typeof alertMsg!='undefined')? alertMsg:''%>
-
-	<form  method="post" action="/adlogin">
-		<input type="hidden" name="_csrf" value="<%= csrfToken() %>" />
-		<input type="text" placeholder="Email or Username" name="email_address" required/>
-		<i class="far fa-envelope"></i>
-		<input id="pswrd" type="password" placeholder="Password" name="password" required/>
-		<i class="fas fa-lock" id="togglePassword"></i>
-		<input type="submit" value="Login">
-		<a href="#">Forgot Password?</a>
-	</form>
-	</div>
-
-	<script src="js/login-page.js"></script>
+  <main id="content" class="auth-page">
+    <div class="auth-card">
+      <p class="brand-line">Electoral Commission of Namibia</p>
+      <h1>Election administrator sign-in</h1>
+      <% if (typeof alertMsg != 'undefined' && alertMsg) { %>
+        <div class="alert alert-danger" role="alert"><%= alertMsg %></div>
+      <% } %>
+      <form method="post" action="/adlogin">
+        <input type="hidden" name="_csrf" value="<%= csrfToken() %>">
+        <div class="field">
+          <label for="email_address">Email address</label>
+          <input type="email" id="email_address" name="email_address" autocomplete="username" required>
+        </div>
+        <div class="field">
+          <label for="pswrd">Password</label>
+          <div class="password-row">
+            <input type="password" id="pswrd" name="password" autocomplete="current-password" required>
+            <button type="button" id="togglePassword" class="btn btn-secondary-outline" aria-pressed="false" aria-controls="pswrd">Show</button>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Sign in</button>
+      </form>
+      <p class="switch">Voting? <a href="/login">Sign in as a voter</a></p>
+    </div>
+  </main>
+  <script src="js/login-page.js"></script>
 </body>
 </html>

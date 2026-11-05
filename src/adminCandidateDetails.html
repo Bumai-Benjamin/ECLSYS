@@ -1,143 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-
-    <title>ECL - Namibia</title>
-
-    <!-- Fonts and Icons -->
-    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700|Material+Icons" />
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
-
-    <!-- Material Dashboard CSS -->
-    <link href="./assets/css/material-dashboard.css?v=2.1.2" rel="stylesheet" />
-  </head>
-
-  <body>
-<div id="chainError" class="alert alert-danger" role="alert" style="display:none; position:fixed; top:12px; left:50%; transform:translateX(-50%); z-index:2000; max-width:90%;"></div>
-    <div class="wrapper">
-      <div class="sidebar" data-color="green" data-background-color="white" data-image="./assets/img/sidebar-1.jpg">
-        <div class="sidebar-wrapper">
-          <ul class="nav" style="margin-top: 50px;">
-            <li class="nav-item active">
-              <a class="nav-link" href="#">
-                <i class="material-icons">info</i>
-                <p>Candidate Details</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/addCandidate">
-                <i class="material-icons">person_add</i>
-                <p>Add Candidate</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/table_view">
-                <i class="material-icons">how_to_reg</i>
-                <p>Register</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">
-                <i class="material-icons">published_with_changes</i>
-                <p>Change Phase</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/logout">
-                <i class="material-icons">logout</i>
-                <p>LogOut</p>
-              </a>
-            </li>
-          </ul>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Candidates · ECN E-Vote admin</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&amp;display=swap">
+  <link href="/assets/css/material-dashboard.css?v=2.1.2" rel="stylesheet">
+  <link href="/css/app.css" rel="stylesheet">
+</head>
+<body data-nav="admin" data-page="candidates">
+  <a class="skip-link" href="#content">Skip to content</a>
+  <nav id="app-shell" aria-label="Main"></nav>
+  <script src="/js/shell.js"></script>
+  <div class="page">
+    <main id="content" class="page-main" tabindex="-1">
+      <div id="chainError" class="alert alert-danger chain-error" role="alert"></div>
+      <header class="page-intro">
+        <h1>Candidates</h1>
+        <p>Everyone standing in this election, as recorded on the blockchain. Vote counts stay at 0 until voting closes.</p>
+      </header>
+      <section id="chain-content" class="panel" aria-labelledby="list-title">
+        <h2 id="list-title">Candidate list</h2>
+        <div class="table-wrap">
+          <table class="table table-stack">
+            <thead><tr><th scope="col">#</th><th scope="col">Name</th><th scope="col">Age</th><th scope="col">Party</th><th scope="col">Qualification</th><th scope="col">Votes</th></tr></thead>
+            <tbody id="contestantsResultsAdmin"></tbody>
+          </table>
         </div>
-      </div>
-
-      <div class="main-panel">
-
-        <!-- Navbar -->
-        <nav class="navbar navbar-expand-lg navbar-transparent navbar-absolute fixed-top ">
-          <div class="container-fluid">
-            <div class="navbar-wrapper">
-              <a class="navbar-brand" href="javascript:;"></a>
-            </div>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
-              <span class="sr-only">Toggle navigation</span>
-              <span class="navbar-toggler-icon icon-bar"></span>
-              <span class="navbar-toggler-icon icon-bar"></span>
-              <span class="navbar-toggler-icon icon-bar"></span>
-            </button>
-          </div>
-        </nav>
-        <!-- End Navbar -->
-
-        <div class="content">
-          <div class="container-fluid">
-            <div class="row">
-              <div class="col-md-12">
-                <div class="card">
-                  <div class="card-header card-header-success">
-                    <h4 class="card-title">Candidate Details</h4>
-                  </div>
-                  <div class="card-body">
-                    <table class="table">
-                      <thead>
-                        <th scope="col">#</th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Age</th>
-                        <th scope="col">Party</th>
-                        <th scope="col">Qualification</th>
-                        <th scope="col">Votes</th>
-                      </thead>
-
-                      <tbody id="contestantsResultsAdmin">
-                      </tbody>
-
-                    </table>
-
-                    <hr>
-                    <p id="accountAddress" class="text-center"></p>
-
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div> <!-- main-panel -->
-    </div> <!-- wrapper -->
-
-    <!-- JS Files -->
-    <script src="assets/js/core/jquery.min.js"></script>
-    <script src="js/web3.min.js"></script>
-    <script src="js/truffle-contract.js"></script>
-    <script src="js/templates.js"></script>
-    <script src="js/errors.js"></script>
-    <script src="js/app.js"></script>
-
-    <script src="./assets/js/core/popper.min.js"></script>
-    <script src="./assets/js/core/bootstrap-material-design.min.js"></script>
-    <script src="./assets/js/plugins/perfect-scrollbar.jquery.min.js"></script>
-    <script src="./assets/js/plugins/moment.min.js"></script>
-    <script src="./assets/js/plugins/jquery.validate.min.js"></script>
-    <script src="./assets/js/plugins/bootstrap-tagsinput.js"></script>
-    <script src="./assets/js/plugins/jasny-bootstrap.min.js"></script>
-    <script src="./assets/js/plugins/jquery-jvectormap.js"></script>
-    <script src="./assets/js/plugins/nouislider.min.js"></script>
-
-    <script src="./assets/js/plugins/arrive.min.js"></script>
-    <script src="./assets/js/plugins/bootstrap-notify.js"></script>
-
-    <script src="assets/js/material-dashboard.js?v=2.1.2"></script>
-
-    <!-- IMPORTANT: this file defines 'md' -->
-    <script src="assets/demo/demo.js"></script>
-
-    <script src="js/pages/candidate-details.js"></script>
-
-
-  </body>
+      </section>
+      <p id="loader" class="muted">Loading…</p>
+      <p id="accountAddress" class="muted"></p>
+    </main>
+  </div>
+  <script src="assets/js/core/jquery.min.js"></script>
+  <script src="js/web3.min.js"></script>
+  <script src="js/truffle-contract.js"></script>
+  <script src="js/templates.js"></script>
+  <script src="js/errors.js"></script>
+  <script src="js/app.js"></script>
+</body>
 </html>

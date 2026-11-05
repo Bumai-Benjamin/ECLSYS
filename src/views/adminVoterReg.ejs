@@ -1,198 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    
-    <!-- The above 3 meta tags must come first in the head; any other head content must come after these tags -->
-    <title>ECL - Namibia</title>
-
-
-    <meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
-    <!--     Fonts and icons     -->
-    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700|Material+Icons" />
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
-    <!-- CSS Files -->
-    <link href="../assets/css/material-dashboard.css?v=2.1.2" rel="stylesheet" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Voters · ECN E-Vote admin</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&amp;display=swap">
+  <link href="/assets/css/material-dashboard.css?v=2.1.2" rel="stylesheet">
+  <link href="/css/app.css" rel="stylesheet">
 </head>
+<body data-nav="admin" data-page="voters">
+  <a class="skip-link" href="#content">Skip to content</a>
+  <nav id="app-shell" aria-label="Main"></nav>
+  <script src="/js/shell.js"></script>
+  <div class="page">
+    <main id="content" class="page-main" tabindex="-1">
+      <div id="chainError" class="alert alert-danger chain-error" role="alert"></div>
+      <header class="page-intro">
+        <h1>Voters</h1>
+        <p>Wallets registered in the database, and whether the voting contract has them too.</p>
+      </header>
 
-<body>
-<div id="chainError" class="alert alert-danger" role="alert" style="display:none; position:fixed; top:12px; left:50%; transform:translateX(-50%); z-index:2000; max-width:90%;"></div>
-    <!-- additional -->
-    <div class="wrapper ">
-        <div class="sidebar" data-color="green" data-background-color="white" data-image="./assets/img/sidebar-1.jpg">
-          <!--
-            Tip 1: You can change the color of the sidebar using: data-color="purple | azure | green | orange | danger"
-    
-            Tip 2: you can also add an image using data-image tag
-        -->
-            <div class="sidebar-wrapper">
-              <ul class="nav" style="margin-top: 50px;">
-                <li class="nav-item">
-                  <a class="nav-link" href="/candidateDetails">
-                    <i class="material-icons">info</i>
-                    <p>Candidate Details</p>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="/addCandidate">
-                    <i class="material-icons">person_add</i>
-                    <p>Add Candidate</p>
-                  </a>
-                </li>
-                <li class="nav-item active">
-                  <a class="nav-link" href="#">
-                    <i class="material-icons">how_to_reg</i>
-                    <p>Register</p>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="/changePhase">
-                    <i class="material-icons">published_with_changes</i>
-                    <p>Change Phase</p>
-                  </a>
-                </li>
-                <li class="nav-item ">
-                  <a class="nav-link" href="/logout">
-                    <i class="material-icons">logout</i>
-                    <p>LogOut</p>
-                  </a>
-                </li>
-              </ul>
-            </div>
-        </div>
-        <div class="main-panel">
-          <!-- Navbar -->
-          <nav class="navbar navbar-expand-lg navbar-transparent navbar-absolute fixed-top ">
-            <div class="container-fluid">
-              <div class="navbar-wrapper">
-                <a class="navbar-brand" href="javascript:;"></a>
-              </div>
-              <button class="navbar-toggler" type="button" data-toggle="collapse" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="navbar-toggler-icon icon-bar"></span>
-                <span class="navbar-toggler-icon icon-bar"></span>
-                <span class="navbar-toggler-icon icon-bar"></span>
-              </button>
-            </div>
-          </nav>
-    
-          <div class="content">
-            <div class="container-fluid">
-              <div class="row">
-                <div class="col-md-12">
-                  <div class="card">
-                    <div class="card-header card-header-success">
-                      <h4 class="card-title">Voter Registration</h4>
-                    </div>
-                    <div class="card-body">
-                        <% if (typeof mismatches != 'undefined' && mismatches.length) { %>
-                        <div class="alert alert-warning" role="alert">
-                            <strong>Registered on the blockchain but not saved in the database.</strong>
-                            Register these voters again, or check the database by hand.
-                            <ul>
-                                <% mismatches.forEach(function(m){ %>
-                                <li><%= m.detail %> (voter reg_id <%= m.actor_reg_id %>, <%= m.created_at %>)</li>
-                                <% }) %>
-                            </ul>
-                        </div>
-                        <% } %>
-                        <div>
-                            <table class="table">
-                                <tr>
-                                    <th>S.N</th>
-                                    <th>Account address</th>
-                                    <th>Is registered</th>
-                                    <th>On blockchain</th>
-                
-                
-                                </tr>
-                
-                                <% if(userData.length!=0){ var i=0; userData.forEach(function(data){ %>
-                                    <tr>
-                                        <td>
-                                            <%=i; %>
-                                        </td>
-                                        <td>
-                                            <%=data.Account_address%>
-                                        </td>
-                                        <td>
-                                            <%=data.Is_registered%>
-                                        </td>
-                                        <td class="on-chain"><%= data.onChain %></td>
-                
-                
-                                    </tr>
-                                    <% i++; }) %>
-                                        <% } else{ %>
-                                            <tr>
-                                                <td colspan="7">No Data Found</td>
-                                            </tr>
-                                            <% } %>
-                            </table>
-                        </div>
-                        <h5>Recovery: register an address on-chain</h5>
-                        <p class="text-muted">Voters are registered on the blockchain automatically after their email code. Use this only to fix an address the table shows as missing on the blockchain.</p>
-                        <form data-action="registerVoter">
-                            <div class="form-group">
-                              <br>
-                              <input type="text" class="form-control" id="accadd" placeholder="Please Enter Voter Account Address here.." required>
-                              <!-- <label>Voter Account</label> -->
-                            </div>
-                            <br>
-                            <button type="submit" class="btn btn-success">Register</button>
-                        </form>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-        </div>
-          <!-- End Navbar -->
+      <% if (typeof mismatches != 'undefined' && mismatches.length) { %>
+      <div class="alert alert-warning" role="alert">
+        <strong>Registered on the blockchain but not saved in the database.</strong>
+        Register these voters again, or check the database by hand.
+        <ul>
+          <% mismatches.forEach(function(m){ %>
+          <li><%= m.detail %> (voter reg_id <%= m.actor_reg_id %>, <%= m.created_at %>)</li>
+          <% }) %>
+        </ul>
       </div>
-      </div>
-  
-      
-      
-      <!-- additional -->
-    
-        
+      <% } %>
 
-    
-   
+      <section class="panel" aria-labelledby="voters-title">
+        <h2 id="voters-title">Registered wallets</h2>
+        <div class="table-wrap">
+          <table class="table table-stack">
+            <thead>
+              <tr>
+                <th scope="col">S.N</th>
+                <th scope="col">Account address</th>
+                <th scope="col">Is registered</th>
+                <th scope="col">On blockchain</th>
+              </tr>
+            </thead>
+            <tbody>
+            <% if (userData.length != 0) { var i = 0; userData.forEach(function(data){ %>
+              <tr>
+                <td data-label="S.N"><%= i %></td>
+                <td data-label="Account address"><code><%= data.Account_address %></code></td>
+                <td data-label="Is registered"><%= data.Is_registered %></td>
+                <td class="on-chain"><%= data.onChain %></td>
+              </tr>
+            <% i++; }) } else { %>
+              <tr><td colspan="4" class="empty-state">No voters have registered yet.</td></tr>
+            <% } %>
+            </tbody>
+          </table>
+        </div>
+      </section>
 
-
-    <script src="assets/js/core/jquery.min.js"></script>
-<script src="js/web3.min.js"></script>
-<script src="js/truffle-contract.js"></script>
-<script src="js/templates.js"></script>
-<script src="js/errors.js"></script>
-<script src="js/app.js"></script>
-<script src="../assets/js/core/popper.min.js"></script>
-<script src="../assets/js/core/bootstrap-material-design.min.js"></script>
-<script src="../assets/js/plugins/perfect-scrollbar.jquery.min.js"></script>
-<!-- Plugin for the momentJs  -->
-<script src="../assets/js/plugins/moment.min.js"></script>
-<!-- Forms Validations Plugin -->
-<script src="../assets/js/plugins/jquery.validate.min.js"></script>
-<!--	Plugin for Tags, full documentation here: https://github.com/bootstrap-tagsinput/bootstrap-tagsinputs  -->
-<script src="../assets/js/plugins/bootstrap-tagsinput.js"></script>
-<!-- Plugin for Fileupload, full documentation here: http://www.jasny.net/bootstrap/javascript/#fileinput -->
-<script src="../assets/js/plugins/jasny-bootstrap.min.js"></script>
-<!-- Vector Map plugin, full documentation here: http://jvectormap.com/documentation/ -->
-<script src="../assets/js/plugins/jquery-jvectormap.js"></script>
-<!--  Plugin for the Sliders, full documentation here: http://refreshless.com/nouislider/ -->
-<script src="../assets/js/plugins/nouislider.min.js"></script>
-<!-- Library for adding dinamically elements -->
-<script src="../assets/js/plugins/arrive.min.js"></script>
-<!--  Notifications Plugin    -->
-<script src="../assets/js/plugins/bootstrap-notify.js"></script>
-<!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
-<script src="../assets/js/material-dashboard.js?v=2.1.2" type="text/javascript"></script>
-
-<script src="js/pages/dashboard-page.js"></script>
+      <section class="panel" aria-labelledby="recovery-title">
+        <h2 id="recovery-title">Recovery: register an address on-chain</h2>
+        <p class="muted">Voters are registered on the blockchain automatically after their email code. Use this only to fix an address the table shows as missing on the blockchain.</p>
+        <form data-action="registerVoter">
+          <div class="field">
+            <label for="accadd">Wallet address</label>
+            <input type="text" id="accadd" autocomplete="off" spellcheck="false" required>
+          </div>
+          <div class="actions">
+            <button type="submit" class="btn btn-primary">Register on the blockchain</button>
+          </div>
+        </form>
+      </section>
+    </main>
+  </div>
+  <script src="assets/js/core/jquery.min.js"></script>
+  <script src="js/web3.min.js"></script>
+  <script src="js/truffle-contract.js"></script>
+  <script src="js/templates.js"></script>
+  <script src="js/errors.js"></script>
+  <script src="js/app.js"></script>
 </body>
-
 </html>
