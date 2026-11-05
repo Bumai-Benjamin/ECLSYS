@@ -46,12 +46,39 @@ async function onChainStatus(chain, rows) {
   });
 }
 
+// Review Focus 2, the reverse case: the chain call threw (timeout, dropped
+// connection) but the transaction was mined. The wallet is then on-chain and
+// not in the DB, and only a chain_register_failed row remembers it.
+async function minedDespiteFailure(chain, failedRows, dbRows) {
+  var inDb = {};
+  dbRows.forEach(function (r) { inDb[String(r.Account_address).toLowerCase()] = true; });
+  var wallets = {};
+  failedRows.forEach(function (r) {
+    var m = /^(0x[0-9a-fA-F]{40}): /.exec(r.detail || '');
+    if (m && !inDb[m[1].toLowerCase()] && !wallets[m[1].toLowerCase()]) {
+      wallets[m[1].toLowerCase()] = { detail: m[1], actor_reg_id: r.actor_reg_id, created_at: r.created_at };
+    }
+  });
+  var candidates = Object.keys(wallets).map(function (k) { return wallets[k]; });
+  var onChain = await mapLimit(candidates, CONCURRENCY, async function (c) {
+    try {
+      return await chain.isRegistered(c.detail);
+    } catch (err) {
+      return false;   // the column already says Unknown when the chain is down
+    }
+  });
+  return candidates.filter(function (c, i) { return onChain[i]; });
+}
+
 router.get('/table_view', auth.requireAdmin, async function(req, res, next) {
   try {
     var data = await query('SELECT * FROM registered_users');
     var mismatches = await query(
       "SELECT actor_reg_id, detail, created_at FROM audit_log WHERE action = 'chain_db_mismatch' ORDER BY id DESC");
+    var failed = await query(
+      "SELECT actor_reg_id, detail, created_at FROM audit_log WHERE action = 'chain_register_failed' ORDER BY id DESC");
     var statuses = await onChainStatus(req.app.locals.chain, data);
+    mismatches = mismatches.concat(await minedDespiteFailure(req.app.locals.chain, failed, data));
     data.forEach(function (row, i) { row.onChain = statuses[i]; });
     res.render('adminVoterReg', { title: 'Registered Users List', userData: data, mismatches: mismatches });
   } catch (err) {

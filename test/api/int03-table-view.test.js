@@ -66,6 +66,24 @@ describe('INT-3 on-chain status in the voter table', function () {
     expect(mismatchAt).to.be.lessThan(res.text.indexOf('On blockchain'));
   });
 
+  it('shows a failed registration that the chain has anyway (review #3)', async function () {
+    // The send threw (e.g. timeout) but the transaction was mined: on-chain,
+    // not in the DB, and only chain_register_failed records it.
+    var chain = fakes.fakeChain();
+    var voter = await h.createUser();
+    var minedWallet = h.newWallet();
+    var failedWallet = h.newWallet();
+    await chain.registerVoter(minedWallet);
+    await audit.record(voter.reg_id, 'chain_register_failed', minedWallet + ': receipt timeout');
+    await audit.record(voter.reg_id, 'chain_register_failed', failedWallet + ': out of gas');
+    var res = await (await adminAgent(chain)).get('/table_view');
+    var at = res.text.indexOf(minedWallet);
+    expect(at).to.be.greaterThan(-1);
+    expect(at).to.be.lessThan(res.text.indexOf('On blockchain'));
+    // really failed: nothing on-chain, nothing to fix
+    expect(res.text).not.to.contain(failedWallet);
+  });
+
   it('checks at most 10 wallets at a time', async function () {
     for (var i = 0; i < 25; i++) await addRegisteredUser(h.newWallet());
     var running = 0;

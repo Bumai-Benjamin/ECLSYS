@@ -131,7 +131,9 @@ router.post('/otpverify', function(req, res, next) {
           await req.app.locals.chain.registerVoter(pending.accountAddress);
         } catch (err) {
           console.error('On-chain registration failed: ' + errors.redact(err.message));
-          await audit.record(pending.regId, 'chain_register_failed', errors.redact(err.message));
+          // The wallet goes first: if the transaction was mined anyway (e.g. the
+          // receipt timed out), the admin table finds it on-chain from here.
+          await audit.record(pending.regId, 'chain_register_failed', pending.accountAddress + ': ' + errors.redact(err.message));
           return res.render('voter-registration.ejs', { alertMsg: CHAIN_FAILED });
         }
 

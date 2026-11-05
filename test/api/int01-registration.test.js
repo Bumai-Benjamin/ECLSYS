@@ -48,6 +48,8 @@ describe('INT-1 automatic on-chain registration', function () {
     var rows = await auditRows(r.reg.user.reg_id, 'chain_register_failed');
     expect(rows).to.have.length(1);
     expect(rows[0].detail).to.contain('The blockchain is not available');
+    // the wallet comes first, so the admin table can check it on-chain later
+    expect(rows[0].detail.indexOf(r.reg.wallet + ': ')).to.equal(0);
   });
 
   it('any other chain error also leaves DB untouched', async function () {
