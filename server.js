@@ -18,6 +18,7 @@ var RegisterRouter = require('./routes/main');
 var AdminLogin = require('./routes/admin_login');
 var Tableview = require('./routes/table_view');
 var AuditPage = require('./routes/audit');
+var MeRoute = require('./routes/me');
 
 // SEC-11: scripts only from this site. Stylesheets and fonts may come from the
 // CDNs the pages already use; MetaMask's fallback provider talks to Ganache.
@@ -86,6 +87,7 @@ function createApp(options) {
   app.use('/', AdminLogin);
   app.use('/', Tableview);
   app.use('/', AuditPage);   // INT-4: public
+  app.use('/', MeRoute);     // UI-1: who is signed in (no personal data)
 
   app.get('/vote_area', auth.requireLogin, page('vote_area.html'));
   app.get('/candidateDetails', auth.requireAdmin, page('adminCandidateDetails.html'));
