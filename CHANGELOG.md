@@ -3,6 +3,26 @@
 Requirement IDs refer to [REQUIREMENTS.md](REQUIREMENTS.md). Decisions are in
 [docs/decisions.md](docs/decisions.md).
 
+## Phase 3: Integration (2026-11-05)
+
+Done: **INT-1 to INT-4**. 202 API tests pass (`npm run test:api`); the
+contract is faked in API tests. `npm run test:integration` checks
+`lib/chain.js` against Ganache and skips itself when Ganache is not running.
+
+- **INT-2** `config/contract.js` and `lib/chain.js`: the server reads the
+  contract address from the Truffle build and checks the contract is really on
+  the running chain before every call. Ganache stopped, reset or not migrated
+  gives "The blockchain is not available. Ask an administrator to run npm run
+  migrate." instead of a crash.
+- **INT-1** After the email code, the server registers the wallet on-chain
+  (registrar key, `REGISTRAR_PRIVATE_KEY`) and then in the DB. A chain failure
+  saves nothing and tells the voter; a DB failure after the chain succeeded is
+  recorded as `chain_db_mismatch`. The admin form is now a recovery tool.
+- **INT-3** The admin voter table has an "On blockchain" column (Yes,
+  No ⚠ mismatch, Unknown) and lists recorded mismatches.
+- **INT-4** Public `/audit` page: contract events, a re-count of votes, and a
+  check against the contract totals once voting is done.
+
 ## Phase 2: Contract v2 (2026-11-03)
 
 Done: **SC-1 to SC-8**, plus the frontend changes they need (D15, D16).
