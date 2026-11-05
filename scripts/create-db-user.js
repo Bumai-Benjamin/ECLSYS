@@ -25,8 +25,13 @@ var query = lib.promisify(conn);
 
 (async function () {
   var db = process.env.DB_NAME;
-  await query('CREATE USER IF NOT EXISTS ?@? IDENTIFIED BY ?', [user, HOST, process.env.DB_PASS]);
-  await query('ALTER USER ?@? IDENTIFIED BY ?', [user, HOST, process.env.DB_PASS]);
+  // MySQL 8 defaults to caching_sha2_password, which the `mysql` driver can't
+  // log in with (ER_NOT_SUPPORTED_AUTH_MODE). MariaDB (XAMPP) has no such plugin
+  // and its default already works.
+  var version = (await query('SELECT VERSION() AS v'))[0].v;
+  var identified = /mariadb/i.test(version) ? 'IDENTIFIED BY ?' : 'IDENTIFIED WITH mysql_native_password BY ?';
+  await query('CREATE USER IF NOT EXISTS ?@? ' + identified, [user, HOST, process.env.DB_PASS]);
+  await query('ALTER USER ?@? ' + identified, [user, HOST, process.env.DB_PASS]);
   // start from nothing so a re-run also removes rights granted by hand
   await query('REVOKE ALL PRIVILEGES, GRANT OPTION FROM ?@?', [user, HOST]);
   await query('GRANT SELECT, INSERT, UPDATE ON ??.* TO ?@?', [db, user, HOST]);
