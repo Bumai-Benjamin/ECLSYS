@@ -46,11 +46,73 @@
     return row + "</tr>";
   }
 
+  // UI-4: long hex values (hashes, addresses) as 0x1234…abcd
+  function shortHash(value) {
+    var s = String(value == null ? '' : value);
+    return s.length > 13 ? s.slice(0, 6) + '…' + s.slice(-4) : s;
+  }
+
+  // Results table data: most votes first (ties by number), share of all
+  // votes in whole percent, and a bar class in steps of 5 (no inline style).
+  function resultRows(candidates) {
+    var total = 0;
+    var rows = candidates.map(function (c) {
+      var votes = Number(c.voteCount) || 0;
+      total += votes;
+      return { id: safeId(c.id), name: c.name, party: c.party, votes: votes };
+    });
+    rows.sort(function (a, b) { return b.votes - a.votes || Number(a.id) - Number(b.id); });
+    rows.forEach(function (r) {
+      r.share = total ? Math.round(r.votes * 100 / total) : 0;
+      r.barClass = 'bar-' + Math.round(r.share / 5) * 5;
+    });
+    return rows;
+  }
+
+  function resultRow(r) {
+    return '<tr><td data-label="Candidate">' + escapeHtml(r.name) + '</td>' +
+      '<td data-label="Party">' + escapeHtml(r.party) + '</td>' +
+      '<td data-label="Votes">' + escapeHtml(r.votes) + '</td>' +
+      '<td data-label="Share"><span class="share">' + escapeHtml(r.share) + '%</span>' +
+      '<span class="bar ' + escapeHtml(r.barClass) + '" aria-hidden="true"></span></td></tr>';
+  }
+
+  // A ballot card: the radio input sits inside its label, so the whole card
+  // is clickable and the name is the input's accessible name.
+  function candidateChoice(c) {
+    var id = safeId(c.id);
+    return '<label class="candidate-card" for="candidate-' + id + '">' +
+      '<input type="radio" name="candidate" id="candidate-' + id + '" value="' + id + '">' +
+      '<span class="candidate-name">' + escapeHtml(c.name) + '</span>' +
+      '<span class="candidate-meta">' + escapeHtml(c.party) + ' · Age ' + escapeHtml(c.age) + '</span>' +
+      '<span class="candidate-meta">' + escapeHtml(c.qualification) + '</span></label>';
+  }
+
+  // UI-4: the one next phase an admin can move to (the contract never goes back)
+  var NEXT_PHASE = {
+    0: { button: 'Open voting', word: 'OPEN', explain: 'No more candidates or voter registrations. Registered voters can vote.' },
+    1: { button: 'Close voting', word: 'CLOSE', explain: 'Voting stops for good. Results and totals become public.' }
+  };
+  var PhaseFlow = {
+    next: function (phase) {
+      var n = NEXT_PHASE[Number(phase)];
+      return n ? { button: n.button, word: n.word, explain: n.explain } : null;
+    },
+    confirmed: function (typed, word) {
+      return String(typed == null ? '' : typed).trim().toUpperCase() === word;
+    }
+  };
+
   var api = {
     escapeHtml: escapeHtml,
     candidateCard: candidateCard,
     candidateOption: candidateOption,
-    candidateRow: candidateRow
+    candidateRow: candidateRow,
+    shortHash: shortHash,
+    resultRows: resultRows,
+    resultRow: resultRow,
+    candidateChoice: candidateChoice,
+    PhaseFlow: PhaseFlow
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.Templates = api;
