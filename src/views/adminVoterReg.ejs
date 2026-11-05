@@ -88,12 +88,24 @@
                       <h4 class="card-title">Voter Registration</h4>
                     </div>
                     <div class="card-body">
+                        <% if (typeof mismatches != 'undefined' && mismatches.length) { %>
+                        <div class="alert alert-warning" role="alert">
+                            <strong>Registered on the blockchain but not saved in the database.</strong>
+                            Register these voters again, or check the database by hand.
+                            <ul>
+                                <% mismatches.forEach(function(m){ %>
+                                <li><%= m.detail %> (voter reg_id <%= m.actor_reg_id %>, <%= m.created_at %>)</li>
+                                <% }) %>
+                            </ul>
+                        </div>
+                        <% } %>
                         <div>
                             <table class="table">
                                 <tr>
                                     <th>S.N</th>
                                     <th>Account address</th>
                                     <th>Is registered</th>
+                                    <th>On blockchain</th>
                 
                 
                                 </tr>
@@ -109,6 +121,7 @@
                                         <td>
                                             <%=data.Is_registered%>
                                         </td>
+                                        <td class="on-chain"><%= data.onChain %></td>
                 
                 
                                     </tr>
@@ -120,6 +133,8 @@
                                             <% } %>
                             </table>
                         </div>
+                        <h5>Recovery: register an address on-chain</h5>
+                        <p class="text-muted">Voters are registered on the blockchain automatically after their email code. Use this only to fix an address the table shows as missing on the blockchain.</p>
                         <form data-action="registerVoter">
                             <div class="form-group">
                               <br>

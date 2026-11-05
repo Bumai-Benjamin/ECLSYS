@@ -6,9 +6,11 @@ var otp=require('../lib/otp');
 var mailer=require('../lib/mailer');
 var validate=require('../lib/validate');
 var errors=require('../middleware/errors');
+var audit=require('../lib/audit');
 var getAge = require('get-age');
 
 var OTP_PURPOSE = 'register_vote';
+var CHAIN_FAILED = "We couldn't register your wallet on the blockchain. Nothing was saved. Please try again later.";
 
 // SEC-2: voter registration is only for logged-in users
 router.use(['/form', '/registerdata', '/otpverify'], auth.requireLogin);
@@ -122,7 +124,26 @@ router.post('/otpverify', function(req, res, next) {
           return res.render('voter-registration.ejs', { alertMsg: why + ' Please start the registration again to get a new code.' });
         }
         delete req.session.pendingRegistration;
-        await completeRegistration(pending);
+
+        // INT-1: chain first. If it fails nothing is saved, so the voter can
+        // simply try again (Review Focus 1).
+        try {
+          await req.app.locals.chain.registerVoter(pending.accountAddress);
+        } catch (err) {
+          console.error('On-chain registration failed: ' + errors.redact(err.message));
+          await audit.record(pending.regId, 'chain_register_failed', errors.redact(err.message));
+          return res.render('voter-registration.ejs', { alertMsg: CHAIN_FAILED });
+        }
+
+        // The wallet is now registered on-chain. If the DB write fails the two
+        // disagree; record it so the admin sees it in the voter table (Review Focus 2).
+        try {
+          await completeRegistration(pending);
+        } catch (err) {
+          await audit.record(pending.regId, 'chain_db_mismatch', pending.accountAddress);
+          throw err;
+        }
+        await audit.record(pending.regId, 'voter_registered');
         res.render('voter-registration.ejs', { alertMsg: 'You are successfully registered' });
       })
       .catch(next);
