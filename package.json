@@ -14,6 +14,7 @@
     "test:contracts": "truffle test",
     "coverage": "truffle run coverage",
     "test:api": "mocha",
+    "test:integration": "mocha --no-config --exit --timeout 60000 test/integration",
     "db:migrate": "node scripts/db-migrate.js",
     "db:reset-test": "node scripts/db-reset-test.js",
     "db:create-user": "node scripts/create-db-user.js",
