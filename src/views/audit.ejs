@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ECL - Namibia: Election audit</title>
+  <link href="/assets/css/material-dashboard.css?v=2.1.2" rel="stylesheet" />
+</head>
+<body>
+  <div class="container" style="max-width: 960px; margin-top: 40px;">
+    <div class="card">
+      <div class="card-header card-header-success">
+        <h4 class="card-title">Election audit</h4>
+        <p class="card-category">Read directly from the voting contract. Anyone can check these numbers.</p>
+      </div>
+      <div class="card-body">
+        <% if (unavailable) { %>
+          <div class="alert alert-danger" role="alert"><%= unavailable %></div>
+        <% } else { %>
+          <p><strong>Contract address:</strong> <code><%= contractAddress %></code></p>
+          <p><strong>Phase:</strong> <%= phaseName %></p>
+
+          <h5>Re-count</h5>
+          <p class="text-muted">The number of vote events for each candidate, counted on this page.</p>
+          <table class="table">
+            <tr>
+              <th>#</th>
+              <th>Candidate</th>
+              <th>Re-count</th>
+              <% if (done) { %><th>Contract total</th><% } %>
+            </tr>
+            <% rows.forEach(function (r) { %>
+            <tr>
+              <td><%= r.id %></td>
+              <td><%= r.name %></td>
+              <td><%= r.recount %></td>
+              <% if (done) { %><td><%= r.total %></td><% } %>
+            </tr>
+            <% }) %>
+          </table>
+
+          <% if (done) { %>
+            <% if (matches) { %>
+              <div class="alert alert-success" role="status">Re-count matches the contract totals.</div>
+            <% } else { %>
+              <div class="alert alert-danger" role="alert">WARNING: re-count does not match the contract totals.</div>
+            <% } %>
+          <% } else { %>
+            <p class="text-muted">Totals are hidden until voting ends.</p>
+          <% } %>
+
+          <h5>Events (newest first)</h5>
+          <table class="table table-sm">
+            <tr>
+              <th>Block</th>
+              <th>Event</th>
+              <th>Details</th>
+            </tr>
+            <% events.forEach(function (e) { %>
+            <tr>
+              <td><%= e.blockNumber %></td>
+              <td><%= e.event %></td>
+              <td><% Object.keys(e.args).forEach(function (k, i) { %><%= i ? ', ' : '' %><%= k %>: <%= e.args[k] %><% }) %></td>
+            </tr>
+            <% }) %>
+          </table>
+        <% } %>
+        <p><a href="/">Back to the start page</a></p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
