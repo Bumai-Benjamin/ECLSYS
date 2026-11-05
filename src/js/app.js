@@ -262,8 +262,15 @@ $(document).on('submit', 'form[data-action]', function (event) {
 });
 
 $(function () {
-  // .on('load'): jQuery 3 removed .load(fn) (SEC-11 uses the local jQuery 3)
-  $(window).on('load', function () {
+  // .on('load'): jQuery 3 removed .load(fn) (SEC-11 uses the local jQuery 3).
+  // jQuery 3 runs ready callbacks asynchronously, so on a fast or cached load
+  // the window load event can already have fired by now; start straight away
+  // then, or the page never connects to the contract.
+  if (document.readyState === 'complete') {
     App.init();
-  });
+  } else {
+    $(window).on('load', function () {
+      App.init();
+    });
+  }
 });
