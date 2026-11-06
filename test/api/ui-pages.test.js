@@ -106,3 +106,50 @@ describe('UI-5 page markup', function () {
     expect(css).to.contain(':focus-visible');
   });
 });
+
+describe('UI-7 voter pages', function () {
+  function page(rel) { return read(path.join(SRC, rel)); }
+  var APP = fs.readFileSync(path.join(SRC, 'js', 'app.js'), 'utf8');
+
+  it('/form has the connect-wallet button, the locked address field and the ID hint', function () {
+    var html = page('views/voter-registration.ejs');
+    expect(html).to.match(/<button type="button"[^>]*id="use-wallet"[^>]*>Use my MetaMask wallet<\/button>/);
+    expect(html).to.match(/id="account_address"[^>]*aria-describedby="wallet-hint"/);
+    expect(html).to.match(/id="change-wallet"[^>]*hidden/);
+    expect(html).to.match(/id="id_number"[^>]*aria-describedby="id-hint"/);
+    expect(html).to.contain('11 digits, as on your Namibian ID');
+  });
+
+  it('/voting has the ballot, review button, dialog, progress line, receipt and already-voted panel', function () {
+    var html = page('voting.html');
+    expect(html).to.match(/<fieldset id="ballot"/);
+    expect(html).to.match(/<button type="button"[^>]*id="review-vote"[^>]*disabled[^>]*>Review my vote<\/button>/);
+    expect(html).to.match(/<dialog id="confirm-vote"/);
+    ['confirm-text', 'cast-vote', 'cancel-vote'].forEach(function (id) { expect(html).to.contain('id="' + id + '"'); });
+    expect(html).to.match(/<div id="vote-progress"[^>]*aria-live="polite"/);
+    expect(html).to.match(/<section id="receipt"[^>]*hidden/);
+    expect(html).to.match(/<section id="already-voted"[^>]*hidden/);
+    ['receipt-tx', 'receipt-block'].forEach(function (id) { expect(html).to.contain('id="' + id + '"'); });
+    expect(html).to.contain('Your choice is not stored next to your name.');
+    expect(html).to.match(/<a[^>]+href="\/audit"/);
+    expect(html).to.match(/id="already-voted"[\s\S]*href="\/result"/);
+  });
+
+  it('/result has a waiting panel and a results table', function () {
+    var html = page('result.html');
+    expect(html).to.match(/id="results-waiting"/);
+    expect(html).to.contain('Results will appear when voting closes.');
+    expect(html).to.match(/<table[^>]+id="results-table"/);
+  });
+
+  it('the email-code page links back to /form', function () {
+    expect(page('views/emailverify.ejs')).to.match(/<a href="\/form">Didn&#39;t get the code\? Request a new one<\/a>|<a href="\/form">Didn't get the code\? Request a new one<\/a>/);
+  });
+
+  it('app.js no longer uses the old dashboard cards or shouty copy', function () {
+    expect(APP).not.to.contain("$('#test')");
+    expect(APP).not.to.contain('$("#test")');
+    expect(APP).not.to.contain('Election is Not Over Yet');
+    expect(APP).not.to.contain('!!!');
+  });
+});

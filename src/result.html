@@ -20,15 +20,15 @@
         <p>Totals come straight from the voting contract. Anyone can re-count them on the <a href="/audit">audit page</a>.</p>
       </header>
       <ol id="steps" class="steps" aria-label="Your progress" hidden></ol>
-      <section id="not" class="panel">
+      <section id="results-waiting" class="panel">
         <h2>Voting has not closed yet</h2>
-        <p>Results will appear when voting closes.</p>
+        <p>Results will appear when voting closes. Meanwhile you can follow the count on the <a href="/audit">audit page</a>.</p>
       </section>
-      <section id="renderTable" class="panel" aria-labelledby="results-title">
+      <section id="results-final" class="panel" aria-labelledby="results-title" hidden>
         <h2 id="results-title">Final totals</h2>
         <div class="table-wrap">
-          <table class="table table-stack">
-            <thead><tr><th scope="col">#</th><th scope="col">Name</th><th scope="col">Age</th><th scope="col">Party</th><th scope="col">Qualification</th><th scope="col">Votes</th></tr></thead>
+          <table class="table table-stack" id="results-table">
+            <thead><tr><th scope="col">Candidate</th><th scope="col">Party</th><th scope="col">Votes</th><th scope="col">Share</th></tr></thead>
             <tbody id="Results"></tbody>
           </table>
         </div>

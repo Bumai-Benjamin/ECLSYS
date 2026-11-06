@@ -208,96 +208,79 @@ App = {
     });
   },
 
-  render: function () {
+  // UI-7: one pass over the contract fills whatever this page has: the
+  // candidate table (admin), the ballot (/voting), the results (/result) and
+  // the phase lines.
+  render: async function () {
+    try {
+      var instance = await App.contracts.Contest.deployed();
+      var count = Number(await instance.contestantsCount());
+      var ids = [];
+      for (var i = 1; i <= count; i++) ids.push(i);
+      var rows = await Promise.all(ids.map(function (id) { return instance.contestants(id); }));
+      App.candidates = rows.map(App.toCandidate);
+    } catch (err) {
+      return App.showError(err);
+    }
+    $('#loader').hide();
+    App.renderPhaseLines();
+    App.renderCandidateTable();
+    App.renderBallot();
+    App.renderResults();
+  },
 
-    var contestInstance;
-    var loader = $("#loader");
-    var content = $("#chain-content");
-    loader.show();
-    content.hide();
-    $("#after").hide();
+  PHASE_LINES: ['Registration is open. Voting has not started yet.', 'Voting is open.', 'Voting is closed.'],
+  PHASE_NAMES: ['Registration', 'Voting', 'Closed'],
 
-    $("#accountAddress").text("Your account: " + App.account);
+  renderPhaseLines: function () {
+    $('#currentPhase').empty().append($("<p class='phase-line'>").text(App.PHASE_LINES[App.phase] || ''));
+    $('#currentPhaseAdmin').text('Current phase: ' + (App.PHASE_NAMES[App.phase] || ''));
+  },
 
-    // ------------- fetching candidates to front end from blockchain code-------------
-    App.contracts.Contest.deployed().then(function (instance) {
-      contestInstance = instance;
-      return contestInstance.contestantsCount();
-    }).then(function (contestantsCount) {
-
-      var contestantsResults = $("#test");
-      contestantsResults.empty();
-      var contestantsResultsAdmin = $("#contestantsResultsAdmin");
-      contestantsResultsAdmin.empty();
-
-      var contestantSelect = $("#contestantSelect");
-      contestantSelect.empty();
-
-      for (let i = 1; i <= contestantsCount; i++) {
-        contestInstance.contestants(i).then(function (contestant) {
-          // SEC-8: these strings come from the contract; Templates escapes them
-          var c = App.toCandidate(contestant);
-          contestantsResults.append(Templates.candidateCard(c));
-          contestantSelect.append(Templates.candidateOption(c));
-          contestantsResultsAdmin.append(Templates.candidateRow(c, { withVotes: true }));
-        });
-      }
-      loader.hide();
-      content.show();
-    }).catch(function (err) {
-      App.showError(err);
+  // Admin candidate list (SEC-8: Templates escapes contract strings)
+  renderCandidateTable: function () {
+    var table = $('#contestantsResultsAdmin');
+    if (!table.length) return;
+    table.empty();
+    App.candidates.forEach(function (c) {
+      table.append(Templates.candidateRow(c, { withVotes: true }));
     });
+    $('#candidates-empty').prop('hidden', App.candidates.length > 0);
+    $('#chain-content').show();
+  },
 
-    // ------------- fetching current phase code -------------
-    App.contracts.Contest.deployed().then(function (instance) {
-      return instance.state();
-    }).then(function (state) {
-      var fetchedState;
-      var fetchedStateAdmin;
-      if (state == 0) {
-        fetchedState = "Registration phase is on , go register yourself to vote !!";
-        fetchedStateAdmin = "Registration";
-      } else if (state == 1) {
-        fetchedState = "Voting is now live !!!";
-        fetchedStateAdmin = "Voting";
-      } else {
-        fetchedState = "Voting is now over !!!";
-        fetchedStateAdmin = "Election over";
-      }
+  // /voting: cards while voting is open; "You have voted" afterwards
+  renderBallot: function () {
+    var ballot = $('#ballot');
+    if (!ballot.length) return;
+    if (App.hasVoted) {
+      $('#chain-content').attr('hidden', true);
+      $('#already-voted').removeAttr('hidden');
+      return;
+    }
+    if (App.phase !== 1) {
+      $('#chain-content').attr('hidden', true);
+      return;
+    }
+    ballot.find('.candidate-card').remove();
+    App.candidates.forEach(function (c) { ballot.append(Templates.candidateChoice(c)); });
+    $('#review-vote').prop('disabled', true);
+    $('#chain-content').removeAttr('hidden').show();
+  },
 
-      var currentPhase = $("#currentPhase");//for user
-      currentPhase.empty();
-      var currentPhaseAdmin = $("#currentPhaseAdmin");//for admin
-      currentPhaseAdmin.empty();
-      // one <h1> per page: the phase is a line of text, not a heading
-      currentPhase.append($("<p class='phase-line'>").text(fetchedState));
-      currentPhaseAdmin.text("Current phase: " + fetchedStateAdmin);
-    }).catch(function (err) {
-      App.showError(err);
-    })
+  // /result: totals only once voting is closed (SC-5)
+  renderResults: function () {
+    var body = $('#Results');
+    if (!body.length) return;
+    if (App.phase !== 2) return;
+    body.empty();
+    Templates.resultRows(App.candidates).forEach(function (r) { body.append(Templates.resultRow(r)); });
+    $('#results-waiting').attr('hidden', true);
+    $('#results-final').removeAttr('hidden');
+  },
 
-    // ------------- showing result -------------
-    // Contract v2 reports vote counts only once the phase is "done" (SC-5).
-    App.contracts.Contest.deployed().then(function (instance) {
-      return instance.state();
-    }).then(function (state) {
-      var result = $('#Results');
-      if (state == 2) {
-        $("#not").hide();
-        contestInstance.contestantsCount().then(function (contestantsCount) {
-          for (var i = 1; i <= contestantsCount; i++) {
-            contestInstance.contestants(i).then(function (contestant) {
-              result.append(Templates.candidateRow(App.toCandidate(contestant), { withVotes: true }));
-            });
-          }
-        })
-
-      } else {
-        $("#renderTable").hide();
-      }
-    }).catch(function (err) {
-      App.showError(err);
-    })
+  candidateById: function (id) {
+    return (App.candidates || []).filter(function (c) { return c.id === String(id); })[0];
   },
 
   // contestants(i) returns a tuple: id, name, voteCount, party, age, qualification
@@ -312,20 +295,40 @@ App = {
     };
   },
 
-  // ------------- voting code -------------
+  // ------------- voting code (UI-7, spec §4.4) -------------
   castVote: function (id) {
-    // from a VOTE button, or the ballot form's select
-    var contestantId = id || $('#contestantSelect').val();
+    var contestantId = id || $('input[name="candidate"]:checked').val();
+    var progress = $('#vote-progress');
     App.clearMessage();
     return Pending.run('vote', function () {
+      $('#review-vote').prop('disabled', true);
+      progress.text('Confirm the transaction in MetaMask…');
       return App.contracts.Contest.deployed().then(function (instance) {
-        return instance.vote(contestantId, { from: App.account });
-      }).then(function () {
-        App.showMessage('Your vote was recorded.', 'ok');
+        var sent = instance.vote(contestantId, { from: App.account });
+        if (sent && typeof sent.on === 'function') {
+          sent.on('transactionHash', function () { progress.text('Recording your vote…'); });
+        }
+        return sent;
+      }).then(function (result) {
+        progress.text('');
+        App.hasVoted = true;
+        App.renderSteps();
+        App.showReceipt(result);
       }).catch(function (err) {
+        progress.text('');
+        $('#review-vote').prop('disabled', !$('input[name="candidate"]:checked').length);
         App.showError(err, 'castVote');
-      })
+      });
     });
+  },
+
+  showReceipt: function (result) {
+    var tx = (result && (result.tx || (result.receipt && result.receipt.transactionHash))) || '';
+    var block = result && result.receipt ? result.receipt.blockNumber : '';
+    $('#receipt-tx').text(Templates.shortHash(tx)).attr('title', tx);
+    $('#receipt-block').text(String(block));
+    $('#chain-content').attr('hidden', true);
+    $('#receipt').removeAttr('hidden').trigger('focus');
   },
 
   // ------------- adding candidate code -------------
@@ -392,10 +395,60 @@ App = {
 };
 
 
-// VOTE buttons in candidate cards (Templates.candidateCard) carry
-// data-candidate-id instead of an inline onclick.
-$(document).on('click', '.js-vote', function () {
-  App.castVote(String($(this).data('candidate-id')));
+// ------------- ballot (UI-7) -------------
+$(document).on('change', 'input[name="candidate"]', function () {
+  $('#review-vote').prop('disabled', Pending.busy('vote'));
+});
+
+$(document).on('click', '#review-vote', function () {
+  var c = App.candidateById($('input[name="candidate"]:checked').val());
+  var dialog = document.getElementById('confirm-vote');
+  if (!c || !dialog) return;
+  $('#confirm-text').text('You are voting for ' + c.name + ' (' + c.party + '). You can\'t change your vote afterwards.');
+  dialog.showModal();
+});
+
+$(document).on('click', '#cancel-vote', function () {
+  document.getElementById('confirm-vote').close();
+});
+
+$(document).on('click', '#cast-vote', function () {
+  var dialog = document.getElementById('confirm-vote');
+  dialog.dataset.casting = '1';
+  dialog.close();
+  App.castVote();
+});
+
+// Focus goes back to the button that opened the dialog (unless the vote is on
+// its way). 'close' doesn't bubble, so it is bound on the dialog itself.
+$(function () {
+  $('#confirm-vote').on('close', function () {
+    if (this.dataset.casting !== '1') $('#review-vote').trigger('focus');
+    delete this.dataset.casting;
+  });
+});
+
+// ------------- connect wallet on /form (UI-7, spec §4.2) -------------
+$(document).on('click', '#use-wallet', function () {
+  if (!window.ethereum) {
+    App.alert('You need the MetaMask browser extension to vote.', 'error');
+    return;
+  }
+  window.ethereum.request({ method: 'eth_requestAccounts' }).then(function (accounts) {
+    var address = accounts && accounts[0];
+    if (!address) return;
+    $('#account_address').val(address).prop('readonly', true);
+    $('#wallet-hint').text('Using ' + WalletStatus.short(address) + ' from MetaMask.');
+    $('#change-wallet').removeAttr('hidden');
+  }).catch(function (err) {
+    App.showError(err);
+  });
+});
+
+$(document).on('click', '#change-wallet', function () {
+  $('#account_address').val('').prop('readonly', false).trigger('focus');
+  $('#wallet-hint').text('Press the button to fill this in from MetaMask, or paste the address (it starts with 0x).');
+  $(this).attr('hidden', true);
 });
 
 // SEC-8: forms name their action in data-action instead of an inline onsubmit.

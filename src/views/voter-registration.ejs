@@ -29,11 +29,17 @@
           <input type="hidden" name="_csrf" value="<%= csrfToken() %>">
           <div class="field">
             <label for="id_number">Namibian ID number</label>
-            <input type="text" id="id_number" name="id_number" inputmode="numeric" autocomplete="off" required>
+            <input type="text" id="id_number" name="id_number" inputmode="numeric" autocomplete="off" aria-describedby="id-hint" required>
+            <span class="hint" id="id-hint">11 digits, as on your Namibian ID</span>
           </div>
           <div class="field">
             <label for="account_address">Wallet address</label>
-            <input type="text" id="account_address" name="account_address" autocomplete="off" spellcheck="false" required>
+            <div class="actions wallet-actions">
+              <button type="button" class="btn btn-secondary-outline" id="use-wallet">Use my MetaMask wallet</button>
+              <button type="button" class="btn-link-plain" id="change-wallet" hidden>Use a different account</button>
+            </div>
+            <input type="text" id="account_address" name="account_address" autocomplete="off" spellcheck="false" aria-describedby="wallet-hint" required>
+            <span class="hint" id="wallet-hint">Press the button to fill this in from MetaMask, or paste the address (it starts with 0x).</span>
           </div>
           <div class="actions">
             <button type="submit" class="btn btn-primary">Send me a code</button>

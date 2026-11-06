@@ -22,21 +22,44 @@
       <ol id="steps" class="steps" aria-label="Your progress"></ol>
       <div id="currentPhase"></div>
       <p id="loader" class="muted">Loading the candidates…</p>
-      <section id="chain-content" class="panel" aria-labelledby="ballot-title">
+      <section id="chain-content" class="panel" aria-labelledby="ballot-title" hidden>
         <h2 id="ballot-title">Ballot</h2>
-        <form data-action="castVote">
-          <div class="field">
-            <label for="contestantSelect">Candidate</label>
-            <select id="contestantSelect"></select>
-          </div>
-          <div class="actions">
-            <button type="submit" class="btn btn-primary">Cast your vote</button>
-          </div>
-        </form>
-        <p id="accountAddress" class="muted"></p>
+        <fieldset id="ballot" class="ballot">
+          <legend>Choose one candidate</legend>
+        </fieldset>
+        <div class="actions">
+          <button type="button" class="btn btn-primary" id="review-vote" disabled>Review my vote</button>
+        </div>
+        <div id="vote-progress" class="progress-line" aria-live="polite"></div>
+      </section>
+
+      <section id="receipt" class="panel receipt" aria-labelledby="receipt-title" tabindex="-1" hidden>
+        <h2 id="receipt-title">Your vote is recorded.</h2>
+        <dl>
+          <dt>Transaction</dt>
+          <dd><code id="receipt-tx" tabindex="0"></code></dd>
+          <dt>Block</dt>
+          <dd id="receipt-block"></dd>
+        </dl>
+        <p>Anyone can check that your vote was counted on the <a href="/audit">audit page</a>.</p>
+        <p>Your choice is not stored next to your name. In this version a vote is cast from your registered wallet, so someone who can see both the blockchain and the voter register could link the two.</p>
+      </section>
+
+      <section id="already-voted" class="panel" aria-labelledby="voted-title" hidden>
+        <h2 id="voted-title">You have voted</h2>
+        <p>Thank you. Each wallet can vote once. The totals appear on the <a href="/result">Results</a> page when voting closes.</p>
       </section>
     </main>
   </div>
+
+  <dialog id="confirm-vote" aria-labelledby="confirm-title">
+    <h2 id="confirm-title">Check your vote</h2>
+    <p id="confirm-text"></p>
+    <div class="actions">
+      <button type="button" class="btn btn-primary" id="cast-vote">Cast vote</button>
+      <button type="button" class="btn btn-secondary-outline" id="cancel-vote">Go back</button>
+    </div>
+  </dialog>
   <script src="assets/js/core/jquery.min.js"></script>
   <script src="js/web3.min.js"></script>
   <script src="js/truffle-contract.js"></script>
