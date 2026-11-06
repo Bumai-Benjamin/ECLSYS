@@ -21,32 +21,38 @@
       </header>
       <section class="panel content-narrow" aria-labelledby="cand-title">
         <h2 id="cand-title">Candidate details</h2>
-        <form data-action="addCandidate" novalidate>
+        <p id="candidate-form-locked" class="alert alert-warning" hidden>Candidates can only be added during Registration.</p>
+        <form data-action="addCandidate" id="candidate-form" novalidate>
           <div class="field-row">
             <div class="field">
               <label for="name">Full name</label>
               <input type="text" id="name" autocomplete="off" required>
+              <p class="field-error" id="name-error" hidden></p>
             </div>
             <div class="field">
               <label for="party">Party</label>
               <input type="text" id="party" autocomplete="off" required>
+              <p class="field-error" id="party-error" hidden></p>
             </div>
           </div>
           <div class="field-row">
             <div class="field">
               <label for="age">Age</label>
               <input type="text" id="age" inputmode="numeric" autocomplete="off" required>
+              <p class="field-error" id="age-error" hidden></p>
             </div>
             <div class="field">
               <label for="qualification">Qualification</label>
               <input type="text" id="qualification" autocomplete="off" required>
+              <p class="field-error" id="qualification-error" hidden></p>
             </div>
           </div>
           <div class="actions">
             <button type="submit" class="btn btn-primary">Add candidate</button>
           </div>
         </form>
-        <p id="loader" class="alert alert-success chain-error">Candidate added.</p>
+        <div id="candidate-progress" class="progress-line" aria-live="polite"></div>
+        <p id="candidate-added" class="alert alert-success" role="status" hidden>Candidate added. <a href="/candidateDetails">See all candidates</a></p>
       </section>
     </main>
   </div>
@@ -58,6 +64,7 @@
   <script src="js/wallet-status.js"></script>
   <script src="js/steps.js"></script>
   <script src="js/pending.js"></script>
+  <script src="js/validate-candidate.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

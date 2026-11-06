@@ -153,3 +153,43 @@ describe('UI-7 voter pages', function () {
     expect(APP).not.to.contain('!!!');
   });
 });
+
+describe('UI-8 admin pages', function () {
+  function page(rel) { return read(path.join(SRC, rel)); }
+
+  it('/changePhase has the timeline, next-phase button and typed confirmation dialog', function () {
+    var html = page('adminChangePhase.html');
+    expect(html).to.match(/<ol id="phase-timeline"/);
+    ['Registration', 'Voting', 'Closed'].forEach(function (stop) { expect(html).to.match(new RegExp('<li[^>]*>' + stop + '</li>')); });
+    expect(html).to.match(/<button type="button"[^>]*id="next-phase"/);
+    expect(html).to.match(/<p id="next-phase-explain"/);
+    expect(html).to.match(/<dialog id="confirm-phase"/);
+    expect(html).to.match(/<input[^>]*id="confirm-word"[^>]*aria-describedby="confirm-word-hint"/);
+    expect(html).to.match(/<button[^>]*id="confirm-phase-ok"[^>]*disabled/);
+    expect(html).to.contain('id="confirm-phase-cancel"');
+  });
+
+  it('/addCandidate has an error line per field, the phase lock and the success link', function () {
+    var html = page('adminAddCandidate.html');
+    ['name', 'party', 'age', 'qualification'].forEach(function (f) {
+      expect(html).to.match(new RegExp('<p class="field-error" id="' + f + '-error"[^>]*hidden'));
+    });
+    expect(html).to.match(/id="candidate-form-locked"[^>]*hidden/);
+    expect(html).to.contain('Candidates can only be added during Registration.');
+    expect(html).to.match(/id="candidate-added"[\s\S]*Candidate added\.[\s\S]*href="\/candidateDetails"/);
+  });
+
+  it('/candidateDetails has an empty state linking to Add candidate', function () {
+    var html = page('adminCandidateDetails.html');
+    expect(html).to.match(/id="candidates-empty"[\s\S]*No candidates yet\.[\s\S]*href="\/addCandidate"/);
+  });
+
+  it('/table_view shows badges and keeps the recovery form in a collapsed section', function () {
+    var html = page('views/adminVoterReg.ejs');
+    expect(html).to.contain('<details id="recovery-tools" class="tools">');
+    expect(html).to.contain('<summary>Recovery tools</summary>');
+    expect(html).to.contain('badge-mismatch');
+    expect(html).to.contain('badge-yes');
+    expect(html).to.contain('badge-unknown');
+  });
+});

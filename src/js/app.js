@@ -227,6 +227,8 @@ App = {
     App.renderCandidateTable();
     App.renderBallot();
     App.renderResults();
+    App.renderCandidateForm();
+    App.renderPhaseTimeline();
   },
 
   PHASE_LINES: ['Registration is open. Voting has not started yet.', 'Voting is open.', 'Voting is closed.'],
@@ -331,48 +333,106 @@ App = {
     $('#receipt').removeAttr('hidden').trigger('focus');
   },
 
-  // ------------- adding candidate code -------------
-  addCandidate: function () {
-    $("#loader").hide();
-    var name = $('#name').val();
-    var age = $('#age').val();
-    var party = $('#party').val();
-    var qualification = $('#qualification').val();
-    App.clearMessage();
+  // ------------- adding candidate code (UI-8, spec §5.2) -------------
+  CANDIDATE_FIELDS: ['name', 'party', 'age', 'qualification'],
 
+  // Outside Registration the contract would refuse, so say so up front
+  renderCandidateForm: function () {
+    var form = $('#candidate-form');
+    if (!form.length) return;
+    var locked = App.phase !== 0;
+    $('#candidate-form-locked').prop('hidden', !locked);
+    form.find('input, button').prop('disabled', locked);
+  },
+
+  showFieldErrors: function (errors) {
+    var first = null;
+    App.CANDIDATE_FIELDS.forEach(function (f) {
+      var input = $('#' + f);
+      var line = $('#' + f + '-error');
+      if (errors[f]) {
+        line.text(errors[f]).removeAttr('hidden');
+        input.attr({ 'aria-invalid': 'true', 'aria-describedby': f + '-error' });
+        if (!first) first = input;
+      } else {
+        line.text('').attr('hidden', true);
+        input.removeAttr('aria-invalid').removeAttr('aria-describedby');
+      }
+    });
+    if (first) first.trigger('focus');
+    return !first;
+  },
+
+  addCandidate: function () {
+    var values = {};
+    App.CANDIDATE_FIELDS.forEach(function (f) { values[f] = String($('#' + f).val() || '').trim(); });
+    App.clearMessage();
+    $('#candidate-added').attr('hidden', true);
+    if (!App.showFieldErrors(CandidateForm.validate(values))) return null;   // MetaMask never opens
+
+    var progress = $('#candidate-progress');
     return Pending.run('candidate', function () {
+      progress.text('Confirm the transaction in MetaMask…');
       return App.contracts.Contest.deployed().then(function (instance) {
-        return instance.addContestant(name, party, age, qualification, { from: App.account });
+        return instance.addContestant(values.name, values.party, values.age, values.qualification, { from: App.account });
       }).then(function () {
-        $("#loader").show();
-        $('#name').val('');
-        $('#age').val('');
-        $('#party').val('');
-        $('#qualification').val('');
+        progress.text('');
+        App.CANDIDATE_FIELDS.forEach(function (f) { $('#' + f).val(''); });
+        $('#candidate-added').removeAttr('hidden');
+        $('#name').trigger('focus');
       }).catch(function (err) {
+        progress.text('');
         App.showError(err, 'addCandidate');
-      })
+      });
     });
   },
 
-  // ------------- changing phase code -------------
-  // Reads the current phase from the chain and asks for the next one (the
-  // contract only allows one step forward).
+  // ------------- changing phase code (UI-8, spec §5.1) -------------
+  renderPhaseTimeline: function () {
+    var timeline = $('#phase-timeline');
+    if (!timeline.length) return;
+    timeline.children('li').each(function () {
+      var p = Number($(this).data('phase'));
+      $(this).toggleClass('is-past', p < App.phase);
+      if (p === App.phase) $(this).attr('aria-current', 'step'); else $(this).removeAttr('aria-current');
+    });
+    var next = Templates.PhaseFlow.next(App.phase);
+    if (next) {
+      $('#next-phase').text(next.button).removeAttr('hidden');
+      $('#next-phase-explain').text(next.explain);
+    } else {
+      $('#next-phase').attr('hidden', true);
+      $('#next-phase-explain').text('The election is over. Results are public on the Results page.');
+    }
+  },
+
+  // The contract only moves one step forward; it is asked for state + 1 of
+  // the phase it reports now, not of what this page last saw.
   changeState: function () {
+    var progress = $('#phase-progress');
     App.clearMessage();
     return Pending.run('phase', function () {
+      $('#next-phase').prop('disabled', true);
+      progress.text('Confirm the transaction in MetaMask…');
       return App.contracts.Contest.deployed().then(function (instance) {
         return instance.state().then(function (state) {
           var next = Number(state) + 1;
-          return instance.changeState(next, { from: App.account });
+          var sent = instance.changeState(next, { from: App.account });
+          return sent.then(function () { return next; });
         });
-      }).then(function () {
-        $("#chain-content").hide();
-        $("#loader").show();
-        App.render();
+      }).then(function (next) {
+        progress.text('');
+        App.phase = next;
+        App.renderPhaseLines();
+        App.renderPhaseTimeline();
+        App.renderSteps();
+        App.alert(next === 1 ? 'Voting is now open.' : 'Voting is now closed.', 'ok');
+        $('#next-phase').prop('disabled', false);
       }).catch(function (err) {
+        progress.text('');
+        $('#next-phase').prop('disabled', false);
         App.showError(err, 'changeState');
-      })
+      });
     });
   },
 
@@ -425,6 +485,45 @@ $(function () {
   $('#confirm-vote').on('close', function () {
     if (this.dataset.casting !== '1') $('#review-vote').trigger('focus');
     delete this.dataset.casting;
+  });
+});
+
+// ------------- phase change confirmation (UI-8) -------------
+$(document).on('click', '#next-phase', function () {
+  var next = Templates.PhaseFlow.next(App.phase);
+  var dialog = document.getElementById('confirm-phase');
+  if (!next || !dialog) return;
+  $('#confirm-phase-title').text(next.button + '?');
+  $('#confirm-phase-text').text(next.explain);
+  $('#confirm-word-target').text(next.word);
+  $('#confirm-word').val('');
+  $('#confirm-phase-ok').prop('disabled', true);
+  dialog.dataset.word = next.word;
+  dialog.showModal();
+  $('#confirm-word').trigger('focus');
+});
+
+$(document).on('input', '#confirm-word', function () {
+  var word = document.getElementById('confirm-phase').dataset.word;
+  $('#confirm-phase-ok').prop('disabled', !Templates.PhaseFlow.confirmed($(this).val(), word));
+});
+
+$(document).on('click', '#confirm-phase-cancel', function () {
+  document.getElementById('confirm-phase').close();
+});
+
+$(document).on('click', '#confirm-phase-ok', function () {
+  var dialog = document.getElementById('confirm-phase');
+  if (!Templates.PhaseFlow.confirmed($('#confirm-word').val(), dialog.dataset.word)) return;
+  dialog.dataset.changing = '1';
+  dialog.close();
+  App.changeState();
+});
+
+$(function () {
+  $('#confirm-phase').on('close', function () {
+    if (this.dataset.changing !== '1') $('#next-phase').trigger('focus');
+    delete this.dataset.changing;
   });
 });
 
