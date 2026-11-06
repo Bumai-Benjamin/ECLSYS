@@ -77,7 +77,9 @@ describe('FE app.js on contract v2', function () {
 
   it('checks for the Ganache chain (1337)', function () {
     expect(APP_JS).to.contain("'0x539'");
-    expect(APP_JS).to.contain('Please switch MetaMask to the Ganache network (chain ID 1337).');
+    // UI-6: the wrong-network message now comes from WalletStatus (spec §4.3), with a switch button
+    expect(APP_JS).to.contain('WalletStatus.decide(');
+    expect(APP_JS).to.contain('wallet_switchEthereumChain');
   });
 
   it('sends every transaction from App.account', function () {
@@ -99,7 +101,8 @@ describe('FE app.js on contract v2', function () {
     expect(APP_JS).to.contain("'chainChanged'");
   });
 
-  it('every page that loads app.js loads errors.js first and has a #chainError box', function () {
+  // UI-6: the MetaMask status panel (#wallet-status) replaced the #chainError box
+  it('every page that loads app.js loads errors.js, wallet-status.js, steps.js and pending.js first and has a #wallet-status panel', function () {
     var pages = fs.readdirSync(SRC).filter(function (f) { return /\.html$/.test(f); }).map(function (f) { return path.join(SRC, f); })
       .concat(fs.readdirSync(path.join(SRC, 'views')).map(function (f) { return path.join(SRC, 'views', f); }));
     var checked = 0;
@@ -111,7 +114,13 @@ describe('FE app.js on contract v2', function () {
       var errs = html.search(/<script[^>]+src="js\/errors\.js"/);
       expect(errs, path.basename(f)).to.be.greaterThan(-1);
       expect(errs, path.basename(f)).to.be.lessThan(app);
-      expect(html, path.basename(f)).to.match(/id="chainError"/);
+      ['wallet-status', 'steps', 'pending'].forEach(function (mod) {
+        var at = html.search(new RegExp('<script[^>]+src="js\/' + mod + '\.js"'));
+        expect(at, path.basename(f) + ' ' + mod).to.be.greaterThan(-1);
+        expect(at, path.basename(f) + ' ' + mod).to.be.lessThan(app);
+      });
+      expect(html, path.basename(f)).to.match(/<div id="wallet-status" class="status-panel" role="status" aria-live="polite"><\/div>/);
+      expect(html, path.basename(f)).not.to.match(/id="chainError"/);
     });
     expect(checked).to.be.greaterThan(5);
   });
