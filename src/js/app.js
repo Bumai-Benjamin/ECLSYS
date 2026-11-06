@@ -128,6 +128,14 @@ App = {
     main.append(box);
   },
 
+  // Every transaction needs the contract; without it (no MetaMask, not
+  // connected, wrong network, chain down) say why instead of hanging.
+  contractReady: function () {
+    if (App.contracts.Contest && App.account) return true;
+    App.alert(App.account ? CHAIN_DOWN : 'Connect MetaMask to the election network first.', 'error');
+    return false;
+  },
+
   // kind 'ok' or 'error'; an empty text clears the line
   alert: function (text, kind) {
     var line = App.ensurePanel().children('.status-alert').empty();
@@ -309,6 +317,7 @@ App = {
     var contestantId = id || $('input[name="candidate"]:checked').val();
     var progress = $('#vote-progress');
     App.clearMessage();
+    if (!App.contractReady()) return null;
     return Pending.run('vote', function () {
       $('#review-vote').prop('disabled', true);
       progress.text('Confirm the transaction in MetaMask…');
@@ -377,6 +386,7 @@ App = {
     App.clearMessage();
     $('#candidate-added').attr('hidden', true);
     if (!App.showFieldErrors(CandidateForm.validate(values))) return null;   // MetaMask never opens
+    if (!App.contractReady()) return null;
 
     var progress = $('#candidate-progress');
     return Pending.run('candidate', function () {
@@ -415,17 +425,26 @@ App = {
     }
   },
 
-  // The contract only moves one step forward; it is asked for state + 1 of
-  // the phase it reports now, not of what this page last saw.
+  // Sends the phase after the one the admin saw and confirmed. If the chain
+  // has moved on meanwhile (another tab or admin), nothing is sent and the
+  // page shows the real phase, so "Open voting" can never close the election.
   changeState: function () {
     var progress = $('#phase-progress');
+    var shown = App.phase;
     App.clearMessage();
+    if (!App.contractReady()) return null;
     return Pending.run('phase', function () {
       $('#next-phase').prop('disabled', true);
       progress.text('Confirm the transaction in MetaMask…');
       return App.contracts.Contest.deployed().then(function (instance) {
         return instance.state().then(function (state) {
-          var next = Number(state) + 1;
+          var next = Templates.PhaseFlow.target(shown, Number(state));
+          if (next === null) {
+            App.phase = Number(state);
+            var moved = new Error('The election phase was changed somewhere else. The page now shows the current phase.');
+            moved.moved = true;
+            throw moved;
+          }
           var sent = instance.changeState(next, { from: App.account });
           return sent.then(function (result) {
             if (ChainErrors.reverted(result)) throw App.revertError();
@@ -443,6 +462,12 @@ App = {
       }).catch(function (err) {
         progress.text('');
         $('#next-phase').prop('disabled', false);
+        if (err && err.moved) {
+          App.renderPhaseLines();
+          App.renderPhaseTimeline();
+          App.renderSteps();
+          return App.alert(err.message, 'error');
+        }
         App.showError(err, 'changeState');
       });
     });
@@ -453,6 +478,7 @@ App = {
   registerVoter: function () {
     var add = $('#accadd').val();
     App.clearMessage();
+    if (!App.contractReady()) return null;
     return Pending.run('register', function () {
       return App.contracts.Contest.deployed().then(function (instance) {
         return instance.voterRegisteration(add, { from: App.account });

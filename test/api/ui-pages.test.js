@@ -193,3 +193,31 @@ describe('UI-8 admin pages', function () {
     expect(html).to.contain('badge-unknown');
   });
 });
+
+describe('UI final-review fixes', function () {
+  var APP = fs.readFileSync(path.join(SRC, 'js', 'app.js'), 'utf8');
+
+  it('no server message shares the #loader id that app.js hides (review C1)', function () {
+    // EJS tags contain '>' so a tag regex can't be trusted here: check the line itself
+    each(function (name, html) {
+      html.split(/\r?\n/).forEach(function (line) {
+        if (/alertMsg/.test(line)) expect(line, name).not.to.contain('id="loader"');
+      });
+    });
+  });
+
+  it('the vote dialog focuses Go back, not the irreversible Cast vote (review #6)', function () {
+    var html = read(path.join(SRC, 'voting.html'));
+    expect(html).to.match(/<button[^>]*id="cancel-vote"[^>]*autofocus/);
+    expect(html).not.to.match(/<button[^>]*id="cast-vote"[^>]*autofocus/);
+  });
+
+  it('changeState sends the phase the admin confirmed, via PhaseFlow.target (review C2)', function () {
+    expect(APP).to.contain('Templates.PhaseFlow.target(');
+    expect(APP).not.to.match(/var next = Number\(state\) \+ 1;/);
+  });
+
+  it('every transaction checks the contract loaded first (review I3)', function () {
+    expect((APP.match(/if \(!App\.contractReady\(\)\) return null;/g) || []).length).to.equal(4);
+  });
+});

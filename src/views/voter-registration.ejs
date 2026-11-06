@@ -21,7 +21,7 @@
       </header>
       <ol id="steps" class="steps" aria-label="Your progress"></ol>
       <% if (typeof alertMsg != 'undefined' && alertMsg) { %>
-        <div class="alert <%= /successfully/i.test(alertMsg) ? 'alert-success' : 'alert-danger' %>" role="alert" id="loader"><%= alertMsg %></div>
+        <div class="alert <%= /successfully/i.test(alertMsg) ? 'alert-success' : 'alert-danger' %>" role="alert" id="form-alert"><%= alertMsg %></div>
       <% } %>
       <section class="panel content-narrow" aria-labelledby="reg-title">
         <h2 id="reg-title">Your details</h2>

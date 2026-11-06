@@ -100,6 +100,13 @@
       var n = NEXT_PHASE[Number(phase)];
       return n ? { button: n.button, word: n.word, explain: n.explain } : null;
     },
+    // The phase to send: one after the phase the admin saw and confirmed, and
+    // only if the chain is still there (another tab or admin may have moved it).
+    target: function (shownPhase, chainPhase) {
+      var shown = Number(shownPhase);
+      if (shown !== Number(chainPhase) || !NEXT_PHASE[shown]) return null;
+      return shown + 1;
+    },
     confirmed: function (typed, word) {
       return String(typed == null ? '' : typed).trim().toUpperCase() === word;
     }

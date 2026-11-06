@@ -85,3 +85,16 @@ describe('UI-9 stacked table labels', function () {
     expect(css).to.contain('.table.table-stack > tbody > tr > td');
   });
 });
+
+describe('UI final-review: PhaseFlow.target', function () {
+  it('sends the next phase only when the chain is still where the admin saw it', function () {
+    expect(PhaseFlow.target(0, 0)).to.equal(1);
+    expect(PhaseFlow.target(1, 1)).to.equal(2);
+  });
+
+  it('refuses when another tab or admin already moved the phase', function () {
+    expect(PhaseFlow.target(0, 1)).to.equal(null);
+    expect(PhaseFlow.target(1, 2)).to.equal(null);
+    expect(PhaseFlow.target(2, 2)).to.equal(null);
+  });
+});
