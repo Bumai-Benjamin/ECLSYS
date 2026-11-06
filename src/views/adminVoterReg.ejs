@@ -38,19 +38,19 @@
           <table class="table table-stack">
             <thead>
               <tr>
-                <th scope="col">S.N</th>
+                <th scope="col">#</th>
                 <th scope="col">Account address</th>
                 <th scope="col">Is registered</th>
                 <th scope="col">On blockchain</th>
               </tr>
             </thead>
             <tbody>
-            <% if (userData.length != 0) { var i = 0; userData.forEach(function(data){ %>
+            <% if (userData.length != 0) { var i = 1; userData.forEach(function(data){ %>
               <tr>
-                <td data-label="S.N"><%= i %></td>
-                <td data-label="Account address"><code><%= data.Account_address %></code></td>
+                <td data-label="#"><%= i %></td>
+                <td data-label="Account address"><code class="full-hash"><%= data.Account_address %></code></td>
                 <td data-label="Is registered"><%= data.Is_registered %></td>
-                <td class="on-chain"><span class="badge <%= data.onChain === 'Yes' ? 'badge-yes' : (/mismatch/.test(data.onChain) ? 'badge-mismatch' : 'badge-unknown') %>"><%= data.onChain %></span></td>
+                <td class="on-chain" data-label="On blockchain"><span class="badge <%= data.onChain === 'Yes' ? 'badge-yes' : (/^Missing/.test(data.onChain) ? 'badge-mismatch' : 'badge-unknown') %>"><%= data.onChain %></span></td>
               </tr>
             <% i++; }) } else { %>
               <tr><td colspan="4" class="empty-state">No voters have registered yet.</td></tr>

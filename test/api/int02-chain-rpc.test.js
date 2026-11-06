@@ -31,7 +31,7 @@ describe('INT-2 lib/chain over JSON-RPC', function () {
     var audit = await chainFor(rpc).audit();
     expect(audit.phase).to.equal(2);
     expect(audit.results).to.deep.equal([350, 350]);
-    expect(audit.contestants).to.deep.equal([{ id: 1, name: 'A' }, { id: 2, name: 'B' }]);
+    expect(audit.contestants).to.deep.equal([{ id: 1, name: 'A', party: 'Party' }, { id: 2, name: 'B', party: 'Party' }]);
     expect(audit.events.filter(function (e) { return e.event === 'VoteCast'; })).to.have.length(700);
     expect(audit.events[0].args).to.deep.equal({ contestantId: 1 });
   });

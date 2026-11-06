@@ -3,6 +3,31 @@
 Requirement IDs refer to [REQUIREMENTS.md](REQUIREMENTS.md). Decisions are in
 [docs/decisions.md](docs/decisions.md).
 
+## UI audit fixes (2026-11-07)
+
+Fixes from a UI audit of every page. 331 API tests pass; screenshots in
+`docs/ui-screenshots/` now include a `-dark` set.
+
+- Form inputs fit their columns (`box-sizing: border-box`); they overlapped
+  on the two-column Create account and Add candidate forms.
+- Table headers no longer break one letter per line.
+- Results work without MetaMask: the new public `GET /results.json` reads the
+  totals from the contract (none before voting closes). Public pages no
+  longer show MetaMask warnings.
+- Results name the winner (or a tie) and the number of votes cast, mark the
+  winning row, and draw an empty bar track for 0%. The voter dashboard shows
+  the same summary once voting closes.
+- Audit page: events in plain words ("Vote cast for …") with the raw event
+  under "Technical details"; full contract and wallet addresses; code text
+  no longer pink (it failed contrast).
+- A closed election is shown in neutral colours, not red. The Election phase
+  page links to Results and no longer repeats the phase.
+- Voters list numbers rows from 1 and says "Missing on blockchain".
+- `/vote_area` redirects to `/voting`; the old page is gone.
+- Dark colour scheme and reduced-motion support; the home image is an 800px
+  WebP (50 KB, was a 149 KB PNG); skip links on the sign-in pages; 44px brand
+  link; `autocomplete="sex"` on Gender.
+
 ## UI refresh (2026-11-06)
 
 Done: **UI-1 to UI-9** (spec `docs/superpowers/specs/2026-11-05-ui-ux-refresh-design.md`).

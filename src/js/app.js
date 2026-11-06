@@ -22,6 +22,7 @@ App = {
   init: async function () {
     App.me = await (window.ShellMe || Promise.resolve(null));
     App.renderSteps();
+    App.loadPublicResults();
     return await App.initWeb3();
   },
 
@@ -112,6 +113,7 @@ App = {
 
   status: function (decision) {
     var main = App.ensurePanel().children('.status-main').empty();
+    if (!WalletStatus.shouldShow(decision, document.body.getAttribute('data-nav'))) return;
     if (decision.state === 'ok') {
       main.append($('<span class="status-chip">').text(decision.message));
       return;
@@ -285,13 +287,37 @@ App = {
     $('#chain-content').removeAttr('hidden').show();
   },
 
+  // /result and the dashboard read the totals from the server, so they work
+  // without MetaMask (anyone may see results once voting is closed).
+  hasResultsSlot: function () {
+    return $('#Results').length > 0 || $('#results-summary').length > 0;
+  },
+
+  loadPublicResults: function () {
+    if (!App.hasResultsSlot()) return;
+    return $.getJSON('/results.json').then(function (data) {
+      if (App.phase === null || App.phase === undefined) {
+        App.phase = Number(data.phase);
+        App.renderSteps();
+      }
+      if (data.candidates) App.renderResults(data.candidates);
+    }, function () {
+      if (App.phase === null || App.phase === undefined) App.chainUnavailable(true);
+    });
+  },
+
   // /result: totals only once voting is closed (SC-5)
-  renderResults: function () {
+  renderResults: function (candidates) {
+    candidates = candidates || App.candidates;
+    if (!App.hasResultsSlot() || App.phase !== 2 || !candidates) return;
+    var rows = Templates.resultRows(candidates);
+    var summary = Templates.resultSummary(rows);
+    $('#results-summary-text').text(summary.text);
+    $('#results-summary').removeAttr('hidden');
     var body = $('#Results');
     if (!body.length) return;
-    if (App.phase !== 2) return;
     body.empty();
-    Templates.resultRows(App.candidates).forEach(function (r) { body.append(Templates.resultRow(r)); });
+    rows.forEach(function (r) { body.append(Templates.resultRow(r, { winners: summary.winners })); });
     $('#results-waiting').attr('hidden', true);
     $('#results-final').removeAttr('hidden');
   },
@@ -413,6 +439,7 @@ App = {
     timeline.children('li').each(function () {
       var p = Number($(this).data('phase'));
       $(this).toggleClass('is-past', p < App.phase);
+      $(this).toggleClass('is-final', p === 2);
       if (p === App.phase) $(this).attr('aria-current', 'step'); else $(this).removeAttr('aria-current');
     });
     var next = Templates.PhaseFlow.next(App.phase);
@@ -421,7 +448,8 @@ App = {
       $('#next-phase-explain').text(next.explain);
     } else {
       $('#next-phase').attr('hidden', true);
-      $('#next-phase-explain').text('The election is over. Results are public on the Results page.');
+      $('#next-phase-explain').empty().append('The election is over. Results are public on the ',
+        $('<a href="/result">').text('Results page'), '.');
     }
   },
 

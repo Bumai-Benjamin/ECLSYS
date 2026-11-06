@@ -8,6 +8,7 @@
   <link href="/css/app.css" rel="stylesheet">
 </head>
 <body>
+  <a class="skip-link" href="#auth-form">Skip to the form</a>
   <main id="content" class="auth-page">
     <div class="auth-card">
       <p class="brand-line">Electoral Commission of Namibia</p>
@@ -15,7 +16,7 @@
       <% if (typeof alertMsg != 'undefined' && alertMsg) { %>
         <div class="alert alert-danger" role="alert"><%= alertMsg %></div>
       <% } %>
-      <form method="post" action="/adlogin">
+      <form id="auth-form" method="post" action="/adlogin">
         <input type="hidden" name="_csrf" value="<%= csrfToken() %>">
         <div class="field">
           <label for="email_address">Email address</label>

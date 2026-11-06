@@ -78,6 +78,8 @@
     if (!badge) return;
     badge.textContent = phaseText;
     badge.hidden = !phaseText;
+    // a finished election is not an error: neutral colour, not red
+    badge.classList.toggle('is-closed', phaseText === 'Voting closed');
   }
 
   function draw(nav) {

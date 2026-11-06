@@ -21,7 +21,7 @@ function read(f) {
 
 function each(fn) {
   var files = pageFiles();
-  expect(files.length).to.be.at.least(17);
+  expect(files.length).to.be.at.least(16);
   files.forEach(function (f) { fn(path.basename(f), read(f)); });
 }
 

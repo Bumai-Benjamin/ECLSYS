@@ -33,7 +33,13 @@
     return result('ok', 'Connected: ' + short(account));
   }
 
-  var api = { decide: decide, short: short, EXPECTED_CHAIN_ID: EXPECTED_CHAIN_ID };
+  // UI audit: public pages (results) work without a wallet, so they never
+  // nag about MetaMask; they only show a good connection.
+  function shouldShow(decision, nav) {
+    return nav !== 'public' || decision.state === 'ok';
+  }
+
+  var api = { decide: decide, shouldShow: shouldShow, short: short, EXPECTED_CHAIN_ID: EXPECTED_CHAIN_ID };
   root.WalletStatus = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : this);

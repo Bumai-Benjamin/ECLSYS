@@ -102,6 +102,8 @@ describe('SEC-2 route guards', function () {
     VOTER_ROUTES.forEach(function (p) {
       it('can open ' + p, async function () {
         var res = await a.get(p);
+        // /vote_area moved to /voting (UI audit)
+        if (p === '/vote_area') return expect(res.headers.location).to.equal('/voting');
         expect(res.status).to.equal(200);
       });
     });

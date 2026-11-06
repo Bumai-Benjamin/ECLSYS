@@ -6,7 +6,7 @@ var auth=require('../middleware/auth');
 var CONCURRENCY = 10;
 var STATUS = {
   yes: 'Yes',
-  mismatch: 'No ⚠ mismatch',
+  mismatch: 'Missing on blockchain',
   unknown: 'Unknown (blockchain unavailable)'
 };
 

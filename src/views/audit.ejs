@@ -1,7 +1,6 @@
 <%
-  // Long hex values (addresses, hashes) are shortened; the full value stays in title.
+  // Long hex values (addresses, hashes) are shown in full so they can be copied and checked.
   function isHex(v) { return /^0x[0-9a-fA-F]{20,}$/.test(String(v)); }
-  function short(v) { var s = String(v); return s.slice(0, 6) + '…' + s.slice(-4); }
 %><!DOCTYPE html>
 <html lang="en">
 <head>
@@ -27,7 +26,7 @@
       <% } else { %>
         <section class="panel" aria-labelledby="contract-title">
           <h2 id="contract-title">Contract</h2>
-          <p><strong>Address:</strong> <code title="<%= contractAddress %>" tabindex="0"><%= short(contractAddress) %></code></p>
+          <p><strong>Address:</strong> <code class="full-hash"><%= contractAddress %></code></p>
           <p><strong>Phase:</strong> <%= phaseName %></p>
         </section>
 
@@ -72,14 +71,25 @@
           <div class="table-wrap">
             <table class="table table-stack">
               <thead>
-                <tr><th scope="col">Block</th><th scope="col">Event</th><th scope="col">Details</th></tr>
+                <tr><th scope="col">Block</th><th scope="col">What happened</th></tr>
               </thead>
               <tbody>
               <% events.forEach(function (e) { %>
                 <tr>
                   <td data-label="Block"><%= e.blockNumber %></td>
-                  <td data-label="Event"><%= e.event %></td>
-                  <td data-label="Details"><% Object.keys(e.args).forEach(function (k, i) { var v = e.args[k]; %><%= i ? ', ' : '' %><%= k %>: <% if (isHex(v)) { %><code title="<%= v %>" tabindex="0"><%= short(v) %></code><% } else { %><%= v %><% } %><% }) %></td>
+                  <td data-label="What happened"><%= e.text %>
+                    <details class="raw">
+                      <summary>Technical details</summary>
+                      <p><code><%= e.event %></code></p>
+                      <% if (Object.keys(e.args).length) { %>
+                      <dl>
+                        <% Object.keys(e.args).forEach(function (k) { %>
+                        <dt><%= k %></dt><dd><% if (isHex(e.args[k])) { %><code class="full-hash"><%= e.args[k] %></code><% } else { %><%= e.args[k] %><% } %></dd>
+                        <% }) %>
+                      </dl>
+                      <% } %>
+                    </details>
+                  </td>
                 </tr>
               <% }) %>
               </tbody>

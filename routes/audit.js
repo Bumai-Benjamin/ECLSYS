@@ -4,8 +4,9 @@
 var express = require('express');
 var router = express.Router();
 var ChainUnavailableError = require('../config/contract').ChainUnavailableError;
+var AuditEvents = require('../lib/audit-events');
 
-var PHASE_NAMES = ['Registration', 'Voting', 'Done'];
+var PHASE_NAMES = AuditEvents.PHASES;
 var DONE = 2;
 var MAX_EVENTS = 500;
 
@@ -40,6 +41,8 @@ router.get('/audit', async function (req, res, next) {
   }
 
   var counts = recount(data.events);
+  var names = {};
+  data.contestants.forEach(function (c) { names[c.id] = c.name; });
   var done = data.phase === DONE && Array.isArray(data.results);
   var rows = data.contestants.map(function (c, i) {
     return { id: c.id, name: c.name, recount: counts[c.id] || 0, total: done ? Number(data.results[i]) : null };
@@ -52,7 +55,9 @@ router.get('/audit', async function (req, res, next) {
     done: done,
     matches: done ? recountMatches(counts, data.results) : null,
     rows: rows,
-    events: data.events.slice(-MAX_EVENTS).reverse()
+    events: data.events.slice(-MAX_EVENTS).reverse().map(function (e) {
+      return Object.assign({ text: AuditEvents.describe(e, names).text }, e);
+    })
   });
 });
 

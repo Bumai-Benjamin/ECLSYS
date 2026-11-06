@@ -37,7 +37,7 @@ describe('INT-3 on-chain status in the voter table', function () {
     expect(res.text).to.contain('On blockchain');
     var row = rowFor(res.text, wallet);
     // the DB column says Yes too, so look at the on-chain cell only
-    expect(row).to.match(/<td class="on-chain"><span class="badge badge-yes">\s*Yes\s*<\/span><\/td>/);
+    expect(row).to.match(/<td class="on-chain" data-label="On blockchain"><span class="badge badge-yes">\s*Yes\s*<\/span><\/td>/);
     expect(row).not.to.contain('mismatch');
   });
 
@@ -45,7 +45,7 @@ describe('INT-3 on-chain status in the voter table', function () {
     var wallet = h.newWallet();
     await addRegisteredUser(wallet);
     var res = await (await adminAgent(fakes.fakeChain())).get('/table_view');
-    expect(rowFor(res.text, wallet)).to.match(/<td class="on-chain"><span class="badge badge-mismatch">\s*No ⚠ mismatch\s*<\/span><\/td>/);
+    expect(rowFor(res.text, wallet)).to.match(/<td class="on-chain" data-label="On blockchain"><span class="badge badge-mismatch">\s*Missing on blockchain\s*<\/span><\/td>/);
   });
 
   it('with the chain unavailable the page still renders and shows Unknown', async function () {
@@ -53,7 +53,7 @@ describe('INT-3 on-chain status in the voter table', function () {
     await addRegisteredUser(wallet);
     var res = await (await adminAgent(fakes.fakeChain({ unavailable: true }))).get('/table_view');
     expect(res.status).to.equal(200);
-    expect(rowFor(res.text, wallet)).to.match(/<td class="on-chain"><span class="badge badge-unknown">\s*Unknown \(blockchain unavailable\)\s*<\/span><\/td>/);
+    expect(rowFor(res.text, wallet)).to.match(/<td class="on-chain" data-label="On blockchain"><span class="badge badge-unknown">\s*Unknown \(blockchain unavailable\)\s*<\/span><\/td>/);
   });
 
   it('lists recorded chain_db_mismatch events above the table', async function () {

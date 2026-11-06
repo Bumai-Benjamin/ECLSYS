@@ -18,6 +18,7 @@ var RegisterRouter = require('./routes/main');
 var AdminLogin = require('./routes/admin_login');
 var Tableview = require('./routes/table_view');
 var AuditPage = require('./routes/audit');
+var ResultsData = require('./routes/results');
 var MeRoute = require('./routes/me');
 
 // SEC-11: scripts only from this site. Stylesheets and fonts may come from the
@@ -87,9 +88,11 @@ function createApp(options) {
   app.use('/', AdminLogin);
   app.use('/', Tableview);
   app.use('/', AuditPage);   // INT-4: public
+  app.use('/', ResultsData); // public totals once voting is closed
   app.use('/', MeRoute);     // UI-1: who is signed in (no personal data)
 
-  app.get('/vote_area', auth.requireLogin, page('vote_area.html'));
+  // The old voting area moved to /voting
+  app.get('/vote_area', auth.requireLogin, function (req, res) { res.redirect(301, '/voting'); });
   app.get('/candidateDetails', auth.requireAdmin, page('adminCandidateDetails.html'));
   app.get('/userInfo', auth.requireLogin, page('userInfo.html'));
   app.get('/result', page('result.html'));

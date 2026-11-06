@@ -71,12 +71,29 @@
     return rows;
   }
 
-  function resultRow(r) {
-    return '<tr><td data-label="Candidate">' + escapeHtml(r.name) + '</td>' +
+  // UI audit: who won (or tied) and how many votes were cast. Plain text:
+  // the page sets it with .text(), so names are never parsed as HTML.
+  function resultSummary(rows) {
+    var total = rows.reduce(function (sum, r) { return sum + r.votes; }, 0);
+    if (!total) return { total: 0, winners: [], text: 'No votes were cast.' };
+    var top = rows[0].votes;
+    var winners = rows.filter(function (r) { return r.votes === top; }).map(function (r) { return r.name; });
+    var text = winners.length === 1
+      ? winners[0] + ' won with ' + top + ' of ' + total + ' votes (' + rows[0].share + '%).'
+      : 'Tie: ' + winners.slice(0, -1).join(', ') + ' and ' + winners[winners.length - 1] +
+        ' have ' + top + ' votes each, out of ' + total + ' votes cast.';
+    return { total: total, winners: winners, text: text };
+  }
+
+  // options.winners: names from resultSummary; those rows get a Winner badge
+  function resultRow(r, options) {
+    var won = !!(options && options.winners && options.winners.indexOf(r.name) !== -1 && r.votes > 0);
+    return '<tr' + (won ? ' class="is-winner"' : '') + '><td data-label="Candidate">' + escapeHtml(r.name) +
+      (won ? ' <span class="badge badge-yes">Winner</span>' : '') + '</td>' +
       '<td data-label="Party">' + escapeHtml(r.party) + '</td>' +
       '<td data-label="Votes">' + escapeHtml(r.votes) + '</td>' +
       '<td data-label="Share"><span class="share">' + escapeHtml(r.share) + '%</span>' +
-      '<span class="bar ' + escapeHtml(r.barClass) + '" aria-hidden="true"></span></td></tr>';
+      '<span class="bar-track" aria-hidden="true"><span class="bar ' + escapeHtml(r.barClass) + '"></span></span></td></tr>';
   }
 
   // A ballot card: the radio input sits inside its label, so the whole card
@@ -120,6 +137,7 @@
     shortHash: shortHash,
     resultRows: resultRows,
     resultRow: resultRow,
+    resultSummary: resultSummary,
     candidateChoice: candidateChoice,
     PhaseFlow: PhaseFlow
   };
