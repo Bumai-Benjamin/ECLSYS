@@ -120,6 +120,26 @@ Main pages: `/register` (sign up), `/login`, `/form` (voter registration with
 email OTP), `/userInfo`, `/voting`, `/result`; admin: `/adlogin`,
 `/addCandidate`, `/changePhase`, `/candidateDetails`, `/table_view`.
 
+## Using the app
+
+**Voters** follow the steps shown on their dashboard:
+
+1. **Account:** create an account at `/register` and sign in at `/login`.
+2. **Verify wallet** (during Registration): on Voter registration, enter your
+   ID number, press **Use my MetaMask wallet**, then type the code we email you.
+3. **Vote** (once voting is open): choose a candidate, press **Review my vote**,
+   check the name, then **Cast vote** and confirm in MetaMask. Keep the receipt.
+4. **Results** appear when voting closes; anyone can re-count on `/audit`.
+
+**Election staff** sign in at `/adlogin` and use, in order: **Add candidate**,
+**Candidates**, **Voters**, and **Election phase** (Open voting, then Close
+voting; each needs the word OPEN or CLOSE typed to confirm, and can't be undone).
+
+**MetaMask messages** appear in the panel at the top of each page: install
+MetaMask, connect, switch to the election network (a button adds Ganache, chain
+1337, for you), or switch to the account you registered. Contract errors such as
+"Voting is closed." show in the same place.
+
 ## Tests
 
 ```powershell

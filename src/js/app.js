@@ -143,7 +143,14 @@ App = {
   // action: the App function that failed, so WrongPhase can say "Voting is closed."
   showError: function (err, action) {
     console.error(err);
-    App.alert(ChainErrors.message(err, action), 'error');
+    App.alert(err && err.reverted ? ChainErrors.REVERTED : ChainErrors.message(err, action), 'error');
+  },
+
+  // UI-9: a mined transaction that reverted (truffle-contract doesn't throw)
+  revertError: function () {
+    var err = new Error(ChainErrors.REVERTED);
+    err.reverted = true;
+    return err;
   },
 
   clearMessage: function () {
@@ -312,6 +319,7 @@ App = {
         }
         return sent;
       }).then(function (result) {
+        if (ChainErrors.reverted(result)) throw App.revertError();
         progress.text('');
         App.hasVoted = true;
         App.renderSteps();
@@ -375,7 +383,8 @@ App = {
       progress.text('Confirm the transaction in MetaMask…');
       return App.contracts.Contest.deployed().then(function (instance) {
         return instance.addContestant(values.name, values.party, values.age, values.qualification, { from: App.account });
-      }).then(function () {
+      }).then(function (result) {
+        if (ChainErrors.reverted(result)) throw App.revertError();
         progress.text('');
         App.CANDIDATE_FIELDS.forEach(function (f) { $('#' + f).val(''); });
         $('#candidate-added').removeAttr('hidden');
@@ -418,7 +427,10 @@ App = {
         return instance.state().then(function (state) {
           var next = Number(state) + 1;
           var sent = instance.changeState(next, { from: App.account });
-          return sent.then(function () { return next; });
+          return sent.then(function (result) {
+            if (ChainErrors.reverted(result)) throw App.revertError();
+            return next;
+          });
         });
       }).then(function (next) {
         progress.text('');
@@ -444,7 +456,8 @@ App = {
     return Pending.run('register', function () {
       return App.contracts.Contest.deployed().then(function (instance) {
         return instance.voterRegisteration(add, { from: App.account });
-      }).then(function () {
+      }).then(function (result) {
+        if (ChainErrors.reverted(result)) throw App.revertError();
         App.showMessage('The wallet is now registered to vote.', 'ok');
       }).catch(function (err) {
         App.showError(err, 'registerVoter');

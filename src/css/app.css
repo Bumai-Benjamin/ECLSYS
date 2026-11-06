@@ -451,14 +451,15 @@ details.tools summary { cursor: pointer; font-weight: 600; min-height: 32px; }
   .actions .btn { width: 100%; }
   .timeline li { font-size: 0.9rem; }
   /* tables become stacked rows; each cell shows its column name */
-  .table-stack thead { display: none; }
-  .table-stack tr { display: block; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; padding: 8px 12px; }
-  .table-stack td, .table-stack th { display: block; border: 0; padding: 6px 0 6px 7.5em; text-indent: -7.5em; }
-  .table-stack td > *, .table-stack th > * { text-indent: 0; }
-  .table-stack td::before, .table-stack th::before { content: attr(data-label); display: inline-block; width: 7.5em; text-indent: 0; font-weight: 600; color: var(--muted); }
+  /* .table.table-stack > tbody > tr > td beats Material's .table > tbody > tr > td */
+  .table.table-stack > thead { display: none; }
+  .table.table-stack > tbody > tr { display: block; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; padding: 8px 12px; }
+  .table.table-stack > tbody > tr > td, .table.table-stack > tbody > tr > th { display: block; border: 0; padding: 6px 0 6px 7.5em; text-indent: -7.5em; }
+  .table.table-stack > tbody > tr > td > *, .table.table-stack > tbody > tr > th > * { text-indent: 0; }
+  .table.table-stack > tbody > tr > td::before, .table.table-stack > tbody > tr > th::before { content: attr(data-label); display: inline-block; width: 7.5em; text-indent: 0; font-weight: 600; color: var(--muted); }
+  .table.table-stack > tbody > tr > td[colspan] { padding-left: 0; text-indent: 0; }
+  .table.table-stack > tbody > tr > td[colspan]::before { content: none; }
   .auth-card { padding: 24px 18px; }
 }
 
-/* Until the status panel replaces it (UI-6), app.js shows this box with jQuery .show() */
-.chain-error { display: none; }
 .phase-line { font-size: 1.1rem; font-weight: 600; color: var(--brand-strong); margin-bottom: 16px; }

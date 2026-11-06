@@ -40,9 +40,11 @@
 
   // Table row: id, name, age, party, qualification (+ votes on result tables).
   function candidateRow(c, options) {
-    var row = "<tr><th>" + safeId(c.id) + "</th><td>" + escapeHtml(c.name) + "</td><td>" + escapeHtml(c.age) +
-      "</td><td>" + escapeHtml(c.party) + "</td><td>" + escapeHtml(c.qualification) + "</td>";
-    if (options && options.withVotes) row += "<td>" + escapeHtml(c.voteCount) + "</td>";
+    // data-label: the column name shown beside each cell in the stacked phone layout
+    var row = '<tr><th data-label="#">' + safeId(c.id) + '</th><td data-label="Name">' + escapeHtml(c.name) +
+      '</td><td data-label="Age">' + escapeHtml(c.age) + '</td><td data-label="Party">' + escapeHtml(c.party) +
+      '</td><td data-label="Qualification">' + escapeHtml(c.qualification) + '</td>';
+    if (options && options.withVotes) row += '<td data-label="Votes">' + escapeHtml(c.voteCount) + '</td>';
     return row + "</tr>";
   }
 

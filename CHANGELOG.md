@@ -3,6 +3,35 @@
 Requirement IDs refer to [REQUIREMENTS.md](REQUIREMENTS.md). Decisions are in
 [docs/decisions.md](docs/decisions.md).
 
+## UI refresh (2026-11-06)
+
+Done: **UI-1 to UI-9** (spec `docs/superpowers/specs/2026-11-05-ui-ux-refresh-design.md`).
+299 API tests, 26 contract tests and 3 integration tests pass. Screenshots of
+every page at 1280px and 375px are in `docs/ui-screenshots/`.
+
+- **UI-1** `GET /me`: who is signed in, with no personal data.
+- **UI-2** Step tracker: Account, Verify wallet, Vote, Results, with the reason
+  a step is not open yet.
+- **UI-3** MetaMask status messages and the Add candidate checks.
+- **UI-4** Results sorted with share bars, ballot cards, shortened hashes, and
+  the Open voting / Close voting flow.
+- **UI-5** Coral stylesheet (`src/css/app.css`), one shared nav
+  (`src/js/shell.js`), and all 17 pages rewritten: labels on every field, one
+  heading, skip link, no inline styles, WCAG 2.1 AA contrast. `/voting` no
+  longer shows the old demo's admin forms to voters.
+- **UI-6** MetaMask status panel (install, connect, switch to the election
+  network, wrong account, not an admin), and one transaction at a time.
+- **UI-7** Connect-wallet button on `/form`, ballot with a confirmation dialog,
+  progress lines and a receipt, "You have voted", and a results page that
+  waits for voting to close.
+- **UI-8** Admin: phase timeline with a typed OPEN / CLOSE confirmation,
+  candidate checks before MetaMask opens, voter table badges, recovery tools
+  folded away.
+- **UI-9** A transaction that was mined but reverted is now reported ("The
+  blockchain rejected the transaction. Nothing was changed.") instead of
+  showing success; the bundled truffle-contract doesn't treat it as an error.
+  Stacked tables on phones show their column names.
+
 ## Phase 3: Integration (2026-11-05)
 
 Done: **INT-1 to INT-4**. 202 API tests pass (`npm run test:api`); the

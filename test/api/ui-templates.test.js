@@ -71,3 +71,17 @@ describe('UI-4 template helpers', function () {
     expect(PhaseFlow.confirmed('', 'CLOSE')).to.equal(false);
   });
 });
+
+describe('UI-9 stacked table labels', function () {
+  it('candidateRow cells carry data-label for the phone layout', function () {
+    var html = Templates.candidateRow({ id: '1', name: 'A', age: '40', party: 'P', qualification: 'Q', voteCount: '0' }, { withVotes: true });
+    ['#', 'Name', 'Age', 'Party', 'Qualification', 'Votes'].forEach(function (label) {
+      expect(html).to.contain('data-label="' + label + '"');
+    });
+  });
+
+  it('the stacked-table rules beat Material Dashboard\'s .table > tbody > tr > td', function () {
+    var css = require('fs').readFileSync(require('path').join(__dirname, '..', '..', 'src', 'css', 'app.css'), 'utf8');
+    expect(css).to.contain('.table.table-stack > tbody > tr > td');
+  });
+});

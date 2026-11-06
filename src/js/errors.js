@@ -58,7 +58,18 @@
     return GENERIC;
   }
 
-  var api = { message: message, SELECTORS: SELECTORS };
+  // UI-9: the bundled truffle-contract resolves even when the mined
+  // transaction reverted, so callers check the receipt themselves.
+  var REVERTED = 'The blockchain rejected the transaction. Nothing was changed.';
+
+  function reverted(result) {
+    var status = result && result.receipt ? result.receipt.status : undefined;
+    if (status === undefined || status === null) return false;
+    if (typeof status === 'boolean') return !status;
+    return Number(status) === 0;
+  }
+
+  var api = { message: message, reverted: reverted, REVERTED: REVERTED, SELECTORS: SELECTORS };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.ChainErrors = api;
 })(this);
