@@ -18,14 +18,14 @@
   --border: #d0d7de;
   --surface: #ffffff;
   --page: #f6f7f9;
-  --radius: 10px;
-  --shadow: 0 1px 3px rgba(31, 35, 40, 0.12), 0 1px 2px rgba(31, 35, 40, 0.06);
+  --radius: 0;  /* one corner style everywhere: square, like the buttons */
   --shell-width: 240px;
   --font: "Roboto", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
   --link: #b93a3a;
   --link-hover: #9e2f2f;
   --code-bg: #eff1f3;
   --track: #e6e9ed;
+  --nav-active: #e9ecef;
   color-scheme: light;
 }
 
@@ -49,16 +49,17 @@
     --link-hover: #ffc0c0;
     --code-bg: #262b31;
     --track: #2c3239;
-    --shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    --nav-active: #2a3037;
     color-scheme: dark;
   }
   .field input, .field select, .field textarea, .input { border-color: #6b7580; }
   .table, .table td, .table th, .card, .card-body, .main-panel, .wrapper, .content { background-color: transparent; color: var(--text); }
   .table th { color: var(--muted); }
+  /* the logo has black lettering on a transparent ground: give it a light backing */
+  .home img { background: #f6f7f9; padding: 16px; }
   .alert-danger, .alert-error { border-color: #6b2b2b !important; }
   .alert-success { border-color: #2b5c3a !important; }
   .alert-warning, .status-box.is-problem { border-color: #6b5420 !important; }
-  .alert-info { border-color: #5c3434 !important; }
 }
 
 /* Nothing on these pages needs motion to be understood */
@@ -91,7 +92,7 @@ h3 { font-size: 1.1rem; margin: 1.25rem 0 0.5rem; }
 p { margin: 0 0 0.75rem; }
 a { color: var(--link); text-decoration: underline; text-underline-offset: 2px; }
 a:hover { color: var(--link-hover); }
-code, .mono { font-family: Consolas, "Courier New", monospace; font-size: 0.9em; color: var(--text); background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+code, .mono { font-family: Consolas, "Courier New", monospace; font-size: 0.9em; color: var(--text); background: var(--code-bg); padding: 1px 5px; border-radius: 0; }
 /* full addresses and hashes: break anywhere so they fit, and can be copied whole */
 .full-hash { word-break: break-all; }
 .visually-hidden { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
@@ -119,8 +120,7 @@ textarea:focus-visible, summary:focus-visible, [tabindex]:focus-visible, .candid
   padding: 10px 16px;
   background: var(--surface);
   color: var(--link);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  border: 2px solid var(--link);
 }
 .skip-link:focus { top: 8px; }
 
@@ -137,7 +137,7 @@ textarea:focus-visible, summary:focus-visible, [tabindex]:focus-visible, .candid
   display: flex;
   flex-direction: column;
 }
-.shell-bar { display: flex; flex-direction: column; gap: 8px; padding: 20px 16px 12px; border-bottom: 4px solid var(--brand); }
+.shell-bar { display: flex; flex-direction: column; gap: 8px; padding: 20px 16px 12px; border-bottom: 1px solid var(--border); }
 .shell-brand { display: inline-flex; align-items: center; min-height: 44px; font-weight: 700; font-size: 1.15rem; color: var(--text); text-decoration: none; }
 .shell-toggle { display: none; }
 .shell-links { list-style: none; margin: 0; padding: 12px 8px; }
@@ -146,27 +146,18 @@ textarea:focus-visible, summary:focus-visible, [tabindex]:focus-visible, .candid
   align-items: center;
   min-height: 44px;
   padding: 8px 12px;
-  border-radius: 8px;
+  border-radius: 0;
   color: var(--text);
   text-decoration: none;
   font-weight: 500;
 }
+/* the navigation stays neutral: the coral is kept for the main action and the results */
 .shell-link:hover { background: var(--page); color: var(--text); }
-.shell-link[aria-current="page"] {
-  background: var(--brand-tint);
-  color: var(--link);
-  box-shadow: inset 4px 0 0 var(--brand);
-}
-.phase-badge {
-  align-self: flex-start;
-  padding: 2px 10px;
-  border-radius: 999px;
-  background: var(--brand-tint);
-  color: var(--link);
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-.phase-badge.is-closed { background: var(--page); color: var(--text); border: 1px solid var(--border); }
+.shell-link[aria-current="page"] { background: var(--nav-active); color: var(--text); font-weight: 700; }
+/* the phase is plain text under the product name, not a coloured pill */
+.phase-badge { align-self: flex-start; color: var(--muted); font-size: 0.9rem; font-weight: 500; }
+.phase-badge::before { content: "Phase: "; }
+.phase-badge.is-closed { color: var(--text); }
 body.has-shell .page { margin-left: var(--shell-width); }
 
 /* Material Dashboard leftovers on converted pages */
@@ -183,7 +174,6 @@ body.has-shell .page { margin-left: var(--shell-width); }
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  box-shadow: var(--shadow);
   padding: 24px;
   margin-bottom: 24px;
 }
@@ -202,7 +192,7 @@ body.has-shell .page { margin-left: var(--shell-width); }
 .btn {
   min-height: 44px;
   padding: 10px 20px;
-  border-radius: 8px;
+  border-radius: 0; /* buttons are square-cornered */
   font-size: 1rem;
   font-weight: 600;
   text-transform: none;
@@ -230,18 +220,17 @@ body.has-shell .page { margin-left: var(--shell-width); }
   color: var(--text);
   background: var(--surface);
   border: 1px solid #8c959f;
-  border-radius: 8px;
+  border-radius: 0;
 }
 .field input[readonly] { background: var(--page); }
 .field input[aria-invalid="true"] { border-color: var(--danger); border-width: 2px; }
 .hint { display: block; color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
 .field-error { color: var(--danger); font-size: 0.95rem; margin: 6px 0 0; font-weight: 600; }
-.field-error::before { content: "⚠ "; }
 .field-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 16px; }
 
 /* ---------- alerts ---------- */
 .alert {
-  border-radius: 8px;
+  border-radius: 0;
   padding: 12px 16px;
   margin: 0 0 16px;
   border: 1px solid transparent;
@@ -249,11 +238,9 @@ body.has-shell .page { margin-left: var(--shell-width); }
   font-size: 1rem;
 }
 .alert-danger, .alert-error { background: var(--danger-bg) !important; color: var(--danger) !important; border-color: #f3b4b4 !important; }
-.alert-danger::before, .alert-error::before { content: "⚠ "; font-weight: 700; }
 .alert-success { background: var(--success-bg) !important; color: var(--success) !important; border-color: #a8d5b5 !important; }
-.alert-success::before { content: "✓ "; font-weight: 700; }
 .alert-warning { background: var(--warning-bg) !important; color: var(--warning) !important; border-color: #f0d58c !important; }
-.alert-info { background: var(--brand-tint) !important; color: var(--text) !important; border-color: #f5c2c2 !important; }
+.alert-info { background: var(--surface) !important; color: var(--text) !important; border-color: var(--border) !important; }
 
 /* ---------- status panel (MetaMask) ---------- */
 .status-panel { margin-bottom: 20px; }
@@ -265,63 +252,33 @@ body.has-shell .page { margin-left: var(--shell-width); }
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  border-radius: 8px;
+  border-radius: 0;
   border: 1px solid var(--border);
   background: var(--surface);
 }
 .status-box.is-problem { background: var(--warning-bg); border-color: #f0d58c; color: var(--warning); }
 .status-box.is-problem p { color: var(--warning); margin: 0; font-weight: 600; }
-.status-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 12px;
-  border-radius: 999px;
-  background: var(--success-bg);
-  color: var(--success);
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-.status-chip::before { content: "●"; }
+/* a good connection is a quiet line of text with a small square marker, not a pill */
+.status-chip { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.95rem; }
+.status-chip::before { content: ""; width: 8px; height: 8px; background: var(--success); }
 .status-alert { margin-top: 10px; }
 
 /* ---------- step tracker ---------- */
-.steps { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 0 0 24px; padding: 0; counter-reset: step; }
-.step {
-  position: relative;
-  padding: 12px 14px 12px 52px;
-  min-height: 64px;
-  border-radius: var(--radius);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  counter-increment: step;
-}
-.step::before {
-  content: counter(step);
-  position: absolute;
-  left: 12px;
-  top: 12px;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  background: var(--page);
-  color: var(--muted);
-  border: 2px solid var(--border);
-}
+/* One strip split by rules. The bar on top and the words under each label say
+   done, next or not open yet, so colour is never the only signal. */
+.steps { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0 0 32px; padding: 0; background: var(--surface); border: 1px solid var(--border); }
+.step { padding: 14px 16px 16px; border-top: 4px solid var(--border); }
+.step + .step { border-left: 1px solid var(--border); }
 .step-label { display: block; font-weight: 700; }
-.step-reason { display: block; font-size: 0.9rem; color: var(--muted); }
-.step.is-done::before { content: "✓"; background: var(--success-bg); color: var(--success); border-color: var(--success); }
-.step.is-current { border: 2px solid var(--brand); background: var(--brand-tint); }
-.step.is-current::before { background: var(--brand-strong); color: #ffffff; border-color: var(--brand-strong); }
+.step-reason { display: block; font-size: 0.95rem; color: var(--muted); }
+.step.is-done { border-top-color: var(--success); }
+.step.is-current { border-top-color: var(--brand-strong); }
 .step.is-current .step-label a { color: var(--link); }
 .step.is-locked .step-label { color: var(--muted); }
+.next-step { font-size: 1.15rem; font-weight: 600; color: var(--text); max-width: 70ch; }
 
 /* ---------- badges ---------- */
-.badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 0.85rem; font-weight: 600; line-height: 1.4; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 0; font-size: 0.85rem; font-weight: 600; line-height: 1.4; }
 .badge-yes { background: var(--success-bg); color: var(--success); }
 .badge-mismatch { background: var(--warning-bg); color: var(--warning); }
 .badge-unknown { background: var(--page); color: var(--muted); border: 1px solid var(--border); }
@@ -332,13 +289,15 @@ body.has-shell .page { margin-left: var(--shell-width); }
 .table tr.is-winner td { font-weight: 600; }
 .result-summary { font-size: 1.1rem; font-weight: 600; }
 .table th, .table td { padding: 12px 10px; text-align: left; vertical-align: top; border-top: 1px solid var(--border); }
+/* Material colours these #ddd, which glares in dark mode; use the theme's border */
+.table > thead > tr > th, .table > tbody > tr > th, .table > tbody > tr > td { border-color: var(--border); }
 .table-wrap { overflow-x: auto; }
 .empty-state { padding: 24px; text-align: center; color: var(--muted); }
 
 /* results bars: width from the class, never an inline style */
 .share { display: inline-block; min-width: 3.2em; font-weight: 600; }
-.bar-track { display: inline-block; width: 60%; height: 10px; border-radius: 5px; background: var(--track); vertical-align: middle; margin-left: 8px; overflow: hidden; }
-.bar { display: block; height: 100%; border-radius: 5px; background: var(--brand); }
+.bar-track { display: inline-block; width: 60%; height: 10px; border-radius: 0; background: var(--track); vertical-align: middle; margin-left: 8px; overflow: hidden; }
+.bar { display: block; height: 100%; border-radius: 0; background: var(--brand); }
 .bar-0 { width: 0; }
 .bar-5 { width: 5%; }
 .bar-10 { width: 10%; }
@@ -396,6 +355,9 @@ dialog {
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
   color: var(--text);
 }
+/* Material's old normalize sets dialog { display: block }, which showed the closed
+   confirmation dialogs at the foot of the Voting and Election phase pages */
+dialog:not([open]) { display: none; }
 dialog::backdrop { background: rgba(31, 35, 40, 0.55); }
 dialog h2 { margin-top: 0; }
 
@@ -417,7 +379,7 @@ dialog h2 { margin-top: 0; }
   transform: translateX(-50%);
   width: 24px;
   height: 24px;
-  border-radius: 50%;
+  border-radius: 0;
   background: var(--surface);
   border: 3px solid var(--border);
   z-index: 1;
@@ -428,10 +390,10 @@ dialog h2 { margin-top: 0; }
 .timeline li.is-past { color: var(--success); }
 .timeline li.is-past::before { background: var(--success); border-color: var(--success); }
 .timeline li[aria-current="step"] { color: var(--link); }
-.timeline li[aria-current="step"]::before { background: var(--brand-strong); border-color: var(--brand-strong); box-shadow: 0 0 0 4px var(--brand-tint); }
+.timeline li[aria-current="step"]::before { background: var(--brand-strong); border-color: var(--brand-strong); }
 /* the last phase is a finished election, not an error: neutral, not red */
 .timeline li.is-final[aria-current="step"] { color: var(--text); }
-.timeline li.is-final[aria-current="step"]::before { background: var(--text); border-color: var(--text); box-shadow: 0 0 0 4px var(--page); }
+.timeline li.is-final[aria-current="step"]::before { background: var(--text); border-color: var(--text); }
 
 /* ---------- details (recovery tools) ---------- */
 details.tools { border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 16px; background: var(--surface); }
@@ -449,17 +411,17 @@ details.raw dd { margin: 0; }
   align-items: center;
   justify-content: center;
   padding: 32px 16px;
-  background: linear-gradient(135deg, var(--brand) 0%, var(--brand) 38%, var(--page) 38%);
+  background: var(--page);
 }
 .auth-card {
   width: 100%;
   max-width: 460px;
   background: var(--surface);
-  border-radius: 14px;
-  box-shadow: 0 10px 30px rgba(31, 35, 40, 0.18);
+  border: 1px solid var(--border);
   padding: 32px;
 }
-.auth-card .brand-line { color: var(--link); font-weight: 700; margin-bottom: 4px; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.04em; }
+/* the product's wordmark, set like the one in the sidebar */
+.auth-card .brand-line { color: var(--text); font-weight: 700; font-size: 1.15rem; margin-bottom: 24px; }
 .auth-card .switch { margin-top: 20px; color: var(--muted); }
 .auth-card .btn { width: 100%; }
 .auth-wide { max-width: 640px; }
@@ -467,19 +429,21 @@ details.raw dd { margin: 0; }
 .password-row input { flex: 1; }
 
 /* ---------- home ---------- */
+/* The commission's logo and the copy on the plain page ground, no card. */
 .home {
   min-height: 100vh;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
   align-items: center;
-  gap: 32px;
-  padding: 48px 32px 48px calc(var(--shell-width) + 32px);
-  background: var(--brand);
+  gap: 48px;
+  padding: 48px 48px 48px calc(var(--shell-width) + 48px);
+  background: var(--page);
 }
-.home img { width: 100%; max-width: 520px; height: auto; justify-self: center; }
-.home-copy { background: var(--surface); border-radius: 14px; padding: 32px; box-shadow: var(--shadow); }
-.home-copy h1 { font-size: 2rem; }
-.home-copy .tagline { color: var(--muted); font-size: 1.1rem; }
+.home img { width: 100%; max-width: 480px; height: auto; justify-self: center; }
+.home-copy { max-width: 36rem; }
+.home-copy h1 { font-size: 2.25rem; line-height: 1.1; letter-spacing: -0.01em; margin-bottom: 16px; }
+.home-copy .lead { font-size: 1.15rem; }
+.home-copy .switch { margin-top: 20px; color: var(--muted); }
 
 /* ---------- legacy containers on converted pages ---------- */
 .content-narrow { max-width: 720px; }
@@ -495,22 +459,25 @@ details.raw dd { margin: 0; }
     min-width: 44px;
     padding: 0 14px;
     border: 2px solid var(--brand-strong);
-    border-radius: 8px;
+    border-radius: 0;
     background: var(--surface);
     color: var(--link);
     font-weight: 600;
   }
+  .phase-badge { align-self: center; }
   .shell-links { display: none; }
   #app-shell.open .shell-links { display: block; }
   body.has-shell .page { margin-left: 0; }
   .page-main { padding: 20px 16px 48px; }
-  .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .home { grid-template-columns: 1fr; padding: 24px 16px; }
+  .steps { grid-template-columns: 1fr; }
+  .step + .step { border-left: 0; }
+  .home { grid-template-columns: 1fr; gap: 24px; padding: 24px 16px 48px; min-height: 0; }
+  .home img { max-width: 280px; }
+  .home-copy h1 { font-size: 1.75rem; }
 }
 
 @media (max-width: 575.98px) {
   h1 { font-size: 1.45rem; }
-  .steps { grid-template-columns: 1fr; }
   .field-row { grid-template-columns: 1fr; }
   .panel { padding: 16px; }
   .actions .btn { width: 100%; }
@@ -518,13 +485,21 @@ details.raw dd { margin: 0; }
   /* tables become stacked rows; each cell shows its column name */
   /* .table.table-stack > tbody > tr > td beats Material's .table > tbody > tr > td */
   .table.table-stack > thead { display: none; }
-  .table.table-stack > tbody > tr { display: block; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; padding: 8px 12px; }
+  .table.table-stack > tbody > tr { display: block; border: 1px solid var(--border); border-radius: 0; margin-bottom: 12px; padding: 8px 12px; }
   .table.table-stack > tbody > tr > td, .table.table-stack > tbody > tr > th { display: block; border: 0; padding: 6px 0 6px 7.5em; text-indent: -7.5em; }
   .table.table-stack > tbody > tr > td > *, .table.table-stack > tbody > tr > th > * { text-indent: 0; }
   .table.table-stack > tbody > tr > td::before, .table.table-stack > tbody > tr > th::before { content: attr(data-label); display: inline-block; width: 7.5em; text-indent: 0; font-weight: 600; color: var(--muted); }
   .table.table-stack > tbody > tr > td[colspan] { padding-left: 0; text-indent: 0; }
   .table.table-stack > tbody > tr > td[colspan]::before { content: none; }
   .auth-card { padding: 24px 18px; }
+  .table.table-stack .num { text-align: left; }
 }
 
-.phase-line { font-size: 1.1rem; font-weight: 600; color: var(--link); margin-bottom: 16px; }
+.phase-line { font-size: 1.1rem; font-weight: 600; color: var(--text); margin-bottom: 16px; }
+
+/* who is on the ballot before voting opens: rows split by rules */
+.ballot-list { list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); column-gap: 24px; }
+.ballot-list li { display: flex; flex-direction: column; padding: 10px 0; border-top: 1px solid var(--border); }
+
+/* numbers line up digit for digit, right-aligned (stacked phone rows keep them left) */
+.table .num { text-align: right; font-variant-numeric: tabular-nums; }

@@ -1,4 +1,5 @@
 var express = require('express');
+var formatWhen = require('../lib/when').formatWhen;
 var router = express.Router();
 var db=require('../database');
 var auth=require('../middleware/auth');
@@ -80,7 +81,7 @@ router.get('/table_view', auth.requireAdmin, async function(req, res, next) {
     var statuses = await onChainStatus(req.app.locals.chain, data);
     mismatches = mismatches.concat(await minedDespiteFailure(req.app.locals.chain, failed, data));
     data.forEach(function (row, i) { row.onChain = statuses[i]; });
-    res.render('adminVoterReg', { title: 'Registered Users List', userData: data, mismatches: mismatches });
+    res.render('adminVoterReg', { title: 'Registered Users List', userData: data, mismatches: mismatches, when: formatWhen });
   } catch (err) {
     // SEC-7: hand errors to the central handler; throwing here crashed the server
     next(err);

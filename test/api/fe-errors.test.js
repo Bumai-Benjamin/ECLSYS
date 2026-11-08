@@ -31,7 +31,8 @@ describe('FE readable chain errors', function () {
   });
 
   [
-    ['NotRegistered()', 'Your wallet is not registered to vote.'],
+    ['InvalidProof()', 'The blockchain could not confirm that this vote comes from a registered voter.'],
+    ['LeafAlreadyExists()', 'That voting key is already registered.'],
     ['AlreadyVoted()', 'You have already voted.'],
     ['InvalidContestant(uint256)', 'That candidate does not exist.'],
     ['AccessControlUnauthorizedAccount(address,bytes32)', 'This MetaMask account is not allowed to do that.'],
@@ -46,8 +47,8 @@ describe('FE readable chain errors', function () {
   it('finds the selector however deeply it is nested', function () {
     var err = { message: 'Internal JSON-RPC error.', data: { originalError: { data: sel('AlreadyVoted()') } } };
     expect(ChainErrors.message(err)).to.equal('You have already voted.');
-    expect(ChainErrors.message(new Error('VM Exception while processing transaction: revert ' + sel('NotRegistered()'))))
-      .to.equal('Your wallet is not registered to vote.');
+    expect(ChainErrors.message(new Error('VM Exception while processing transaction: revert ' + sel('InvalidProof()'))))
+      .to.equal('The blockchain could not confirm that this vote comes from a registered voter.');
   });
 
   it('MetaMask code 4001 says the request was cancelled', function () {
@@ -83,7 +84,8 @@ describe('FE app.js on contract v2', function () {
   });
 
   it('sends every transaction from App.account', function () {
-    ['addContestant', 'voterRegisteration', 'changeState', 'vote'].forEach(function (fn) {
+    // Votes are the exception: the relayer sends them (ANON-3), see ui-anon tests
+    ['addContestant', 'voterRegisteration', 'changeState'].forEach(function (fn) {
       var call = new RegExp('instance\\.' + fn + '\\(([^;]*)\\);');
       var m = call.exec(APP_JS);
       expect(m, fn).to.not.equal(null);

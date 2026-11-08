@@ -14,22 +14,26 @@
   <script src="/js/shell.js"></script>
   <div class="page">
     <main id="content" class="page-main" tabindex="-1">
-      <div id="wallet-status" class="status-panel" role="status" aria-live="polite"></div>
       <header class="page-intro">
         <h1>Results</h1>
         <p>Totals come straight from the voting contract. Anyone can re-count them on the <a href="/audit">audit page</a>.</p>
       </header>
+      <div id="wallet-status" class="status-panel" role="status" aria-live="polite"></div>
       <ol id="steps" class="steps" aria-label="Your progress" hidden></ol>
       <section id="results-waiting" class="panel">
         <h2>Voting has not closed yet</h2>
         <p>Results will appear when voting closes. Meanwhile you can follow the count on the <a href="/audit">audit page</a>.</p>
+        <div id="ballot-preview-block" hidden>
+          <h3>On the ballot</h3>
+          <ul id="ballot-preview" class="ballot-list"></ul>
+        </div>
       </section>
       <section id="results-final" class="panel" aria-labelledby="results-title" hidden>
         <h2 id="results-title">Final totals</h2>
         <p id="results-summary-text" class="result-summary"></p>
         <div class="table-wrap">
           <table class="table table-stack" id="results-table">
-            <thead><tr><th scope="col">Candidate</th><th scope="col">Party</th><th scope="col">Votes</th><th scope="col">Share</th></tr></thead>
+            <thead><tr><th scope="col">Candidate</th><th scope="col">Party</th><th scope="col" class="num">Votes</th><th scope="col">Share</th></tr></thead>
             <tbody id="Results"></tbody>
           </table>
         </div>

@@ -23,7 +23,8 @@ describe('SEC-11 security headers', function () {
     var res = await h.agent().get('/login');
     var csp = res.headers['content-security-policy'];
     expect(csp).to.be.a('string');
-    expect(directive(csp, 'script-src')).to.equal("script-src 'self'");
+    // ANON-2: WebAssembly for the proof, but still no eval of strings
+    expect(directive(csp, 'script-src')).to.equal("script-src 'self' 'wasm-unsafe-eval'");
     expect(csp).to.contain("default-src 'self'");
     expect(csp).to.contain("object-src 'none'");
     expect(csp).to.contain("frame-ancestors 'none'");

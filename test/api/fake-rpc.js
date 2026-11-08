@@ -12,23 +12,25 @@ var ADDRESS = '0x' + '5'.repeat(40);
 
 // Just the parts of the NamVoting ABI that lib/chain uses
 var ABI = [
-  { type: 'function', name: 'voters', stateMutability: 'view', inputs: [{ name: '', type: 'address' }],
-    outputs: [{ name: 'isRegistered', type: 'bool' }, { name: 'hasVoted', type: 'bool' }] },
+  { type: 'function', name: 'registered', stateMutability: 'view', inputs: [{ name: '', type: 'address' }],
+    outputs: [{ name: '', type: 'bool' }] },
   { type: 'function', name: 'state', stateMutability: 'view', inputs: [], outputs: [{ name: '', type: 'uint8' }] },
   { type: 'function', name: 'contestantsCount', stateMutability: 'view', inputs: [], outputs: [{ name: '', type: 'uint256' }] },
   { type: 'function', name: 'contestants', stateMutability: 'view', inputs: [{ name: 'id', type: 'uint256' }],
     outputs: [{ name: 'id_', type: 'uint256' }, { name: 'name', type: 'string' }, { name: 'voteCount', type: 'uint256' },
       { name: 'party', type: 'string' }, { name: 'age', type: 'uint256' }, { name: 'qualification', type: 'string' }] },
   { type: 'function', name: 'results', stateMutability: 'view', inputs: [], outputs: [{ name: 'totals', type: 'uint256[]' }] },
-  { type: 'function', name: 'voterRegisteration', stateMutability: 'nonpayable', inputs: [{ name: 'user', type: 'address' }], outputs: [] },
-  { type: 'event', name: 'VoteCast', anonymous: false, inputs: [{ name: 'contestantId', type: 'uint256', indexed: true }] },
+  { type: 'function', name: 'voterRegisteration', stateMutability: 'nonpayable',
+    inputs: [{ name: 'user', type: 'address' }, { name: 'identityCommitment', type: 'uint256' }], outputs: [] },
+  { type: 'event', name: 'VoteCast', anonymous: false, inputs: [
+    { name: 'contestantId', type: 'uint256', indexed: true }, { name: 'nullifier', type: 'uint256', indexed: false }] },
   { type: 'event', name: 'VoterRegistered', anonymous: false, inputs: [{ name: 'voter', type: 'address', indexed: true }] }
 ];
 
 function selector(sig) { return sha3(sig).slice(0, 10); }
 
 var SELECTORS = {};
-SELECTORS[selector('voters(address)')] = 'voters';
+SELECTORS[selector('registered(address)')] = 'registered';
 SELECTORS[selector('state()')] = 'state';
 SELECTORS[selector('contestantsCount()')] = 'contestantsCount';
 SELECTORS[selector('contestants(uint256)')] = 'contestants';
@@ -51,9 +53,9 @@ function start(options) {
   function call(data) {
     var name = SELECTORS[data.slice(0, 10)];
     var args = '0x' + data.slice(10);
-    if (name === 'voters') {
+    if (name === 'registered') {
       var who = abi.decodeParameters(['address'], args)[0].toLowerCase();
-      return abi.encodeParameters(['bool', 'bool'], [state.registered.indexOf(who) !== -1, false]);
+      return abi.encodeParameters(['bool'], [state.registered.indexOf(who) !== -1]);
     }
     if (name === 'state') return abi.encodeParameters(['uint8'], [state.phase]);
     if (name === 'contestantsCount') return abi.encodeParameters(['uint256'], [state.contestants.length]);
@@ -72,10 +74,12 @@ function start(options) {
   }
 
   function logs() {
-    var topic = sha3('VoteCast(uint256)');
+    var topic = sha3('VoteCast(uint256,uint256)');
     return state.votes.map(function (id, i) {
+      // A 254-bit nullifier, like a real one, so big numbers stay exact
+      var nullifier = (BigInt(2) ** BigInt(250) + BigInt(i)).toString();
       return {
-        address: ADDRESS, topics: [topic, word(id)], data: '0x',
+        address: ADDRESS, topics: [topic, word(id)], data: abi.encodeParameters(['uint256'], [nullifier]),
         blockNumber: hex(i + 10), blockHash: word(i + 10), transactionHash: word(1000 + i),
         transactionIndex: '0x0', logIndex: '0x0', removed: false
       };

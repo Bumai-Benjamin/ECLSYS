@@ -17,6 +17,8 @@ router.get('/results.json', async function (req, res, next) {
   var done = data.phase === DONE && Array.isArray(data.results);
   res.json({
     phase: data.phase,
+    // names and parties are public from the start: who is on the ballot
+    ballot: data.contestants.map(function (c) { return { id: c.id, name: c.name, party: c.party }; }),
     // SC-5: no totals before voting is closed
     candidates: done ? data.contestants.map(function (c, i) {
       return { id: c.id, name: c.name, party: c.party, voteCount: Number(data.results[i]) };

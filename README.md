@@ -84,9 +84,14 @@ account. Run `db:create-user` again after changing `DB_PASS`.
 npm run migrate
 ```
 
-This writes `build/contracts/NamVoting.json`, which the pages load to find the
-contract. Run it again whenever you restart Ganache with a fresh chain or change
-the contract.
+This deploys Semaphore (with its Poseidon library and proof verifier) and then
+NamVoting, and writes `build/contracts/NamVoting.json`, which the pages load to
+find the contract. Run it again whenever you restart Ganache with a fresh chain
+or change the contract. The default block gas limit is enough.
+
+The server needs both `REGISTRAR_PRIVATE_KEY` and `RELAYER_PRIVATE_KEY` in
+`.env`: the relayer account sends every vote, so voters' wallets never appear in
+vote transactions (see [docs/anonymity.md](docs/anonymity.md)).
 
 ## 5. MetaMask
 
@@ -126,9 +131,14 @@ email OTP), `/userInfo`, `/voting`, `/result`; admin: `/adlogin`,
 
 1. **Account:** create an account at `/register` and sign in at `/login`.
 2. **Verify wallet** (during Registration): on Voter registration, enter your
-   ID number, press **Use my MetaMask wallet**, then type the code we email you.
+   ID number, press **Use my MetaMask wallet**, then **Send me a code** and
+   approve the signature in MetaMask (it creates your private voting key and
+   sends nothing). Type the code we email you.
 3. **Vote** (once voting is open): choose a candidate, press **Review my vote**,
-   check the name, then **Cast vote** and confirm in MetaMask. Keep the receipt.
+   check the name, then **Cast vote** and approve the same signature in
+   MetaMask. Your browser seals the ballot with a zero-knowledge proof and the
+   server sends it for you, so it can't be linked to you. Keep the receipt: its
+   code (nullifier) lets you find your vote on `/audit`.
 4. **Results** appear when voting closes; anyone can re-count on `/audit`.
 
 **Election staff** sign in at `/adlogin` and use, in order: **Add candidate**,
@@ -143,12 +153,17 @@ MetaMask, connect, switch to the election network (a button adds Ganache, chain
 ## Tests
 
 ```powershell
-npm run test:api         # mocha + supertest; needs MySQL, not Ganache
-npm run test:contracts   # truffle test against Ganache on 7545
+npm run test:api           # mocha + supertest; needs MySQL, not Ganache
+npm run test:contracts     # truffle test against Ganache on 7545
+npm run test:integration   # lib/chain and a real anonymous vote against Ganache
 ```
 
 `truffle test` deploys fresh copies of the contracts to the running Ganache
-workspace each time. It doesn't change `build/contracts`.
+workspace each time. It doesn't change `build/contracts`. The contract and
+integration tests need `npm run migrate` done first (they use the deployed
+Semaphore), and Ganache 7 or Ganache UI 2.7: `ganache-cli` 6 drops the data of
+custom-error reverts. The integration test deploys its own NamVoting, so it never
+changes your election's phase.
 
 ## npm scripts
 
@@ -156,6 +171,7 @@ workspace each time. It doesn't change `build/contracts`.
 |---|---|
 | `npm run dev` / `npm start` | Start the web server (lite-server + Express) |
 | `npm run migrate` | `truffle migrate --reset` to Ganache |
+| `npm run build:zk` | Rebuild `src/js/semaphore.bundle.js` from `scripts/zk/voter-key.js` (only after changing it) |
 | `npm run test:contracts` | Contract tests |
 | `npm run db:migrate` | Apply `db/migrations/*.sql` in order |
 | `npm run db:create-user` | Create or update the least-privilege app user from `.env` |

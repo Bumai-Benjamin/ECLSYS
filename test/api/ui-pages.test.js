@@ -129,8 +129,8 @@ describe('UI-7 voter pages', function () {
     expect(html).to.match(/<div id="vote-progress"[^>]*aria-live="polite"/);
     expect(html).to.match(/<section id="receipt"[^>]*hidden/);
     expect(html).to.match(/<section id="already-voted"[^>]*hidden/);
-    ['receipt-tx', 'receipt-block'].forEach(function (id) { expect(html).to.contain('id="' + id + '"'); });
-    expect(html).to.contain('Your choice is not stored next to your name.');
+    ['receipt-tx', 'receipt-block', 'receipt-nullifier'].forEach(function (id) { expect(html).to.contain('id="' + id + '"'); });
+    expect(html).to.contain('Nobody, including the server, can link it to you.');
     expect(html).to.match(/<a[^>]+href="\/audit"/);
     expect(html).to.match(/id="already-voted"[\s\S]*href="\/result"/);
   });

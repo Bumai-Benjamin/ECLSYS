@@ -37,19 +37,19 @@
             <table class="table table-stack">
               <thead>
                 <tr>
-                  <th scope="col">#</th>
+                  <th scope="col" class="num">#</th>
                   <th scope="col">Candidate</th>
-                  <th scope="col">Re-count</th>
-                  <% if (done) { %><th scope="col">Contract total</th><% } %>
+                  <th scope="col" class="num">Re-count</th>
+                  <% if (done) { %><th scope="col" class="num">Contract total</th><% } %>
                 </tr>
               </thead>
               <tbody>
               <% rows.forEach(function (r) { %>
                 <tr>
-                  <td data-label="#"><%= r.id %></td>
+                  <td class="num" data-label="#"><%= r.id %></td>
                   <td data-label="Candidate"><%= r.name %></td>
-                  <td data-label="Re-count"><%= r.recount %></td>
-                  <% if (done) { %><td data-label="Contract total"><%= r.total %></td><% } %>
+                  <td class="num" data-label="Re-count"><%= r.recount %></td>
+                  <% if (done) { %><td class="num" data-label="Contract total"><%= r.total %></td><% } %>
                 </tr>
               <% }) %>
               </tbody>
@@ -71,12 +71,12 @@
           <div class="table-wrap">
             <table class="table table-stack">
               <thead>
-                <tr><th scope="col">Block</th><th scope="col">What happened</th></tr>
+                <tr><th scope="col" class="num">Block</th><th scope="col">What happened</th></tr>
               </thead>
               <tbody>
               <% events.forEach(function (e) { %>
                 <tr>
-                  <td data-label="Block"><%= e.blockNumber %></td>
+                  <td class="num" data-label="Block"><%= e.blockNumber %></td>
                   <td data-label="What happened"><%= e.text %>
                     <details class="raw">
                       <summary>Technical details</summary>

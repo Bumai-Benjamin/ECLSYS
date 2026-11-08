@@ -15,7 +15,7 @@ describe('INT-2 lib/chain over JSON-RPC', function () {
     return chainLib.create({ rpcUrl: r.url, registrarKey: '1'.repeat(64), artifactFile: r.artifactFile });
   }
 
-  it('reads isRegistered from voters()', async function () {
+  it('reads isRegistered from registered()', async function () {
     var wallet = '0x' + 'ab'.repeat(20);
     rpc = await fakeRpc.start({ registered: [wallet] });
     var chain = chainFor(rpc);
@@ -33,7 +33,8 @@ describe('INT-2 lib/chain over JSON-RPC', function () {
     expect(audit.results).to.deep.equal([350, 350]);
     expect(audit.contestants).to.deep.equal([{ id: 1, name: 'A', party: 'Party' }, { id: 2, name: 'B', party: 'Party' }]);
     expect(audit.events.filter(function (e) { return e.event === 'VoteCast'; })).to.have.length(700);
-    expect(audit.events[0].args).to.deep.equal({ contestantId: 1 });
+    expect(audit.events[0].args.contestantId).to.equal(1);
+    expect(audit.events[0].args.nullifier).to.match(/^\d{70,}$/);   // ANON-5, exact
   });
 
   it('concurrent lookups share one connection check (review #4)', async function () {

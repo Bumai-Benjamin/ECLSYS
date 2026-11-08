@@ -27,8 +27,11 @@ describe('UI-9 reverted receipts', function () {
     expect(ChainErrors.REVERTED).to.equal('The blockchain rejected the transaction. Nothing was changed.');
   });
 
+  // Votes no longer go through MetaMask: the relayer answers with an HTTP
+  // status instead (ANON-3), so three MetaMask transactions are left.
   it('app.js checks the receipt before each success message', function () {
     var src = require('fs').readFileSync(require('path').join(__dirname, '..', '..', 'src', 'js', 'app.js'), 'utf8');
-    expect((src.match(/ChainErrors\.reverted\(/g) || []).length).to.be.at.least(4);
+    expect((src.match(/ChainErrors\.reverted\(/g) || []).length).to.be.at.least(3);
+    expect(src).to.contain('if (res.ok) return body;');
   });
 });

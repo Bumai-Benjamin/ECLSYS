@@ -61,6 +61,14 @@ router.post('/registerdata', function(req, res, next){
     if (badWallet) {
       return res.render('voter-registration.ejs', { alertMsg: badWallet });
     }
+    // ANON-1: the public half of the voter's Semaphore identity, made in the
+    // browser from a MetaMask signature. It is kept in the session only until
+    // the OTP step puts it on-chain, and is never written to the database.
+    var identityCommitment = validate.text(req.body.identity_commitment);
+    var badCommitment = validate.commitment(identityCommitment);
+    if (badCommitment) {
+      return res.render('voter-registration.ejs', { alertMsg: badCommitment });
+    }
 
     // Only the logged-in user's own ID number; otherwise anyone could send
     // OTP emails to other people and try to attach a wallet to their ID.
@@ -87,7 +95,7 @@ router.post('/registerdata', function(req, res, next){
 
         // SEC-4 / D7: the registration in progress belongs to this session only
         var code = await otp.issue(user.reg_id, OTP_PURPOSE);
-        req.session.pendingRegistration = { regId: user.reg_id, accountAddress: accountAddress };
+        req.session.pendingRegistration = { regId: user.reg_id, accountAddress: accountAddress, identityCommitment: identityCommitment };
 
         try {
           await mailer.sendMail({
@@ -109,7 +117,8 @@ router.post('/registerdata', function(req, res, next){
 
 router.post('/otpverify', function(req, res, next) {
     var pending = req.session.pendingRegistration;
-    if (!pending) {
+    // A registration started before ANON has no commitment: start again
+    if (!pending || !pending.identityCommitment) {
       return res.render('voter-registration.ejs', { alertMsg: 'No registration is in progress. Please start the registration again.' });
     }
 
@@ -128,13 +137,15 @@ router.post('/otpverify', function(req, res, next) {
         // INT-1: chain first. If it fails nothing is saved, so the voter can
         // simply try again (Review Focus 1).
         try {
-          await req.app.locals.chain.registerVoter(pending.accountAddress);
+          await req.app.locals.chain.registerVoter(pending.accountAddress, pending.identityCommitment);
         } catch (err) {
           console.error('On-chain registration failed: ' + errors.redact(err.message));
           // The wallet goes first: if the transaction was mined anyway (e.g. the
           // receipt timed out), the admin table finds it on-chain from here.
           await audit.record(pending.regId, 'chain_register_failed', pending.accountAddress + ': ' + errors.redact(err.message));
-          return res.render('voter-registration.ejs', { alertMsg: CHAIN_FAILED });
+          // The voting key is public (it reveals nothing about a vote); the
+          // voter can hand it to an admin for the recovery form.
+          return res.render('voter-registration.ejs', { alertMsg: CHAIN_FAILED, votingKey: pending.identityCommitment });
         }
 
         // The wallet is now registered on-chain. If the DB write fails the two

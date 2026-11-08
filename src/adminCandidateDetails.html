@@ -14,16 +14,16 @@
   <script src="/js/shell.js"></script>
   <div class="page">
     <main id="content" class="page-main" tabindex="-1">
-      <div id="wallet-status" class="status-panel" role="status" aria-live="polite"></div>
       <header class="page-intro">
         <h1>Candidates</h1>
         <p>Everyone standing in this election, as recorded on the blockchain. Vote counts stay at 0 until voting closes.</p>
       </header>
+      <div id="wallet-status" class="status-panel" role="status" aria-live="polite"></div>
       <section id="chain-content" class="panel" aria-labelledby="list-title">
         <h2 id="list-title">Candidate list</h2>
         <div class="table-wrap">
           <table class="table table-stack">
-            <thead><tr><th scope="col">#</th><th scope="col">Name</th><th scope="col">Age</th><th scope="col">Party</th><th scope="col">Qualification</th><th scope="col">Votes</th></tr></thead>
+            <thead><tr><th scope="col" class="num">#</th><th scope="col">Name</th><th scope="col">Age</th><th scope="col">Party</th><th scope="col">Qualification</th><th scope="col" class="num">Votes</th></tr></thead>
             <tbody id="contestantsResultsAdmin"></tbody>
           </table>
         </div>

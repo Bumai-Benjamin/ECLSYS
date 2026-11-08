@@ -14,19 +14,23 @@
   <script src="/js/shell.js"></script>
   <div class="page">
     <main id="content" class="page-main" tabindex="-1">
-      <div id="wallet-status" class="status-panel" role="status" aria-live="polite"></div>
       <header class="page-intro">
         <h1>Voter registration</h1>
         <p>Register the MetaMask wallet you will vote with. We email you a code to confirm it is you.</p>
       </header>
+      <div id="wallet-status" class="status-panel" role="status" aria-live="polite"></div>
       <ol id="steps" class="steps" aria-label="Your progress"></ol>
       <% if (typeof alertMsg != 'undefined' && alertMsg) { %>
         <div class="alert <%= /successfully/i.test(alertMsg) ? 'alert-success' : 'alert-danger' %>" role="alert" id="form-alert"><%= alertMsg %></div>
       <% } %>
+      <% if (typeof votingKey != 'undefined' && votingKey) { %>
+        <p class="muted" id="voting-key-note">If this keeps failing, give an administrator your wallet address and this voting key: <code><%= votingKey %></code></p>
+      <% } %>
       <section class="panel content-narrow" aria-labelledby="reg-title">
         <h2 id="reg-title">Your details</h2>
-        <form action="/registerdata" method="post">
+        <form action="/registerdata" method="post" id="register-form">
           <input type="hidden" name="_csrf" value="<%= csrfToken() %>">
+          <input type="hidden" name="identity_commitment" id="identity_commitment" value="">
           <div class="field">
             <label for="id_number">Namibian ID number</label>
             <input type="text" id="id_number" name="id_number" inputmode="numeric" autocomplete="off" aria-describedby="id-hint" required>
@@ -56,6 +60,7 @@
   <script src="js/wallet-status.js"></script>
   <script src="js/steps.js"></script>
   <script src="js/pending.js"></script>
+  <script src="js/semaphore.bundle.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

@@ -3,6 +3,7 @@
 // any other key replaces the method of that name.
 var crypto = require('crypto');
 var ChainUnavailableError = require('../../config/contract').ChainUnavailableError;
+var VoteRejectedError = require('../../lib/chain').VoteRejectedError;
 
 function fakeChain(overrides) {
   overrides = overrides || {};
@@ -14,7 +15,8 @@ function fakeChain(overrides) {
     results: null,
     contestants: []
   };
-  var calls = { registerVoter: [], isRegistered: [], audit: 0 };
+  var calls = { registerVoter: [], commitments: [], castVote: [], isRegistered: [], audit: 0 };
+  var nullifiers = {};
 
   function guard() {
     if (overrides.unavailable) return Promise.reject(new ChainUnavailableError());
@@ -25,9 +27,11 @@ function fakeChain(overrides) {
     calls: calls,
     state: state,
 
-    registerVoter: function (address) {
+    // calls.registerVoter: the wallets; calls.commitments: their voting keys
+    registerVoter: function (address, identityCommitment) {
       calls.registerVoter.push(address);
-      if (overrides.registerVoter) return overrides.registerVoter(address);
+      calls.commitments.push(identityCommitment);
+      if (overrides.registerVoter) return overrides.registerVoter(address, identityCommitment);
       var down = guard();
       if (down) return down;
       var key = String(address).toLowerCase();
@@ -35,6 +39,22 @@ function fakeChain(overrides) {
       registered[key] = true;
       state.events.push({ event: 'VoterRegistered', blockNumber: state.events.length + 1, args: { voter: address } });
       return Promise.resolve({ txHash: '0x' + crypto.randomBytes(32).toString('hex') });
+    },
+
+    // Accepts any well-formed proof (lib/chain and the contract check the
+    // real ones); refuses like the contract outside voting and on a reused
+    // nullifier.
+    castVote: function (proof) {
+      calls.castVote.push(proof);
+      if (overrides.castVote) return overrides.castVote(proof);
+      var down = guard();
+      if (down) return down;
+      if (state.phase !== 1) return Promise.reject(VoteRejectedError('voting_closed'));
+      if (nullifiers[proof.nullifier]) return Promise.reject(VoteRejectedError('already_voted'));
+      nullifiers[proof.nullifier] = true;
+      state.events.push({ event: 'VoteCast', blockNumber: state.events.length + 1,
+        args: { contestantId: Number(proof.message), nullifier: proof.nullifier } });
+      return Promise.resolve({ txHash: '0x' + crypto.randomBytes(32).toString('hex'), blockNumber: state.events.length, nullifier: proof.nullifier });
     },
 
     isRegistered: function (address) {

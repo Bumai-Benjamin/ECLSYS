@@ -130,6 +130,10 @@ describe('UI audit: GET /results.json', function () {
     expect(res.status).to.equal(200);
     expect(res.body).to.deep.equal({
       phase: 2,
+      ballot: [
+        { id: 1, name: 'Alice Nangolo', party: 'Independent' },
+        { id: 2, name: 'Bob Shikongo', party: 'Party B' }
+      ],
       candidates: [
         { id: 1, name: 'Alice Nangolo', party: 'Independent', voteCount: 3 },
         { id: 2, name: 'Bob Shikongo', party: 'Party B', voteCount: 1 }
@@ -233,8 +237,8 @@ describe('UI audit: admin voters list', function () {
     var a = h.agent({ chain: fakes.fakeChain() });
     await h.adminLogin(a, admin);
     var res = await a.get('/table_view');
-    expect(res.text).to.match(/<td data-label="#">1<\/td>/);
-    expect(res.text).not.to.match(/<td data-label="#">0<\/td>/);
+    expect(res.text).to.match(/<td class="num" data-label="#">1<\/td>/);
+    expect(res.text).not.to.match(/<td class="num" data-label="#">0<\/td>/);
     expect(res.text).to.contain('<td class="on-chain" data-label="On blockchain"><span class="badge badge-mismatch">Missing on blockchain</span></td>');
   });
 });
