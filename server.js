@@ -17,6 +17,9 @@ var logoutRouter = require('./routes/logout-route');
 var RegisterRouter = require('./routes/main');
 var AdminLogin = require('./routes/admin_login');
 var Tableview = require('./routes/table_view');
+var AuditPage = require('./routes/audit');
+var ResultsData = require('./routes/results');
+var MeRoute = require('./routes/me');
 
 // SEC-11: scripts only from this site. Stylesheets and fonts may come from the
 // CDNs the pages already use; MetaMask's fallback provider talks to Ganache.
@@ -43,10 +46,20 @@ function page(file) {
   };
 }
 
+// INT-2: the contract wrapper the routes use (req.app.locals.chain). API tests
+// set CHAIN=fake to get the in-memory fake; creating the real one doesn't
+// connect, so a stopped Ganache only shows when a page needs the chain.
+function defaultChain() {
+  if (process.env.CHAIN === 'fake') return require('./test/api/fakes').fakeChain();
+  return require('./lib/chain').create();
+}
+
 // options.rateLimitMax: per-IP POST limit per minute (SEC-10; tests set it)
+// options.chain: lib/chain or a fake with the same methods (INT-2)
 function createApp(options) {
   options = options || {};
   var app = express();
+  app.locals.chain = options.chain || defaultChain();
   app.use(helmet({ contentSecurityPolicy: CSP }));
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
@@ -74,8 +87,12 @@ function createApp(options) {
   app.use('/', RegisterRouter);
   app.use('/', AdminLogin);
   app.use('/', Tableview);
+  app.use('/', AuditPage);   // INT-4: public
+  app.use('/', ResultsData); // public totals once voting is closed
+  app.use('/', MeRoute);     // UI-1: who is signed in (no personal data)
 
-  app.get('/vote_area', auth.requireLogin, page('vote_area.html'));
+  // The old voting area moved to /voting
+  app.get('/vote_area', auth.requireLogin, function (req, res) { res.redirect(301, '/voting'); });
   app.get('/candidateDetails', auth.requireAdmin, page('adminCandidateDetails.html'));
   app.get('/userInfo', auth.requireLogin, page('userInfo.html'));
   app.get('/result', page('result.html'));

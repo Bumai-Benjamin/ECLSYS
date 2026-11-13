@@ -105,9 +105,10 @@ function lastOtp(email) {
 }
 
 // Logged-in voter who has asked for a registration OTP. Returns { a, user, wallet, res }.
-async function startRegistration(userOverrides) {
+// agentOptions go to createApp (e.g. { chain: fakes.fakeChain() }).
+async function startRegistration(userOverrides, agentOptions) {
   var user = await createUser(userOverrides);
-  var a = agent();
+  var a = agent(agentOptions);
   await login(a, user);
   var wallet = newWallet();
   var res = await submitForm(a, '/form', '/registerdata', { id_number: user.id_number, account_address: wallet });

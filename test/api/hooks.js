@@ -13,6 +13,8 @@ process.env.MAIL_TRANSPORT = 'memory';
 process.env.SESSION_SECRET = process.env.SESSION_SECRET || 'test-session-secret';
 process.env.OTP_PEPPER = process.env.OTP_PEPPER || 'test-otp-pepper';
 process.env.RATE_LIMIT_MAX = process.env.RATE_LIMIT_MAX || '1000';
+// INT-2: createApp() uses the in-memory chain unless a test passes its own
+process.env.CHAIN = 'fake';
 
 childProcess.execFileSync(process.execPath, [path.join(__dirname, '..', '..', 'scripts', 'db-reset-test.js')], {
   stdio: 'inherit',

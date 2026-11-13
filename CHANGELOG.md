@@ -3,6 +3,80 @@
 Requirement IDs refer to [REQUIREMENTS.md](REQUIREMENTS.md). Decisions are in
 [docs/decisions.md](docs/decisions.md).
 
+## UI audit fixes (2026-11-07)
+
+Fixes from a UI audit of every page. 331 API tests pass; screenshots in
+`docs/ui-screenshots/` now include a `-dark` set.
+
+- Form inputs fit their columns (`box-sizing: border-box`); they overlapped
+  on the two-column Create account and Add candidate forms.
+- Table headers no longer break one letter per line.
+- Results work without MetaMask: the new public `GET /results.json` reads the
+  totals from the contract (none before voting closes). Public pages no
+  longer show MetaMask warnings.
+- Results name the winner (or a tie) and the number of votes cast, mark the
+  winning row, and draw an empty bar track for 0%. The voter dashboard shows
+  the same summary once voting closes.
+- Audit page: events in plain words ("Vote cast for …") with the raw event
+  under "Technical details"; full contract and wallet addresses; code text
+  no longer pink (it failed contrast).
+- A closed election is shown in neutral colours, not red. The Election phase
+  page links to Results and no longer repeats the phase.
+- Voters list numbers rows from 1 and says "Missing on blockchain".
+- `/vote_area` redirects to `/voting`; the old page is gone.
+- Dark colour scheme and reduced-motion support; the home image is an 800px
+  WebP (50 KB, was a 149 KB PNG); skip links on the sign-in pages; 44px brand
+  link; `autocomplete="sex"` on Gender.
+
+## UI refresh (2026-11-06)
+
+Done: **UI-1 to UI-9** (spec `docs/superpowers/specs/2026-11-05-ui-ux-refresh-design.md`).
+299 API tests, 26 contract tests and 3 integration tests pass. Screenshots of
+every page at 1280px and 375px are in `docs/ui-screenshots/`.
+
+- **UI-1** `GET /me`: who is signed in, with no personal data.
+- **UI-2** Step tracker: Account, Verify wallet, Vote, Results, with the reason
+  a step is not open yet.
+- **UI-3** MetaMask status messages and the Add candidate checks.
+- **UI-4** Results sorted with share bars, ballot cards, shortened hashes, and
+  the Open voting / Close voting flow.
+- **UI-5** Coral stylesheet (`src/css/app.css`), one shared nav
+  (`src/js/shell.js`), and all 17 pages rewritten: labels on every field, one
+  heading, skip link, no inline styles, WCAG 2.1 AA contrast. `/voting` no
+  longer shows the old demo's admin forms to voters.
+- **UI-6** MetaMask status panel (install, connect, switch to the election
+  network, wrong account, not an admin), and one transaction at a time.
+- **UI-7** Connect-wallet button on `/form`, ballot with a confirmation dialog,
+  progress lines and a receipt, "You have voted", and a results page that
+  waits for voting to close.
+- **UI-8** Admin: phase timeline with a typed OPEN / CLOSE confirmation,
+  candidate checks before MetaMask opens, voter table badges, recovery tools
+  folded away.
+- **UI-9** A transaction that was mined but reverted is now reported ("The
+  blockchain rejected the transaction. Nothing was changed.") instead of
+  showing success; the bundled truffle-contract doesn't treat it as an error.
+  Stacked tables on phones show their column names.
+
+## Phase 3: Integration (2026-11-05)
+
+Done: **INT-1 to INT-4**. 202 API tests pass (`npm run test:api`); the
+contract is faked in API tests. `npm run test:integration` checks
+`lib/chain.js` against Ganache and skips itself when Ganache is not running.
+
+- **INT-2** `config/contract.js` and `lib/chain.js`: the server reads the
+  contract address from the Truffle build and checks the contract is really on
+  the running chain before every call. Ganache stopped, reset or not migrated
+  gives "The blockchain is not available. Ask an administrator to run npm run
+  migrate." instead of a crash.
+- **INT-1** After the email code, the server registers the wallet on-chain
+  (registrar key, `REGISTRAR_PRIVATE_KEY`) and then in the DB. A chain failure
+  saves nothing and tells the voter; a DB failure after the chain succeeded is
+  recorded as `chain_db_mismatch`. The admin form is now a recovery tool.
+- **INT-3** The admin voter table has an "On blockchain" column (Yes,
+  No ⚠ mismatch, Unknown) and lists recorded mismatches.
+- **INT-4** Public `/audit` page: contract events, a re-count of votes, and a
+  check against the contract totals once voting is done.
+
 ## Phase 2: Contract v2 (2026-11-03)
 
 Done: **SC-1 to SC-8**, plus the frontend changes they need (D15, D16).

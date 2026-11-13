@@ -1,81 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ECL - Namibia</title>
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-
-  </head>
-  <body >
-<div id="chainError" class="alert alert-danger" role="alert" style="display:none; position:fixed; top:12px; left:50%; transform:translateX(-50%); z-index:2000; max-width:90%;"></div>
-    <div class="container" style="width: 700px">
-      <div class="row">
-        <div class="col-xs-12 col-sm-8 col-sm-push-2">
-          <h1 class="text-center">Best Actor Contest</h1>
-          <hr/>
-          <br/>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vote · ECN E-Vote</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&amp;display=swap">
+  <link href="/assets/css/material-dashboard.css?v=2.1.2" rel="stylesheet">
+  <link href="/css/app.css" rel="stylesheet">
+</head>
+<body data-nav="voter" data-page="voting">
+  <a class="skip-link" href="#content">Skip to content</a>
+  <nav id="app-shell" aria-label="Main"></nav>
+  <script src="/js/shell.js"></script>
+  <div class="page">
+    <main id="content" class="page-main" tabindex="-1">
+      <div id="wallet-status" class="status-panel" role="status" aria-live="polite"></div>
+      <header class="page-intro">
+        <h1>Vote</h1>
+        <p>Choose one candidate. You can vote once, and you can't change your vote afterwards.</p>
+      </header>
+      <ol id="steps" class="steps" aria-label="Your progress"></ol>
+      <div id="currentPhase"></div>
+      <p id="loader" class="muted">Loading the candidates…</p>
+      <section id="chain-content" class="panel" aria-labelledby="ballot-title" hidden>
+        <h2 id="ballot-title">Ballot</h2>
+        <fieldset id="ballot" class="ballot">
+          <legend>Choose one candidate</legend>
+        </fieldset>
+        <div class="actions">
+          <button type="button" class="btn btn-primary" id="review-vote" disabled>Review my vote</button>
         </div>
-      </div>
-  <form data-action="registerVoter">
-      <div class="form-group">
-        <label>Voter Account</label>
-        <input type="text" class="form-control" id="accadd" placeholder="Address">
-      </div>
-      <button type="submit" class="btn btn-primary">Register</button>
-  </form>
-      <form data-action="addCandidate">
-      <div class="form-group">
-        <label for="exampleInputEmail1">Name</label>
-        <input type="text" class="form-control" id="name" placeholder="Name">
-      </div>
-      <button type="submit" class="btn btn-primary">Add</button>
-</form>
-<hr>
-<form data-action="changeState">
-  <button type="submit" class="btn btn-primary">Change phase</button>
-</form>
+        <div id="vote-progress" class="progress-line" aria-live="polite"></div>
+      </section>
 
-      <div id="loader" class="row">
-        <!-- PETS LOAD HERE -->
-        <p class="text-center">Loading.... </p>
-      </div>
+      <section id="receipt" class="panel receipt" aria-labelledby="receipt-title" tabindex="-1" hidden>
+        <h2 id="receipt-title">Your vote is recorded.</h2>
+        <dl>
+          <dt>Transaction</dt>
+          <dd><code id="receipt-tx" tabindex="0"></code></dd>
+          <dt>Block</dt>
+          <dd id="receipt-block"></dd>
+        </dl>
+        <p>Anyone can check that your vote was counted on the <a href="/audit">audit page</a>.</p>
+        <p>Your choice is not stored next to your name. In this version a vote is cast from your registered wallet, so someone who can see both the blockchain and the voter register could link the two.</p>
+      </section>
 
-      <div id="content">
-        <table class="table">
-          <thead>
-            <th scope="col">#</th>
-            <th scope="col">Name</th>
-            <th scope="col">Votes</th>
-          </thead>
-          <tbody id="contestantsResults">
+      <section id="already-voted" class="panel" aria-labelledby="voted-title" hidden>
+        <h2 id="voted-title">You have voted</h2>
+        <p>Thank you. Each wallet can vote once. The totals appear on the <a href="/result">Results</a> page when voting closes.</p>
+      </section>
+    </main>
+  </div>
 
-          </tbody>
-          <hr/>
-          <p id="accountAddress" class="text-center"></p>
-        </table>
-
-        <form data-action="castVote">
-          <div class="form-group">
-            <label for="contestantSelect">Select Contestant</label>
-            <select class="select-control" id="contestantSelect"></select>
-          </div>
-          <button type="submit" class="btn btn-primary">Cast your vote</button>
-        </form>
-      </div>
- </div>
-
-
-
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="assets/js/core/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/web3.min.js"></script>
-    <script src="js/truffle-contract.js"></script>
-    <script src="js/templates.js"></script>
-    <script src="js/errors.js"></script>
-    <script src="js/app.js"></script>
-  </body>
+  <dialog id="confirm-vote" aria-labelledby="confirm-title">
+    <h2 id="confirm-title">Check your vote</h2>
+    <p id="confirm-text"></p>
+    <div class="actions">
+      <button type="button" class="btn btn-primary" id="cast-vote">Cast vote</button>
+      <button type="button" class="btn btn-secondary-outline" id="cancel-vote" autofocus>Go back</button>
+    </div>
+  </dialog>
+  <script src="assets/js/core/jquery.min.js"></script>
+  <script src="js/web3.min.js"></script>
+  <script src="js/truffle-contract.js"></script>
+  <script src="js/templates.js"></script>
+  <script src="js/errors.js"></script>
+  <script src="js/wallet-status.js"></script>
+  <script src="js/steps.js"></script>
+  <script src="js/pending.js"></script>
+  <script src="js/app.js"></script>
+</body>
 </html>
