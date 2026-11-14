@@ -9,11 +9,14 @@
 </head>
 <body>
   <a class="skip-link" href="#auth-form">Skip to the form</a>
+  <script src="/js/shell.js"></script>
   <main id="content" class="auth-page">
-    <div class="auth-card auth-wide">
-      <p class="brand-line">Electoral Commission of Namibia</p>
-      <h1>Create an account</h1>
-      <p class="muted">You need an account before you can register your wallet and vote.</p>
+    <div class="auth-wrap auth-wrap-wide">
+      <header class="page-intro" data-crumb="Register">
+        <h1>Create an account</h1>
+        <p>You need an account before you can register your wallet and vote.</p>
+      </header>
+      <div class="auth-card auth-wide">
       <% if (typeof alertMsg != 'undefined' && alertMsg) { %>
         <div class="alert <%= /success/i.test(alertMsg) ? 'alert-success' : 'alert-danger' %>" role="alert"><%= alertMsg %></div>
       <% } %>
@@ -69,6 +72,7 @@
         <button type="submit" class="btn btn-primary">Create account</button>
       </form>
       <p class="switch">Already have an account? <a href="/login">Sign in</a></p>
+      </div>
     </div>
   </main>
 </body>

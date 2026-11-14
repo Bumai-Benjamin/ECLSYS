@@ -9,10 +9,13 @@
 </head>
 <body>
   <a class="skip-link" href="#auth-form">Skip to the form</a>
+  <script src="/js/shell.js"></script>
   <main id="content" class="auth-page">
-    <div class="auth-card">
-      <p class="brand-line">Electoral Commission of Namibia</p>
-      <h1>Election administrator sign-in</h1>
+    <div class="auth-wrap">
+      <header class="page-intro" data-crumb="Staff sign-in">
+        <h1>Election administrator sign-in</h1>
+      </header>
+      <div class="auth-card">
       <% if (typeof alertMsg != 'undefined' && alertMsg) { %>
         <div class="alert alert-danger" role="alert"><%= alertMsg %></div>
       <% } %>
@@ -32,6 +35,7 @@
         <button type="submit" class="btn btn-primary">Sign in</button>
       </form>
       <p class="switch">Voting? <a href="/login">Sign in as a voter</a></p>
+      </div>
     </div>
   </main>
   <script src="js/login-page.js"></script>

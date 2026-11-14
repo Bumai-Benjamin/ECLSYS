@@ -14,9 +14,11 @@
   <script src="/js/shell.js"></script>
   <div class="page">
     <main id="content" class="page-main" tabindex="-1">
-      <section class="panel content-narrow" aria-labelledby="code-title">
+      <header class="page-intro">
         <h1 id="code-title">Check your email</h1>
         <p>We sent a 6-digit code to your email address. It expires in a few minutes.</p>
+      </header>
+      <section class="panel content-narrow" aria-labelledby="code-title">
         <% if (typeof alertMsg != 'undefined' && alertMsg) { %>
           <div class="alert alert-danger" role="alert"><%= alertMsg %></div>
         <% } %>

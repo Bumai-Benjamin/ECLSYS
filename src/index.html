@@ -11,18 +11,42 @@
   <a class="skip-link" href="#content">Skip to content</a>
   <nav id="app-shell" aria-label="Main"></nav>
   <script src="/js/shell.js"></script>
-  <main id="content" class="home" tabindex="-1">
-    <img src="img/home_page.webp" width="800" height="600" alt="Electoral Commission of Namibia logo: a hand putting a ballot into a box in the colours of the Namibian flag">
-    <div class="home-copy">
-      <h1>Electoral Commission of Namibia e-voting</h1>
-      <p class="tagline">Let your voice be heard.</p>
-      <p>Create an account, register your MetaMask wallet, and vote when voting opens.</p>
-      <div class="actions">
-        <a class="btn btn-primary" href="/register">Register to vote</a>
-        <a class="btn btn-secondary-outline" href="/login">Sign in</a>
+  <div class="page">
+    <main id="content" class="page-main home" tabindex="-1">
+      <div class="hero">
+        <div class="hero-logo">
+          <img src="img/home_page.webp" width="800" height="600" alt="Electoral Commission of Namibia logo: a hand putting a ballot into a box in the colours of the Namibian flag">
+        </div>
+        <div class="hero-copy">
+          <p id="election-status" class="status-pill" role="status" hidden></p>
+          <h1>Electoral Commission of Namibia e-voting</h1>
+          <p class="lede">Let your voice be heard. Create an account, register your MetaMask wallet, and vote when voting opens.</p>
+          <div class="actions">
+            <a class="btn btn-primary" href="/register">Register to vote</a>
+            <a class="btn btn-secondary-outline" href="/login">Sign in</a>
+          </div>
+        </div>
       </div>
-      <p class="switch"><a href="/result">See results</a> · <a href="/audit">Check the count</a> · <a href="/adlogin">Election staff sign-in</a></p>
-    </div>
-  </main>
+      <nav class="link-cards" aria-label="More">
+        <a class="link-card" href="/result">
+          <span class="link-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M4 20h16"/><path d="M7.5 16v-5"/><path d="M12 16V7"/><path d="M16.5 16v-7.5"/></svg></span>
+          <span class="link-card-text"><span class="link-card-title">See results</span><span class="link-card-desc">Totals for each candidate</span></span>
+          <span class="link-card-chev" aria-hidden="true">›</span>
+        </a>
+        <a class="link-card" href="/audit">
+          <span class="link-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M12 3 4.5 6v5.5c0 4.6 3.2 8.4 7.5 9.5 4.3-1.1 7.5-4.9 7.5-9.5V6L12 3z"/><path d="m8.8 12.2 2.2 2.2 4.2-4.4"/></svg></span>
+          <span class="link-card-text"><span class="link-card-title">Check the count</span><span class="link-card-desc">Re-count votes on the ledger</span></span>
+          <span class="link-card-chev" aria-hidden="true">›</span>
+        </a>
+        <!-- "How voting works" is the voter information page; it asks for sign-in first -->
+        <a class="link-card" href="/userInfo">
+          <span class="link-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.6"/><path d="M12 17h.01"/></svg></span>
+          <span class="link-card-text"><span class="link-card-title">How it works</span><span class="link-card-desc">What you need and the 3 phases</span></span>
+          <span class="link-card-chev" aria-hidden="true">›</span>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="js/pages/home-page.js"></script>
 </body>
 </html>
