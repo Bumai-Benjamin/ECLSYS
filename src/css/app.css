@@ -463,8 +463,10 @@ details.raw dd { margin: 0; }
 .auth-card .switch { margin-top: 20px; color: var(--muted); }
 .auth-card .btn { width: 100%; }
 .auth-wide { max-width: 640px; }
-.password-row { display: flex; gap: 8px; }
-.password-row input { flex: 1; }
+.password-row { display: flex; gap: 8px; align-items: stretch; }
+.password-row input { flex: 1 1 auto; min-width: 0; }
+/* The Show button keeps its own width; `.auth-card .btn` above would stretch it to 100% */
+.auth-card .password-row .btn { width: auto; flex: 0 0 auto; min-width: 84px; }
 
 /* ---------- home ---------- */
 .home {
