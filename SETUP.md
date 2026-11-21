@@ -57,13 +57,25 @@ Open `.env` and fill it in:
 | `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` | The Gmail account that sends the email codes (see below) |
 | `REGISTRAR_PRIVATE_KEY` | Leave empty for now and fill it in during step 5 |
 
-**Email codes through Gmail.** Gmail does not accept the normal account password.
+**Email codes through Gmail.** One Gmail account sends every verification code.
+This is the system's default sender. A Gmail account made only for this project
+is best, so no one's personal inbox is involved. Gmail does not accept the
+normal account password.
 
 1. Turn on 2-Step Verification at <https://myaccount.google.com/security>.
 2. Create an app password at <https://myaccount.google.com/apppasswords> (any
    name, such as `NamVoting`).
 3. Put the 16 letters, without spaces, in `SMTP_PASS`, and the Gmail address in
    `SMTP_USER`.
+4. Leave `MAIL_FROM` empty. Voters then see the sender as **ECN E-Vote**.
+5. Check it, which sends one test email (no code) to the address you give:
+
+   ```powershell
+   npm run mail:test -- you@example.com
+   ```
+
+When `npm run dev` starts, it also prints one line saying whether OTP emails
+work, for example `[mail] OTP emails will be sent from "ECN E-Vote" <…>`.
 
 To test without Gmail, create a free account at <https://ethereal.email> and use
 `SMTP_HOST=smtp.ethereal.email`, `SMTP_PORT=587` and its username and password.
@@ -163,7 +175,7 @@ All three should finish with no failures.
 
 | Problem | Fix |
 |---|---|
-| "We couldn't send your code" | Gmail rejected the login. Make a new app password and paste it into `SMTP_PASS`, check `SMTP_USER` is the same Google account, then restart `npm run dev` |
+| "We couldn't send your code", or `[mail] OTP emails are NOT working` at start | The line says why. For "rejected the login": make a new app password and paste it into `SMTP_PASS`, and check `SMTP_USER` is the same Google account. Then run `npm run mail:test -- you@example.com` and restart `npm run dev` |
 | Changes to `.env` have no effect | The server reads `.env` only when it starts. Stop it (Ctrl+C) and run `npm run dev` again |
 | Server starts on port 3001 or higher | An older copy is still running. Close it so only one runs on 3000 |
 | "Missing on blockchain" in the voter table | The wallet was registered on an older Ganache chain that has since been reset. Wallets registered on the current chain show "Yes" |

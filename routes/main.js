@@ -90,14 +90,11 @@ router.post('/registerdata', function(req, res, next){
         req.session.pendingRegistration = { regId: user.reg_id, accountAddress: accountAddress };
 
         try {
-          await mailer.sendMail({
-            to: user.email_address,
-            subject: "ECL - Please confirm your Email account",
-            text: "Hello, Your otp is " + code + ". It expires in " + otp.TTL_MINUTES + " minutes. Please enter this otp to verify your email address."
-          });
+          await mailer.sendOtp(user.email_address, code, otp.TTL_MINUTES);
         } catch (err) {
-          // SEC-7: no code-entry page for a code that never arrives
-          console.error('Sending the OTP email failed: ' + errors.redact(err.message));
+          // SEC-7: no code-entry page for a code that never arrives. Log the
+          // error code only: SMTP replies can echo what was sent.
+          console.error('Sending the OTP email failed: ' + mailer.describeError(err));
           await otp.retire(user.reg_id, OTP_PURPOSE);
           delete req.session.pendingRegistration;
           return res.render('voter-registration.ejs', { alertMsg: "We couldn't send your code. Please try again in a few minutes." });

@@ -7,6 +7,9 @@ if (missingEnv.length) {
 
 var app = require('./server').createApp();
 
+// one line in the log: can OTP emails be sent? (logs in to SMTP, sends nothing)
+require('./lib/mailer').checkAtStartup();
+
 module.exports = {
   "server": {
     "baseDir": ["./src", "./build/contracts"],

@@ -18,7 +18,8 @@
     "db:migrate": "node scripts/db-migrate.js",
     "db:reset-test": "node scripts/db-reset-test.js",
     "db:create-user": "node scripts/create-db-user.js",
-    "seed:admin": "node scripts/seed-admin.js"
+    "seed:admin": "node scripts/seed-admin.js",
+    "mail:test": "node scripts/mail-test.js"
   },
   "author": "",
   "license": "ISC",

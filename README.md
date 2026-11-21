@@ -160,6 +160,7 @@ workspace each time. It doesn't change `build/contracts`.
 | `npm run db:migrate` | Apply `db/migrations/*.sql` in order |
 | `npm run db:create-user` | Create or update the least-privilege app user from `.env` |
 | `npm run test:api` | API tests against `blockchainvoting_test` (rebuilt each run) |
+| `npm run mail:test -- you@example.com` | Check the OTP email settings and send one test email (no code) |
 
 ## Troubleshooting
 
