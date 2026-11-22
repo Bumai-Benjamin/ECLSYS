@@ -92,7 +92,10 @@ function createApp(options) {
   app.use('/', RegisterRouter);
   app.use('/', AdminLogin);
   app.use('/', Tableview);
-  app.use('/', AuditPage);   // INT-4: public
+  // The audit page is for signed-in voters and election staff only. Results
+  // (/result, /results.json) stay public.
+  app.use('/audit', auth.requireLogin);
+  app.use('/', AuditPage);
   app.use('/', ResultsData); // public totals once voting is closed
   app.use('/', MeRoute);     // UI-1: who is signed in (no personal data)
   app.use('/', VoteRelay);   // ANON-3: public; the proof is the permission

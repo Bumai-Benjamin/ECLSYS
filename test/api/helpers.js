@@ -89,6 +89,17 @@ async function adminLogin(a, user) {
   return submitForm(a, '/adlogin', '/adlogin', { email_address: user.email_address, password: user.password });
 }
 
+// An agent signed in as a new voter, or as an admin with { admin: true }
+async function signedIn(agentOptions, opts) {
+  var a = agent(agentOptions);
+  if (opts && opts.admin) {
+    await adminLogin(a, await createUser({ role: 'admin' }));
+  } else {
+    await login(a, await createUser());
+  }
+  return a;
+}
+
 // A valid-looking wallet address, unique per call.
 // A unique stand-in for a Semaphore identity commitment (a field element)
 function newCommitment() {
@@ -131,6 +142,6 @@ function submitOtp(reg, otp) {
 
 module.exports = {
   query: query, adminQuery: adminQuery, agent: agent, csrfFrom: csrfFrom, submitForm: submitForm, newVoter: newVoter,
-  createUser: createUser, login: login, adminLogin: adminLogin,
+  createUser: createUser, login: login, adminLogin: adminLogin, signedIn: signedIn,
   newWallet: newWallet, newCommitment: newCommitment, lastOtp: lastOtp, startRegistration: startRegistration, submitOtp: submitOtp
 };

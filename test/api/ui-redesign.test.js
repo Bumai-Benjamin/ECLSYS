@@ -52,7 +52,8 @@ describe('UI redesign: sidebar', function () {
 describe('UI redesign: page header card', function () {
   it('names the page after its nav item, or the given label', function () {
     expect(Shell.crumbLabel('public', 'results', 'Results')).to.equal('Results');
-    expect(Shell.crumbLabel('public', 'audit', 'Election audit')).to.equal('Audit');
+    expect(Shell.crumbLabel('voter', 'audit', 'Election audit')).to.equal('Audit');
+    expect(Shell.crumbLabel('admin', 'audit', 'Election audit')).to.equal('Audit');
     expect(Shell.crumbLabel('admin', 'phase', 'Election phase')).to.equal('Election phase');
     expect(Shell.crumbLabel('public', 'error', 'Something went wrong')).to.equal('Something went wrong');
     expect(Shell.crumbLabel('', '', 'Sign in to vote', 'Sign in')).to.equal('Sign in');

@@ -21,19 +21,19 @@ describe('UI-5 shell nav', function () {
 
   it('public items never include Log out', function () {
     var ids = Shell.items('public').map(function (i) { return i.id; });
-    expect(ids).to.deep.equal(['home', 'results', 'audit', 'signin']);
+    expect(ids).to.deep.equal(['home', 'results', 'signin']);
   });
 
   it('voter items', function () {
     expect(Shell.items('voter').map(function (i) { return i.id; }))
-      .to.deep.equal(['dashboard', 'info', 'register', 'voting', 'results', 'logout']);
+      .to.deep.equal(['dashboard', 'info', 'register', 'voting', 'results', 'audit', 'logout']);
   });
 
   it('admin items in election order', function () {
     expect(Shell.items('admin').map(function (i) { return i.id; }))
-      .to.deep.equal(['candidates', 'add', 'voters', 'phase', 'logout']);
+      .to.deep.equal(['candidates', 'add', 'voters', 'phase', 'audit', 'logout']);
     expect(Shell.items('admin').map(function (i) { return i.href; }))
-      .to.deep.equal(['/candidateDetails', '/addCandidate', '/table_view', '/changePhase', '/logout']);
+      .to.deep.equal(['/candidateDetails', '/addCandidate', '/table_view', '/changePhase', '/audit', '/logout']);
   });
 
   it('render marks the active page once', function () {

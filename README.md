@@ -139,7 +139,7 @@ email OTP), `/userInfo`, `/voting`, `/result`; admin: `/adlogin`,
    MetaMask. Your browser seals the ballot with a zero-knowledge proof and the
    server sends it for you, so it can't be linked to you. Keep the receipt: its
    code (nullifier) lets you find your vote on `/audit`.
-4. **Results** appear when voting closes; anyone can re-count on `/audit`.
+4. **Results** appear when voting closes; signed-in voters and admins can re-count on `/audit`.
 
 **Election staff** sign in at `/adlogin` and use, in order: **Add candidate**,
 **Candidates**, **Voters**, and **Election phase** (Open voting, then Close

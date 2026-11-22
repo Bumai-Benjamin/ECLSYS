@@ -117,7 +117,7 @@ Keep the contract name, the file and the migration. Change `truffle-config.js` t
 - **INT-1** After OTP success (`/otpverify`), the **server** calls `voterRegisteration(account_address)` with `REGISTRAR_PRIVATE_KEY` through web3 (already a dependency), then updates MySQL. If the chain call fails, roll back the DB change and show an error. Remove the manual address-paste step from the admin page (D10), or keep it only as a recovery tool for admins.
 - **INT-2** Add `config/contract.js`, which loads the ABI and address from `build/contracts/NamVoting.json` for the Ganache network ID, shared by the server and pages.
 - **INT-3** Make `/table_view` show each registered voter's on-chain status next to the DB record, and flag mismatches.
-- **INT-4** Add a `/audit` page (public) that lists all events from block 0, re-counts the `VoteCast` events and compares the total with `results()`.
+- **INT-4** Add a `/audit` page (signed-in voters and admins only; changed 2026-11-22, was public) that lists all events from block 0, re-counts the `VoteCast` events and compares the total with `results()`.
 
 ### Phase 4: Anonymity (ANON): fixes "lacks anonymity"
 Removing the `vote` field alone (SC-3) is **not enough**: the transaction `vote(3)` sent from the voter's own address still reveals their choice on Ganache. Real unlinkability needs the vote to be sent from a different address, with proof of eligibility that does not reveal who the voter is.

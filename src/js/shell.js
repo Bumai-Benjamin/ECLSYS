@@ -13,6 +13,7 @@
       { id: 'register', label: 'Voter registration', href: '/form' },
       { id: 'voting', label: 'Voting', href: '/voting' },
       { id: 'results', label: 'Results', href: '/result' },
+      { id: 'audit', label: 'Audit', href: '/audit' },
       { id: 'logout', label: 'Log out', href: '/logout' }
     ],
     admin: [
@@ -20,12 +21,12 @@
       { id: 'add', label: 'Add candidate', href: '/addCandidate' },
       { id: 'voters', label: 'Voters', href: '/table_view' },
       { id: 'phase', label: 'Election phase', href: '/changePhase' },
+      { id: 'audit', label: 'Audit', href: '/audit' },
       { id: 'logout', label: 'Log out', href: '/logout' }
     ],
     public: [
       { id: 'home', label: 'Home', href: '/' },
       { id: 'results', label: 'Results', href: '/result' },
-      { id: 'audit', label: 'Audit', href: '/audit' },
       { id: 'signin', label: 'Sign in', href: '/login' }
     ]
   };

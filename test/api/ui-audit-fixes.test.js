@@ -185,7 +185,7 @@ describe('UI audit: audit events in plain language', function () {
   it('the audit page shows the plain text, the full contract address and keeps raw details', async function () {
     var data = closedElection();
     data.events = [{ event: 'VoteCast', blockNumber: 4, args: { contestantId: 1 } }];
-    var res = await h.agent({ chain: chainWith(data) }).get('/audit');
+    var res = await (await h.signedIn({ chain: chainWith(data) })).get('/audit');
     expect(res.text).to.contain('Vote cast for Alice Nangolo (#1)');
     expect(res.text).to.match(new RegExp('<code class="full-hash">' + ADDRESS + '</code>'));
     expect(res.text).to.contain('<summary>Technical details</summary>');
