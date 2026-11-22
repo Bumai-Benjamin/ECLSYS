@@ -31,6 +31,15 @@ function closedElection() {
 }
 
 describe('UI audit: stylesheet', function () {
+  it('the Show password button keeps its own width, so the password box gets the rest of the row', function () {
+    var rule = /\.auth-card \.password-row \.btn\s*\{[^}]*width:\s*auto[^}]*\}/;
+    expect(CSS).to.match(rule);
+    expect(CSS).to.match(/\.auth-card \.password-row \.btn\s*\{[^}]*flex:\s*0 0 auto/);
+    // same specificity as `.auth-card .btn { width: 100% }`, so it must come after it
+    expect(CSS.search(rule)).to.be.above(CSS.indexOf('.auth-card .btn { width: 100%; }'));
+    expect(CSS).to.match(/\.password-row input\s*\{[^}]*min-width:\s*0/);
+  });
+
   it('sizes every box with border-box so inputs fit their columns', function () {
     expect(CSS).to.match(/\*,\s*\*::before,\s*\*::after\s*\{\s*box-sizing:\s*border-box;?\s*\}/);
   });

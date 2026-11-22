@@ -9,10 +9,13 @@
 </head>
 <body>
   <a class="skip-link" href="#auth-form">Skip to the form</a>
+  <script src="/js/shell.js"></script>
   <main id="content" class="auth-page">
-    <div class="auth-card">
-      <p class="brand-line">Electoral Commission of Namibia</p>
-      <h1>Sign in to vote</h1>
+    <div class="auth-wrap">
+      <header class="page-intro" data-crumb="Sign in">
+        <h1>Sign in to vote</h1>
+      </header>
+      <div class="auth-card">
       <% if (typeof alertMsg != 'undefined' && alertMsg) { %>
         <div class="alert <%= /success/i.test(alertMsg) ? 'alert-success' : 'alert-danger' %>" role="alert"><%= alertMsg %></div>
       <% } %>
@@ -30,6 +33,7 @@
       </form>
       <p class="switch">New here? <a href="/register">Create an account</a></p>
       <p class="switch"><a href="/">Back to the home page</a></p>
+      </div>
     </div>
   </main>
 </body>

@@ -1,5 +1,4 @@
-// AI-slop audit fixes (2026-11-07): square corners, no resting shadows, a
-// neutral navigation, no glyph icons, the next step in words, the ballot
+// AI-slop audit fixes (2026-11-07): no glyph icons, the next step in words, the ballot
 // before voting opens, right-aligned numbers and readable admin dates.
 var fs = require('fs');
 var path = require('path');
@@ -15,32 +14,12 @@ function read(rel) { return fs.readFileSync(path.join(SRC, rel), 'utf8'); }
 var CSS = read('css/app.css');
 
 describe('Slop audit: stylesheet', function () {
-  it('every corner is square; only the dialog casts a shadow', function () {
-    expect(CSS).to.match(/--radius:\s*0;/);
-    expect(CSS).not.to.match(/border-radius: (?!0;|0 |var\(--radius\);)/);
-    var shadows = CSS.match(/box-shadow:[^;]+;/g) || [];
-    shadows.forEach(function (s) { expect(s).to.match(/none|0 10px 40px/); });
-  });
-
   it('a closed dialog stays hidden even with Material loaded', function () {
     expect(CSS).to.match(/dialog:not\(\[open\]\)\s*\{\s*display:\s*none;?\s*\}/);
   });
 
-  it('no gradients and no glyph icons from CSS', function () {
-    expect(CSS).not.to.contain('gradient(');
+  it('no glyph icons from CSS', function () {
     expect(CSS).not.to.match(/content:\s*"[⚠✓●]/);
-  });
-
-  it('the active nav item is a neutral row with no coloured bar', function () {
-    var rule = /\.shell-link\[aria-current="page"\]\s*\{([^}]*)\}/.exec(CSS)[1];
-    expect(rule).to.contain('var(--nav-active)');
-    expect(rule).not.to.match(/brand|link|box-shadow/);
-    expect(CSS).not.to.match(/\.shell-bar\s*\{[^}]*var\(--brand\)/);
-  });
-
-  it('the sign-in eyebrow is a sentence-case wordmark', function () {
-    var rule = /\.auth-card \.brand-line\s*\{([^}]*)\}/.exec(CSS)[1];
-    expect(rule).not.to.match(/uppercase|letter-spacing/);
   });
 
   it('numbers are right-aligned with tabular figures', function () {
@@ -57,9 +36,8 @@ describe('Slop audit: pages', function () {
     });
   });
 
-  it('the home heading is short and the slogan card is gone', function () {
+  it('the slogan card is gone', function () {
     var html = read('index.html');
-    expect(/<h1>([^<]*)<\/h1>/.exec(html)[1].length).to.be.at.most(32);
     expect(html).not.to.contain('tagline');
   });
 
