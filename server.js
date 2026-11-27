@@ -20,6 +20,7 @@ var Tableview = require('./routes/table_view');
 var AuditPage = require('./routes/audit');
 var ResultsData = require('./routes/results');
 var MeRoute = require('./routes/me');
+var VoteRelay = require('./routes/vote');
 
 // SEC-11: scripts only from this site. Stylesheets and fonts may come from the
 // CDNs the pages already use; MetaMask's fallback provider talks to Ganache.
@@ -28,7 +29,10 @@ var CSP = {
   useDefaults: false,
   directives: {
     defaultSrc: ["'self'"],
-    scriptSrc: ["'self'"],
+    // ANON-2: the proof is made by WebAssembly (the circuit and snarkjs), and
+    // snarkjs may start Web Workers from blob: URLs. No eval of strings.
+    scriptSrc: ["'self'", "'wasm-unsafe-eval'"],
+    workerSrc: ["'self'", 'blob:'],
     styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://maxcdn.bootstrapcdn.com', 'https://use.fontawesome.com'],
     fontSrc: ["'self'", 'https://fonts.gstatic.com', 'https://maxcdn.bootstrapcdn.com', 'https://use.fontawesome.com'],
     imgSrc: ["'self'", 'data:'],
@@ -55,6 +59,7 @@ function defaultChain() {
 }
 
 // options.rateLimitMax: per-IP POST limit per minute (SEC-10; tests set it)
+// options.voteRateLimitMax: per-IP limit on /api/vote per minute (ANON-3)
 // options.chain: lib/chain or a fake with the same methods (INT-2)
 function createApp(options) {
   options = options || {};
@@ -78,7 +83,7 @@ function createApp(options) {
   app.use(csrf.csrf);
 
   // SEC-10: new in-memory counters for every app (D-001)
-  limits.apply(app, limits.create({ max: options.rateLimitMax }));
+  limits.apply(app, limits.create({ max: options.rateLimitMax, voteMax: options.voteRateLimitMax }));
 
   app.use('/', registrationRouter);
   app.use('/', loginRouter);
@@ -87,9 +92,13 @@ function createApp(options) {
   app.use('/', RegisterRouter);
   app.use('/', AdminLogin);
   app.use('/', Tableview);
-  app.use('/', AuditPage);   // INT-4: public
+  // The audit page is for signed-in voters and election staff only. Results
+  // (/result, /results.json) stay public.
+  app.use('/audit', auth.requireLogin);
+  app.use('/', AuditPage);
   app.use('/', ResultsData); // public totals once voting is closed
   app.use('/', MeRoute);     // UI-1: who is signed in (no personal data)
+  app.use('/', VoteRelay);   // ANON-3: public; the proof is the permission
 
   // The old voting area moved to /voting
   app.get('/vote_area', auth.requireLogin, function (req, res) { res.redirect(301, '/voting'); });

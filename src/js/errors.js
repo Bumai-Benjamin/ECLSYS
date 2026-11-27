@@ -6,17 +6,25 @@
   // keccak256(signature).slice(0, 10); checked against web3 in test/api/fe-errors.test.js
   var SELECTORS = {
     'WrongPhase(uint8,uint8)': '0x05fb5e1b',
-    'NotRegistered()': '0xaba47339',
     'AlreadyVoted()': '0x7c9a1cf9',
     'InvalidContestant(uint256)': '0x1e2e1ff0',
     'AccessControlUnauthorizedAccount(address,bytes32)': '0xe2517d3f',
     'AlreadyRegistered(address)': '0x45ed80e9',
-    'InvalidPhaseChange(uint8,uint8)': '0x7934da52'
+    'InvalidPhaseChange(uint8,uint8)': '0x7934da52',
+    'InvalidProof()': '0x09bde339',
+    'WrongElection(uint256)': '0x5428e4c4',
+    'LengthMismatch()': '0xff633a38',
+    'LeafAlreadyExists()': '0x258a195a',
+    'Semaphore__MerkleTreeRootIsNotPartOfTheGroup()': '0x4d329586'
   };
 
   var MESSAGES = {
-    'NotRegistered()': 'Your wallet is not registered to vote.',
     'AlreadyVoted()': 'You have already voted.',
+    'InvalidProof()': 'The blockchain could not confirm that this vote comes from a registered voter.',
+    'WrongElection(uint256)': 'That vote was made for a different election.',
+    'LengthMismatch()': 'Each wallet needs exactly one voting key.',
+    'LeafAlreadyExists()': 'That voting key is already registered.',
+    'Semaphore__MerkleTreeRootIsNotPartOfTheGroup()': 'The voter list changed while your vote was being prepared. Reload the page and try again.',
     'InvalidContestant(uint256)': 'That candidate does not exist.',
     'AccessControlUnauthorizedAccount(address,bytes32)': 'This MetaMask account is not allowed to do that.',
     'AlreadyRegistered(address)': 'That wallet is already registered to vote.',

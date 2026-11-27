@@ -3,6 +3,62 @@
 Requirement IDs refer to [REQUIREMENTS.md](REQUIREMENTS.md). Decisions are in
 [docs/decisions.md](docs/decisions.md).
 
+## Phase 4: anonymous voting (2026-11-08)
+
+Votes can no longer be linked to voters. Details, limits and the ANON-0 spike
+result are in [docs/anonymity.md](docs/anonymity.md). 31 contract tests, 363 API
+tests and 4 integration tests pass.
+
+- **ANON-0** Semaphore 4.14.5 deploys to Ganache with Truffle, solc 0.8.24 and
+  `paris`; the migration deploys PoseidonT3, SemaphoreVerifier and Semaphore
+  before NamVoting. The ANON-6 fallback is not needed.
+- **ANON-1** Registration: MetaMask signs a message naming the election, and the
+  browser turns the signature into a Semaphore identity. Only its commitment is
+  sent; the server registers wallet and commitment in one transaction
+  (`voterRegisteration(address, uint256)`) and never stores the commitment.
+  No backup file: the same wallet gives the same identity on any device.
+- **ANON-2** Voting: the browser builds a depth-16 proof (about a second;
+  `src/js/semaphore.bundle.js`, circuit files in `src/zk`). The CSP allows
+  `'wasm-unsafe-eval'` and blob workers for it, still no string eval.
+- **ANON-3** `POST /api/vote` relays the proof from `RELAYER_PRIVATE_KEY`. It is
+  sent without cookies, needs no login or CSRF token, has its own rate limit
+  (30 per IP per minute) and logs nothing about the request.
+- **ANON-4** `castVote(proof)` replaces `vote(uint)`. NamVoting keeps its own
+  nullifiers (Semaphore's `validateProof` can be called by anyone, which would
+  let someone spend a voter's nullifier without the vote counting).
+  `voters(address)` is replaced by `registered(address)`.
+- **ANON-5** `VoteCast` carries the nullifier; the receipt shows it, and `/audit`
+  lists it. 254-bit values stay exact (decimal strings) in `lib/chain`.
+- The admin recovery form takes the voter's voting key as well as the wallet;
+  the registration page shows the key if the on-chain step fails.
+- Fix: `lib/chain` signs with the registrar and relayer keys itself. web3
+  4.0.3's contract `.send()` asked Ganache to sign, which only worked when the
+  key belonged to one of Ganache's own unlocked accounts.
+
+## AI-slop audit fixes (2026-11-07)
+
+Fixes from an audit against the anti-slop design rules for app screens. 346 API
+tests pass; the design lint and the browser inspector report no failures on the
+public pages.
+
+- Square corners everywhere (buttons, inputs, panels, badges, markers); no
+  resting shadows, only the dialog casts one.
+- The navigation is neutral: a grey row for the current page, no coral bar or
+  rule, and the phase as plain text ("Phase: Registration").
+- Sign-in pages: a flat page ground instead of the diagonal two-tone split, a
+  bordered card, and the commission's name as a wordmark instead of a small
+  uppercase label. No ⚠ ✓ ● symbols drawn from CSS.
+- The wallet status sits under the page title, as a quiet line of text.
+- Dashboard: the first line says what to do next, or why there is nothing to do
+  yet; the four steps are one strip with a bar per step; the help panel is gone.
+- Results and Voting pages list who is on the ballot before voting opens
+  (`/results.json` now returns `ballot`, names and parties only).
+- Numbers in tables are right-aligned with tabular figures.
+- Home: plain ground, a shorter heading, no slogan card.
+- Bugs: closed confirmation dialogs were drawn at the foot of the Voting and
+  Election phase pages (Material sets `dialog { display: block }`); dark-mode
+  tables had light grey borders; the Voters page showed raw dates.
+
 ## UI audit fixes (2026-11-07)
 
 Fixes from a UI audit of every page. 331 API tests pass; screenshots in

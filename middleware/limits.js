@@ -46,11 +46,24 @@ function create(options) {
     handler: tooMany('Too many failed logins for this account. Please wait 15 minutes and try again.')
   });
 
-  return { perIp: perIp, loginLockout: loginLockout };
+  // ANON-3: a looser per-IP budget for the vote relay. In a polling station
+  // many voters share one IP, and a bad proof costs the relayer no gas.
+  var votes = rateLimit({
+    windowMs: 60 * 1000,
+    limit: options.voteMax != null ? options.voteMax : (Number(process.env.VOTE_RATE_LIMIT_MAX) || 30),
+    standardHeaders: 'draft-7',
+    legacyHeaders: false,
+    handler: function (req, res, next, opts) {
+      res.status(opts.statusCode).json({ error: 'too_many', message: 'Too many votes from this network. Please wait a minute and try again.' });
+    }
+  });
+
+  return { perIp: perIp, loginLockout: loginLockout, votes: votes };
 }
 
 // Mounts the limiters on their POST routes.
 function apply(app, limits) {
+  app.post('/api/vote', limits.votes);
   LIMITED_POSTS.forEach(function (path) { app.post(path, limits.perIp[path]); });
   LOGIN_POSTS.forEach(function (path) { app.post(path, limits.loginLockout); });
 }

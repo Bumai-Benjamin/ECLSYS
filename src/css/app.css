@@ -65,6 +65,8 @@
   .field input, .field select, .field textarea, .input { border-color: #6b7580; }
   .table, .table td, .table th, .card, .card-body, .main-panel, .wrapper, .content { background-color: transparent; color: var(--text); }
   .table th { color: var(--muted); }
+  /* the logo has black lettering on a transparent ground: give it a light backing */
+  .home img { background: #f6f7f9; padding: 16px; }
   .alert-danger, .alert-error { border-color: #6b2b2b !important; }
   .alert-success { border-color: #2b5c3a !important; }
   .alert-warning, .status-box.is-problem { border-color: #6b5420 !important; }
@@ -106,7 +108,7 @@ h3 { font-size: 1.1rem; margin: 1.25rem 0 0.5rem; }
 p { margin: 0 0 0.75rem; }
 a { color: var(--link); text-decoration: underline; text-underline-offset: 2px; }
 a:hover { color: var(--link-hover); }
-code, .mono { font-family: Consolas, "Courier New", monospace; font-size: 0.9em; color: var(--text); background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+code, .mono { font-family: Consolas, "Courier New", monospace; font-size: 0.9em; color: var(--text); background: var(--code-bg); padding: 1px 5px; border-radius: 0; }
 /* full addresses and hashes: break anywhere so they fit, and can be copied whole */
 .full-hash { word-break: break-all; }
 .visually-hidden { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
@@ -134,8 +136,7 @@ textarea:focus-visible, summary:focus-visible, [tabindex]:focus-visible, .candid
   padding: 10px 16px;
   background: var(--surface);
   color: var(--link);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  border: 2px solid var(--link);
 }
 .skip-link:focus { top: 8px; }
 
@@ -300,7 +301,6 @@ body.has-shell .page, body.has-shell .app-skeleton { margin-left: var(--shell-wi
 .field input[aria-invalid="true"] { border-color: var(--danger); border-width: 2px; }
 .hint { display: block; color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
 .field-error { color: var(--danger); font-size: 0.95rem; margin: 6px 0 0; font-weight: 600; }
-.field-error::before { content: "⚠ "; }
 .field-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 16px; }
 
 /* ---------- alerts ---------- */
@@ -313,11 +313,9 @@ body.has-shell .page, body.has-shell .app-skeleton { margin-left: var(--shell-wi
   font-size: 1rem;
 }
 .alert-danger, .alert-error { background: var(--danger-bg) !important; color: var(--danger) !important; border-color: #f3b4b4 !important; }
-.alert-danger::before, .alert-error::before { content: "⚠ "; font-weight: 700; }
 .alert-success { background: var(--success-bg) !important; color: var(--success) !important; border-color: #a8d5b5 !important; }
-.alert-success::before { content: "✓ "; font-weight: 700; }
 .alert-warning { background: var(--warning-bg) !important; color: var(--warning) !important; border-color: #f0d58c !important; }
-.alert-info { background: var(--brand-tint) !important; color: var(--text) !important; border-color: #f5c2c2 !important; }
+.alert-info { background: var(--surface) !important; color: var(--text) !important; border-color: var(--border) !important; }
 
 /* ---------- status panel (MetaMask) ---------- */
 .status-panel { margin-bottom: 20px; }
@@ -338,18 +336,9 @@ body.has-shell .page, body.has-shell .app-skeleton { margin-left: var(--shell-wi
 }
 .status-box.is-problem { background: var(--warning-bg); border-color: #f0d58c; color: var(--warning); }
 .status-box.is-problem p { color: var(--warning); margin: 0; font-weight: 600; }
-.status-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 12px;
-  border-radius: 999px;
-  background: var(--success-bg);
-  color: var(--success);
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-.status-chip::before { content: "●"; }
+/* a good connection is a quiet line of text with a small square marker, not a pill */
+.status-chip { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.95rem; }
+.status-chip::before { content: ""; width: 8px; height: 8px; background: var(--success); }
 .status-alert { margin-top: 10px; }
 
 /* ---------- home status pill ---------- */
@@ -397,15 +386,15 @@ body.has-shell .page, body.has-shell .app-skeleton { margin-left: var(--shell-wi
   border: 2px solid var(--border);
 }
 .step-label { display: block; font-weight: 700; }
-.step-reason { display: block; font-size: 0.9rem; color: var(--muted); }
-.step.is-done::before { content: "✓"; background: var(--success-bg); color: var(--success); border-color: var(--success); }
-.step.is-current { border: 2px solid var(--brand); background: var(--brand-tint); }
-.step.is-current::before { background: var(--brand-strong); color: #ffffff; border-color: var(--brand-strong); }
+.step-reason { display: block; font-size: 0.95rem; color: var(--muted); }
+.step.is-done { border-top-color: var(--success); }
+.step.is-current { border-top-color: var(--brand-strong); }
 .step.is-current .step-label a { color: var(--link); }
 .step.is-locked .step-label { color: var(--muted); }
+.next-step { font-size: 1.15rem; font-weight: 600; color: var(--text); max-width: 70ch; }
 
 /* ---------- badges ---------- */
-.badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 0.85rem; font-weight: 600; line-height: 1.4; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 0; font-size: 0.85rem; font-weight: 600; line-height: 1.4; }
 .badge-yes { background: var(--success-bg); color: var(--success); }
 .badge-mismatch { background: var(--warning-bg); color: var(--warning); }
 .badge-unknown { background: var(--page); color: var(--muted); border: 1px solid var(--border); }
@@ -418,6 +407,8 @@ body.has-shell .page, body.has-shell .app-skeleton { margin-left: var(--shell-wi
 .table th, .table td { padding: 12px 10px; text-align: left; vertical-align: top; border-top: 1px solid var(--border); }
 .table tbody tr { transition: background-color .15s ease; }
 .table tbody tr:hover { background: var(--page); }
+/* Material colours these #ddd, which glares in dark mode; use the theme's border */
+.table > thead > tr > th, .table > tbody > tr > th, .table > tbody > tr > td { border-color: var(--border); }
 .table-wrap { overflow-x: auto; }
 .empty-state { padding: 24px; text-align: center; color: var(--muted); }
 
@@ -492,6 +483,9 @@ dialog {
   color: var(--text);
 }
 dialog[open] { animation: pop-in .22s var(--ease) both; }
+/* Material's old normalize sets dialog { display: block }, which showed the closed
+   confirmation dialogs at the foot of the Voting and Election phase pages */
+dialog:not([open]) { display: none; }
 dialog::backdrop { background: rgba(31, 35, 40, 0.55); }
 dialog h2 { margin-top: 0; }
 
@@ -513,7 +507,7 @@ dialog h2 { margin-top: 0; }
   transform: translateX(-50%);
   width: 24px;
   height: 24px;
-  border-radius: 50%;
+  border-radius: 0;
   background: var(--surface);
   border: 3px solid var(--border);
   z-index: 1;
@@ -524,10 +518,10 @@ dialog h2 { margin-top: 0; }
 .timeline li.is-past { color: var(--success); }
 .timeline li.is-past::before { background: var(--success); border-color: var(--success); }
 .timeline li[aria-current="step"] { color: var(--link); }
-.timeline li[aria-current="step"]::before { background: var(--brand-strong); border-color: var(--brand-strong); box-shadow: 0 0 0 4px var(--brand-tint); }
+.timeline li[aria-current="step"]::before { background: var(--brand-strong); border-color: var(--brand-strong); }
 /* the last phase is a finished election, not an error: neutral, not red */
 .timeline li.is-final[aria-current="step"] { color: var(--text); }
-.timeline li.is-final[aria-current="step"]::before { background: var(--text); border-color: var(--text); box-shadow: 0 0 0 4px var(--page); }
+.timeline li.is-final[aria-current="step"]::before { background: var(--text); border-color: var(--text); }
 
 /* ---------- details (recovery tools) ---------- */
 details.tools { border: 1px solid var(--border); border-radius: 16px; padding: 14px 18px; background: var(--surface); }
@@ -728,7 +722,6 @@ html.is-ready .home > .link-cards { animation: none; }
 
 @media (max-width: 575.98px) {
   h1 { font-size: 1.45rem; }
-  .steps { grid-template-columns: 1fr; }
   .field-row { grid-template-columns: 1fr; }
   .actions .btn { width: 100%; }
   .timeline li { font-size: 0.9rem; }
@@ -741,6 +734,7 @@ html.is-ready .home > .link-cards { animation: none; }
   .table.table-stack > tbody > tr > td::before, .table.table-stack > tbody > tr > th::before { content: attr(data-label); display: inline-block; width: 7.5em; text-indent: 0; font-weight: 600; color: var(--muted); }
   .table.table-stack > tbody > tr > td[colspan] { padding-left: 0; text-indent: 0; }
   .table.table-stack > tbody > tr > td[colspan]::before { content: none; }
+  .table.table-stack .num { text-align: left; }
 }
 
 .phase-line { font-size: 1.1rem; font-weight: 600; color: var(--link); margin-bottom: 16px; }
@@ -750,3 +744,10 @@ html.is-ready .home > .link-cards { animation: none; }
   .shell-link[aria-current="page"] { color: var(--link); }
   .link-card-icon { color: var(--link); }
 }
+
+/* who is on the ballot before voting opens: rows split by rules */
+.ballot-list { list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); column-gap: 24px; }
+.ballot-list li { display: flex; flex-direction: column; padding: 10px 0; border-top: 1px solid var(--border); }
+
+/* numbers line up digit for digit, right-aligned (stacked phone rows keep them left) */
+.table .num { text-align: right; font-variant-numeric: tabular-nums; }

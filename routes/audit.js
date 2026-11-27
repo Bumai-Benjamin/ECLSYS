@@ -1,4 +1,5 @@
-// INT-4: public audit page. Everything on it comes from the contract (events,
+// INT-4: audit page, for signed-in voters and admins (server.js checks the
+// sign-in). Everything on it comes from the contract (events,
 // phase, totals); nothing comes from the database, so no voter personal data
 // can appear here.
 var express = require('express');

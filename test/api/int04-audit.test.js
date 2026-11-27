@@ -31,9 +31,21 @@ function chainWith(data) {
   return fakes.fakeChain({ audit: function () { return Promise.resolve(data); } });
 }
 
-describe('INT-4 public audit page', function () {
-  it('is public and shows the contract address and events', async function () {
+describe('INT-4 audit page', function () {
+  it('sends a visitor who is not signed in to the sign-in page', async function () {
     var res = await h.agent({ chain: chainWith(auditData(1, null)) }).get('/audit');
+    expect(res.status).to.equal(302);
+    expect(res.headers.location).to.equal('/login');
+  });
+
+  it('is open to a signed-in admin', async function () {
+    var res = await (await h.signedIn({ chain: chainWith(auditData(1, null)) }, { admin: true })).get('/audit');
+    expect(res.status).to.equal(200);
+    expect(res.text).to.contain(ADDRESS);
+  });
+
+  it('shows a signed-in voter the contract address and events', async function () {
+    var res = await (await h.signedIn({ chain: chainWith(auditData(1, null)) })).get('/audit');
     expect(res.status).to.equal(200);
     expect(res.text).to.contain(ADDRESS);
     expect(res.text).to.contain('Voting');
@@ -41,38 +53,38 @@ describe('INT-4 public audit page', function () {
   });
 
   it('lists events newest first', async function () {
-    var res = await h.agent({ chain: chainWith(auditData(2, [2, 1])) }).get('/audit');
+    var res = await (await h.signedIn({ chain: chainWith(auditData(2, [2, 1])) })).get('/audit');
     expect(res.text.indexOf('ContestantAdded')).to.be.greaterThan(res.text.lastIndexOf('PhaseChanged'));
   });
 
   it('shows "matches" when the re-count equals the contract totals', async function () {
-    var res = await h.agent({ chain: chainWith(auditData(2, [2, 1])) }).get('/audit');
+    var res = await (await h.signedIn({ chain: chainWith(auditData(2, [2, 1])) })).get('/audit');
     expect(res.text).to.contain('Re-count matches the contract totals.');
     expect(res.text).not.to.contain('WARNING');
   });
 
   it('shows WARNING when the re-count does not match', async function () {
-    var res = await h.agent({ chain: chainWith(auditData(2, [2, 2])) }).get('/audit');
+    var res = await (await h.signedIn({ chain: chainWith(auditData(2, [2, 2])) })).get('/audit');
     expect(res.text).to.contain('WARNING: re-count does not match the contract totals.');
     expect(res.text).not.to.contain('Re-count matches');
   });
 
   it('says totals are hidden during voting', async function () {
-    var res = await h.agent({ chain: chainWith(auditData(1, null)) }).get('/audit');
+    var res = await (await h.signedIn({ chain: chainWith(auditData(1, null)) })).get('/audit');
     expect(res.text).to.contain('Totals are hidden until voting ends.');
     expect(res.text).not.to.contain('Re-count matches');
     expect(res.text).not.to.contain('WARNING');
   });
 
   it('returns 503 with the ChainUnavailableError message when the chain is down', async function () {
-    var res = await h.agent({ chain: fakes.fakeChain({ unavailable: true }) }).get('/audit');
+    var res = await (await h.signedIn({ chain: fakes.fakeChain({ unavailable: true }) })).get('/audit');
     expect(res.status).to.equal(503);
     expect(res.text).to.contain('The blockchain is not available. Ask an administrator to run npm run migrate.');
   });
 
   it('shows no voter emails', async function () {
     var voter = await h.createUser();
-    var res = await h.agent({ chain: chainWith(auditData(2, [2, 1])) }).get('/audit');
+    var res = await (await h.signedIn({ chain: chainWith(auditData(2, [2, 1])) })).get('/audit');
     expect(res.text).not.to.contain(voter.email_address);
     expect(res.text).not.to.match(/[\w.+-]+@[\w-]+\.[\w.]+/);
   });
@@ -81,7 +93,7 @@ describe('INT-4 public audit page', function () {
     var data = auditData(2, [2, 1]);
     data.contestants[0].name = '<script>alert(1)</script>';
     data.events[0].args.name = '<script>alert(1)</script>';
-    var res = await h.agent({ chain: chainWith(data) }).get('/audit');
+    var res = await (await h.signedIn({ chain: chainWith(data) })).get('/audit');
     expect(res.text).to.contain('&lt;script&gt;alert(1)&lt;/script&gt;');
     expect(res.text).not.to.contain('<script>alert(1)</script>');
   });

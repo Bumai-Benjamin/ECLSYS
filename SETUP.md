@@ -99,10 +99,13 @@ it to anyone. Each PC has its own.
 4. In Ganache, click the key icon on the account with **index 1**, copy its
    private key, and paste it after `REGISTRAR_PRIVATE_KEY=` in `.env`. The server
    uses this account to register voters on the blockchain.
+5. Do the same for the account with **index 2**, pasting it after
+   `RELAYER_PRIVATE_KEY=`. The server sends every anonymous vote from this
+   account, so voters need no ETH, and their wallets never appear on a vote.
 
 Next time, **open the saved workspace**. Quickstart makes a brand-new chain every
 time. You would then have to run `npm run migrate` again, update
-`REGISTRAR_PRIVATE_KEY`, and re-import the MetaMask accounts.
+`REGISTRAR_PRIVATE_KEY` and `RELAYER_PRIVATE_KEY`, and re-import the MetaMask accounts.
 
 Ganache uses two different numbers. **Chain ID `1337`** is the one MetaMask
 needs. **Network ID `5777`** is only used by Truffle.

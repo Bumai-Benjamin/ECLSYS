@@ -14,24 +14,28 @@
   <script src="/js/shell.js"></script>
   <div class="page">
     <main id="content" class="page-main" tabindex="-1">
-      <div id="wallet-status" class="status-panel" role="status" aria-live="polite"></div>
       <header class="page-intro">
         <h1>Results</h1>
-        <p>Totals come straight from the voting contract. Anyone can re-count them on the <a href="/audit">audit page</a>.</p>
+        <p>Totals come straight from the voting contract. Signed-in voters and election staff can re-count them on the <a href="/audit">audit page</a>.</p>
       </header>
+      <div id="wallet-status" class="status-panel" role="status" aria-live="polite"></div>
       <ol id="steps" class="steps" aria-label="Your progress" hidden></ol>
       <section id="results-waiting" class="panel empty-card">
         <div class="empty-icon is-warning" aria-hidden="true"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
         <h2>Voting has not closed yet</h2>
-        <p>Results will appear when voting closes. Meanwhile you can follow the count on the audit page.</p>
+        <p>Results will appear when voting closes. Meanwhile signed-in voters and election staff can follow the count on the audit page.</p>
         <a class="btn btn-secondary-outline" href="/audit">Go to the audit page</a>
+        <div id="ballot-preview-block" hidden>
+          <h3>On the ballot</h3>
+          <ul id="ballot-preview" class="ballot-list"></ul>
+        </div>
       </section>
       <section id="results-final" class="panel" aria-labelledby="results-title" hidden>
         <h2 id="results-title">Final totals</h2>
         <p id="results-summary-text" class="result-summary"></p>
         <div class="table-wrap">
           <table class="table table-stack" id="results-table">
-            <thead><tr><th scope="col">Candidate</th><th scope="col">Party</th><th scope="col">Votes</th><th scope="col">Share</th></tr></thead>
+            <thead><tr><th scope="col">Candidate</th><th scope="col">Party</th><th scope="col" class="num">Votes</th><th scope="col">Share</th></tr></thead>
             <tbody id="Results"></tbody>
           </table>
         </div>

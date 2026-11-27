@@ -7,6 +7,11 @@ var crypto = require('crypto');
 
 var UNSAFE = { POST: true, PUT: true, PATCH: true, DELETE: true };
 
+// ANON-3: the vote relay is sent without cookies, so there is no session to
+// hold a token and nothing for a forged request to borrow. A zero-knowledge
+// proof only the voter can make is its permission.
+var EXEMPT = { '/api/vote': true };
+
 function tokenFor(req) {
   if (!req.session.csrfToken) req.session.csrfToken = crypto.randomBytes(32).toString('hex');
   return req.session.csrfToken;
@@ -21,7 +26,7 @@ function matches(given, expected) {
 
 function csrf(req, res, next) {
   res.locals.csrfToken = function () { return tokenFor(req); };
-  if (!UNSAFE[req.method]) return next();
+  if (!UNSAFE[req.method] || EXEMPT[req.path]) return next();
 
   var given = (req.body && req.body._csrf) || req.get('X-CSRF-Token');
   if (matches(given, req.session && req.session.csrfToken)) return next();

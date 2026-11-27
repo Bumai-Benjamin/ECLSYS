@@ -79,12 +79,11 @@ App = {
     });
   },
 
-  // Phase, whether this wallet has voted, and (admin pages) whether it may
-  // administer the election.
+  // Phase, whether this browser has voted, and (admin pages) whether the
+  // wallet may administer the election.
   readChainState: async function (instance) {
     App.phase = Number(await instance.state());
-    var voter = await instance.voters(App.account);
-    App.hasVoted = !!(voter.hasVoted !== undefined ? voter.hasVoted : voter[1]);
+    App.hasVoted = await App.votedHere(instance);
     if (App.isAdminPage()) {
       var role = await instance.ADMIN_ROLE();
       App.walletInput.isAdminAccount = !!(await instance.hasRole(role, App.account));
@@ -223,6 +222,17 @@ App = {
       if (note) li.append($('<span class="step-reason">').text(note));
       list.append(li);
     });
+    App.renderNextStep(result.steps);
+  },
+
+  // The dashboard's first line answers "what do I do now?" in words
+  renderNextStep: function (steps) {
+    var line = $('#next-step');
+    if (!line.length) return;
+    var text = Steps.nextStep(steps);
+    line.empty();
+    if (text.href) line.append(text.before, $('<a>').attr('href', text.href).text(text.link), text.after);
+    else line.text(text.before);
   },
 
   // UI-7: one pass over the contract fills whatever this page has: the
@@ -279,12 +289,23 @@ App = {
     }
     if (App.phase !== 1) {
       $('#chain-content').attr('hidden', true);
+      // before voting opens, show who will be on the ballot
+      if (App.phase === 0) App.renderBallotPreview(App.candidates);
       return;
     }
     ballot.find('.candidate-card').remove();
     App.candidates.forEach(function (c) { ballot.append(Templates.candidateChoice(c)); });
     $('#review-vote').prop('disabled', true);
     $('#chain-content').removeAttr('hidden').show();
+  },
+
+  renderBallotPreview: function (candidates) {
+    var list = $('#ballot-preview');
+    if (!list.length || !candidates) return;
+    list.empty();
+    if (!candidates.length) list.append($('<li class="ballot-empty">').text('No candidates have been added yet.'));
+    candidates.forEach(function (c) { list.append(Templates.ballotItem(c)); });
+    $('#ballot-preview-block').removeAttr('hidden');
   },
 
   // /result and the dashboard read the totals from the server, so they work
@@ -294,13 +315,16 @@ App = {
   },
 
   loadPublicResults: function () {
-    if (!App.hasResultsSlot()) return;
+    if (!App.hasResultsSlot() && !$('#ballot-preview').length) return;
     return $.getJSON('/results.json').then(function (data) {
       if (App.phase === null || App.phase === undefined) {
         App.phase = Number(data.phase);
         App.renderSteps();
       }
       if (data.candidates) App.renderResults(data.candidates);
+      // Results page: who is on the ballot while waiting. Voting page: only
+      // before voting opens (the real ballot replaces it once voting is open).
+      else if (App.hasResultsSlot() || Number(data.phase) === 0) App.renderBallotPreview(data.ballot);
     }, function () {
       if (App.phase === null || App.phase === undefined) App.chainUnavailable(true);
     });
@@ -338,40 +362,107 @@ App = {
     };
   },
 
-  // ------------- voting code (UI-7, spec §4.4) -------------
+  // ------------- anonymous voting (ANON-2, ANON-3, ANON-5) -------------
+  // The contract can't say whether a wallet voted (that is the point), so
+  // this browser remembers the nullifier of its own vote and asks the
+  // contract whether it has been used. On another device the voter finds out
+  // when they try: the proof's nullifier is already spent.
+  receiptKey: function (instance) {
+    return 'namvoting.receipt.' + String(instance.address).toLowerCase();
+  },
+
+  savedReceipt: function (instance) {
+    try {
+      return JSON.parse(window.localStorage.getItem(App.receiptKey(instance)) || 'null');
+    } catch (e) {
+      return null;
+    }
+  },
+
+  votedHere: async function (instance) {
+    var saved = App.savedReceipt(instance);
+    if (!saved || !saved.nullifier) return false;
+    return !!(await instance.nullifierUsed(saved.nullifier));
+  },
+
+  // Signs in MetaMask, then rebuilds the voter's identity from the signature
+  voterIdentity: function (instance) {
+    if (!window.VoterKey) throw new Error('The voting key code did not load. Reload the page.');
+    return VoterKey.identityFromWallet(window.ethereum, App.account, instance.address);
+  },
+
+  // The proof goes to the server's relayer without cookies, so the server
+  // can't tell which signed-in voter sent it (docs/anonymity.md).
+  relayVote: function (proof) {
+    return fetch('/api/vote', {
+      method: 'POST',
+      credentials: 'omit',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ proof: proof })
+    }).then(function (res) {
+      return res.json().catch(function () { return {}; }).then(function (body) {
+        if (res.ok) return body;
+        var err = new Error(body.message || 'Your vote could not be sent. Please try again.');
+        err.relay = body.error || 'failed';
+        throw err;
+      });
+    });
+  },
+
   castVote: function (id) {
     var contestantId = id || $('input[name="candidate"]:checked').val();
     var progress = $('#vote-progress');
     App.clearMessage();
     if (!App.contractReady()) return null;
-    return Pending.run('vote', function () {
+    return Pending.run('vote', async function () {
       $('#review-vote').prop('disabled', true);
-      progress.text('Confirm the transaction in MetaMask…');
-      return App.contracts.Contest.deployed().then(function (instance) {
-        var sent = instance.vote(contestantId, { from: App.account });
-        if (sent && typeof sent.on === 'function') {
-          sent.on('transactionHash', function () { progress.text('Recording your vote…'); });
+      try {
+        var instance = await App.contracts.Contest.deployed();
+        progress.text('Approve the signature in MetaMask. It unlocks your voting key and sends nothing.');
+        var identity = await App.voterIdentity(instance);
+        progress.text('Sealing your ballot. This takes a few seconds…');
+        var members = (await instance.members()).map(String);
+        var electionId = String(await instance.electionId());
+        var proof = await VoterKey.proveVote(identity, members, contestantId, electionId);
+        if (await instance.nullifierUsed(proof.nullifier)) {
+          progress.text('');
+          App.hasVoted = true;
+          App.renderSteps();
+          return App.renderBallot();
         }
-        return sent;
-      }).then(function (result) {
-        if (ChainErrors.reverted(result)) throw App.revertError();
+        progress.text('Sending your vote…');
+        var receipt = await App.relayVote(proof);
+        try {
+          window.localStorage.setItem(App.receiptKey(instance), JSON.stringify(receipt));
+        } catch (e) { /* private browsing: the receipt below is still shown */ }
         progress.text('');
         App.hasVoted = true;
         App.renderSteps();
-        App.showReceipt(result);
-      }).catch(function (err) {
+        App.showReceipt(receipt);
+      } catch (err) {
         progress.text('');
         $('#review-vote').prop('disabled', !$('input[name="candidate"]:checked').length);
+        if (err && err.relay === 'already_voted') {
+          App.hasVoted = true;
+          App.renderSteps();
+          App.renderBallot();
+        }
+        if (err && (err.relay || err.code === 'not_member')) {
+          console.error(err);
+          return App.alert(err.message, 'error');
+        }
         App.showError(err, 'castVote');
-      });
+      }
     });
   },
 
-  showReceipt: function (result) {
-    var tx = (result && (result.tx || (result.receipt && result.receipt.transactionHash))) || '';
-    var block = result && result.receipt ? result.receipt.blockNumber : '';
+  // receipt: { txHash, blockNumber, nullifier } from the relayer
+  showReceipt: function (receipt) {
+    var tx = (receipt && receipt.txHash) || '';
     $('#receipt-tx').text(Templates.shortHash(tx)).attr('title', tx);
-    $('#receipt-block').text(String(block));
+    $('#receipt-block').text(String((receipt && receipt.blockNumber) || ''));
+    var nullifier = String((receipt && receipt.nullifier) || '');
+    $('#receipt-nullifier').text(Templates.shortHash(nullifier)).attr('title', nullifier);
     $('#chain-content').attr('hidden', true);
     $('#receipt').removeAttr('hidden').trigger('focus');
   },
@@ -503,13 +594,19 @@ App = {
 
   // ------------- registering voter code -------------
   // Admin recovery tool; voters are normally registered by the server (INT-1).
+  // The voter's public voting key (identity commitment) comes with the wallet.
   registerVoter: function () {
     var add = $('#accadd').val();
+    var key = String($('#voting-key').val() || '').trim();
     App.clearMessage();
+    if (!/^\d{1,78}$/.test(key)) {
+      App.alert('Enter the voter\'s voting key: the long number shown on their registration page.', 'error');
+      return null;
+    }
     if (!App.contractReady()) return null;
     return Pending.run('register', function () {
       return App.contracts.Contest.deployed().then(function (instance) {
-        return instance.voterRegisteration(add, { from: App.account });
+        return instance.voterRegisteration(add, key, { from: App.account });
       }).then(function (result) {
         if (ChainErrors.reverted(result)) throw App.revertError();
         App.showMessage('The wallet is now registered to vote.', 'ok');
@@ -607,6 +704,37 @@ $(document).on('click', '#use-wallet', function () {
     $('#wallet-hint').text('Using ' + WalletStatus.short(address) + ' from MetaMask.');
     $('#change-wallet').removeAttr('hidden');
   }).catch(function (err) {
+    App.showError(err);
+  });
+});
+
+// ANON-1: before the form goes, MetaMask signs the election's key message
+// and the browser turns the signature into a Semaphore identity. Only its
+// public commitment is sent; the signature never leaves this page.
+$(document).on('submit', '#register-form', function (event) {
+  var form = this;
+  var field = $('#identity_commitment');
+  if (field.val()) return;   // second pass: the key is filled in, let it go
+  event.preventDefault();
+  App.clearMessage();
+  var wallet = String($('#account_address').val() || '').trim().toLowerCase();
+  if (!window.ethereum) {
+    return App.alert('You need the MetaMask browser extension to register.', 'error');
+  }
+  if (!App.contractReady()) return;
+  if (!App.account || App.account.toLowerCase() !== wallet) {
+    return App.alert('Select this wallet in MetaMask first (or press "Use my MetaMask wallet"): it signs your voting key.', 'error');
+  }
+  var button = $(form).find('button[type="submit"]').prop('disabled', true);
+  $('#wallet-hint').text('Approve the signature in MetaMask. It creates your private voting key and sends nothing.');
+  App.contracts.Contest.deployed().then(function (instance) {
+    return App.voterIdentity(instance);
+  }).then(function (identity) {
+    field.val(VoterKey.commitment(identity));
+    form.submit();
+  }).catch(function (err) {
+    button.prop('disabled', false);
+    $('#wallet-hint').text('');
     App.showError(err);
   });
 });

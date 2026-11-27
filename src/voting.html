@@ -14,11 +14,11 @@
   <script src="/js/shell.js"></script>
   <div class="page">
     <main id="content" class="page-main" tabindex="-1">
-      <div id="wallet-status" class="status-panel" role="status" aria-live="polite"></div>
       <header class="page-intro">
         <h1>Vote</h1>
         <p>Choose one candidate. You can vote once, and you can't change your vote afterwards.</p>
       </header>
+      <div id="wallet-status" class="status-panel" role="status" aria-live="polite"></div>
       <ol id="steps" class="steps" aria-label="Your progress"></ol>
       <div id="currentPhase"></div>
       <p id="loader" class="muted">Loading the candidates…</p>
@@ -33,6 +33,12 @@
         <div id="vote-progress" class="progress-line" aria-live="polite"></div>
       </section>
 
+      <section id="ballot-preview-block" class="panel" aria-labelledby="preview-title" hidden>
+        <h2 id="preview-title">On the ballot</h2>
+        <p>You can choose one of these candidates when voting opens.</p>
+        <ul id="ballot-preview" class="ballot-list"></ul>
+      </section>
+
       <section id="receipt" class="panel receipt" aria-labelledby="receipt-title" tabindex="-1" hidden>
         <h2 id="receipt-title">Your vote is recorded.</h2>
         <dl>
@@ -40,9 +46,11 @@
           <dd><code id="receipt-tx" tabindex="0"></code></dd>
           <dt>Block</dt>
           <dd id="receipt-block"></dd>
+          <dt>Your vote's code (nullifier)</dt>
+          <dd><code id="receipt-nullifier" tabindex="0"></code></dd>
         </dl>
-        <p>Anyone can check that your vote was counted on the <a href="/audit">audit page</a>.</p>
-        <p>Your choice is not stored next to your name. In this version a vote is cast from your registered wallet, so someone who can see both the blockchain and the voter register could link the two.</p>
+        <p>Find this code on the <a href="/audit">audit page</a> to check that your vote was counted.</p>
+        <p>Your vote was sent by the election server, not from your wallet, and carries a zero-knowledge proof that a registered voter cast it without saying which one. Nobody, including the server, can link it to you.</p>
       </section>
 
       <section id="already-voted" class="panel" aria-labelledby="voted-title" hidden>
@@ -68,6 +76,7 @@
   <script src="js/wallet-status.js"></script>
   <script src="js/steps.js"></script>
   <script src="js/pending.js"></script>
+  <script src="js/semaphore.bundle.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

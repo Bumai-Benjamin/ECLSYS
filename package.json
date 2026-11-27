@@ -10,6 +10,7 @@
     "dev": "lite-server -c bs-config.js",
     "start": "lite-server -c bs-config.js",
     "migrate": "truffle migrate --reset",
+    "build:zk": "esbuild scripts/zk/voter-key.js --bundle --format=iife --platform=browser --minify --target=es2020 --outfile=src/js/semaphore.bundle.js",
     "test": "npm run test:api && npm run test:contracts",
     "test:contracts": "truffle test",
     "coverage": "truffle run coverage",
@@ -25,6 +26,7 @@
   "license": "ISC",
   "devDependencies": {
     "chai": "^4.5.0",
+    "esbuild": "^0.28.2",
     "ganache-cli": "6.12.2",
     "lite-server": "^2.6.0",
     "mocha": "^10.8.2",
@@ -33,6 +35,8 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "5.0.2",
+    "@semaphore-protocol/contracts": "^4.14.5",
+    "@semaphore-protocol/core": "^4.14.5",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "dotenv": "^16.6.1",

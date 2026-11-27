@@ -37,9 +37,12 @@ function csrfFrom(html) {
 }
 
 // GET the form page, then POST to it with that page's CSRF token.
+// /registerdata: the page's script always adds a voting key (ANON-1), so the
+// tests do too unless they pass their own identity_commitment.
 async function submitForm(a, formPath, postPath, fields) {
   var page = await a.get(formPath);
-  var body = Object.assign({ _csrf: csrfFrom(page.text) }, fields);
+  var extra = postPath === '/registerdata' ? { identity_commitment: newCommitment() } : {};
+  var body = Object.assign({ _csrf: csrfFrom(page.text) }, extra, fields);
   return a.post(postPath).type('form').send(body);
 }
 
@@ -86,7 +89,24 @@ async function adminLogin(a, user) {
   return submitForm(a, '/adlogin', '/adlogin', { email_address: user.email_address, password: user.password });
 }
 
+// An agent signed in as a new voter, or as an admin with { admin: true }
+async function signedIn(agentOptions, opts) {
+  var a = agent(agentOptions);
+  if (opts && opts.admin) {
+    await adminLogin(a, await createUser({ role: 'admin' }));
+  } else {
+    await login(a, await createUser());
+  }
+  return a;
+}
+
 // A valid-looking wallet address, unique per call.
+// A unique stand-in for a Semaphore identity commitment (a field element)
+function newCommitment() {
+  counter += 1;
+  return String(Date.now()) + String(counter).padStart(6, '0');
+}
+
 function newWallet() {
   counter += 1;
   return '0x' + (Date.now().toString(16) + String(counter)).padStart(40, 'a').slice(-40);
@@ -122,6 +142,6 @@ function submitOtp(reg, otp) {
 
 module.exports = {
   query: query, adminQuery: adminQuery, agent: agent, csrfFrom: csrfFrom, submitForm: submitForm, newVoter: newVoter,
-  createUser: createUser, login: login, adminLogin: adminLogin,
-  newWallet: newWallet, lastOtp: lastOtp, startRegistration: startRegistration, submitOtp: submitOtp
+  createUser: createUser, login: login, adminLogin: adminLogin, signedIn: signedIn,
+  newWallet: newWallet, newCommitment: newCommitment, lastOtp: lastOtp, startRegistration: startRegistration, submitOtp: submitOtp
 };

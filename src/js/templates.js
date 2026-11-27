@@ -41,10 +41,10 @@
   // Table row: id, name, age, party, qualification (+ votes on result tables).
   function candidateRow(c, options) {
     // data-label: the column name shown beside each cell in the stacked phone layout
-    var row = '<tr><th data-label="#">' + safeId(c.id) + '</th><td data-label="Name">' + escapeHtml(c.name) +
+    var row = '<tr><th class="num" data-label="#">' + safeId(c.id) + '</th><td data-label="Name">' + escapeHtml(c.name) +
       '</td><td data-label="Age">' + escapeHtml(c.age) + '</td><td data-label="Party">' + escapeHtml(c.party) +
       '</td><td data-label="Qualification">' + escapeHtml(c.qualification) + '</td>';
-    if (options && options.withVotes) row += '<td data-label="Votes">' + escapeHtml(c.voteCount) + '</td>';
+    if (options && options.withVotes) row += '<td class="num" data-label="Votes">' + escapeHtml(c.voteCount) + '</td>';
     return row + "</tr>";
   }
 
@@ -91,7 +91,7 @@
     return '<tr' + (won ? ' class="is-winner"' : '') + '><td data-label="Candidate">' + escapeHtml(r.name) +
       (won ? ' <span class="badge badge-yes">Winner</span>' : '') + '</td>' +
       '<td data-label="Party">' + escapeHtml(r.party) + '</td>' +
-      '<td data-label="Votes">' + escapeHtml(r.votes) + '</td>' +
+      '<td class="num" data-label="Votes">' + escapeHtml(r.votes) + '</td>' +
       '<td data-label="Share"><span class="share">' + escapeHtml(r.share) + '%</span>' +
       '<span class="bar-track" aria-hidden="true"><span class="bar ' + escapeHtml(r.barClass) + '"></span></span></td></tr>';
   }
@@ -105,6 +105,12 @@
       '<span class="candidate-name">' + escapeHtml(c.name) + '</span>' +
       '<span class="candidate-meta">' + escapeHtml(c.party) + ' · Age ' + escapeHtml(c.age) + '</span>' +
       '<span class="candidate-meta">' + escapeHtml(c.qualification) + '</span></label>';
+  }
+
+  // Who is on the ballot, before any totals exist (names and parties only)
+  function ballotItem(c) {
+    return '<li><span class="candidate-name">' + escapeHtml(c.name) + '</span>' +
+      '<span class="candidate-meta">' + escapeHtml(c.party) + '</span></li>';
   }
 
   // UI-4: the one next phase an admin can move to (the contract never goes back)
@@ -139,6 +145,7 @@
     resultRow: resultRow,
     resultSummary: resultSummary,
     candidateChoice: candidateChoice,
+    ballotItem: ballotItem,
     PhaseFlow: PhaseFlow
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

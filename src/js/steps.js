@@ -61,7 +61,31 @@
     };
   }
 
-  var api = { compute: compute, unavailable: unavailable, REASONS: REASONS };
+  // One sentence for the top of the dashboard: what to do now, or why there is
+  // nothing to do yet. { before, link, href, after }; link and href only when
+  // there is a step to take.
+  var NEXT = {
+    account: ['Next: ', 'create your account', '.'],
+    wallet: ['Next: ', 'verify your wallet', ' so you can vote.'],
+    vote: ['Next: ', 'cast your vote', '.'],
+    results: ['Voting has closed. ', 'See the results', '.']
+  };
+  function nextStep(steps) {
+    var current = steps.filter(function (s) { return s.status === 'current'; })[0];
+    if (current && NEXT[current.id]) {
+      var n = NEXT[current.id];
+      return { before: n[0], link: n[1], href: current.href, after: n[2] };
+    }
+    var byId = {};
+    steps.forEach(function (s) { byId[s.id] = s; });
+    if (byId.vote && byId.vote.status === 'done') return { before: 'You have voted. ' + REASONS.resultsLater };
+    if (steps.some(function (s) { return s.status === 'checking'; })) return { before: 'Checking the blockchain…' };
+    var blocked = steps.filter(function (s) { return s.status === 'locked' && s.reason; })[0];
+    if (blocked) return { before: 'Nothing to do yet. ' + blocked.reason };
+    return { before: 'Your four steps to vote are below.' };
+  }
+
+  var api = { compute: compute, unavailable: unavailable, nextStep: nextStep, REASONS: REASONS };
   root.Steps = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : this);
